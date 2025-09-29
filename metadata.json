@@ -1,0 +1,5 @@
+{
+  "name": "Tale Weaver",
+  "description": "A dynamic text adventure RPG where Gemini acts as the storyteller, managing your character, inventory, and combat encounters in a fantasy world.",
+  "requestFramePermissions": []
+}
