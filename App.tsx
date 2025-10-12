@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
-import {
-  getNextStoryPart,
-  generateStoryImage,
-  generateCharacterAvatar,
-} from "./services/AIService";
+import { getNextStoryPart, generateStoryImage } from "./services/geminiService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
 import PlayerStatsPanel from "./components/PlayerStatsPanel";
@@ -236,19 +232,9 @@ const App: React.FC = () => {
       combatSkills: details.combatSkills,
       inventory: [],
       equipment: { weapon: null, armor: null },
-      avatarIsLoading: true,
     };
     await gameService.addPlayer(gameId, newPlayer);
     setScreen("lobby");
-
-    generateCharacterAvatar(details.race, details.background).then(
-      (avatarUrl) => {
-        gameService.updatePlayer(gameId, clientId, {
-          avatarUrl,
-          avatarIsLoading: false,
-        });
-      }
-    );
   };
 
   const handleStartGame = async () => {
@@ -276,6 +262,7 @@ const App: React.FC = () => {
       id: newPlayerChoiceId,
     };
 
+    // Optimistically update UI for the current player
     setGameState((prev) =>
       prev
         ? {

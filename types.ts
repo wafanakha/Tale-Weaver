@@ -1,10 +1,10 @@
 import { Type } from "@google/genai";
 
 export enum ItemType {
-  WEAPON = 'weapon',
-  ARMOR = 'armor',
-  POTION = 'potion',
-  MISC = 'misc',
+  WEAPON = "weapon",
+  ARMOR = "armor",
+  POTION = "potion",
+  MISC = "misc",
 }
 
 export interface Item {
@@ -53,8 +53,6 @@ export interface Player {
     weapon: Item | null;
     armor: Item | null;
   };
-  avatarUrl?: string;
-  avatarIsLoading?: boolean;
 }
 
 export interface Enemy {
@@ -75,7 +73,7 @@ export interface DiceRoll {
 
 export interface StoryLogEntry {
   id: number;
-  speaker: string; 
+  speaker: string;
   text: string;
   imageUrl?: string;
   imageIsLoading?: boolean;
@@ -87,7 +85,7 @@ export interface PlayerAction {
   choice: string;
 }
 
-export type GameStatus = 'lobby' | 'playing' | 'finished';
+export type GameStatus = "lobby" | "playing" | "finished";
 
 export interface GameState {
   gameId: string;

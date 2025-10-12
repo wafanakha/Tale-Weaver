@@ -212,6 +212,7 @@ export const getNextStoryPart = async (
   playerChoice: string,
   lang: Language
 ): Promise<GeminiResponse> => {
+  // Determine if this is the very first turn of the game.
   const isFirstTurn =
     !currentState.storyLog || currentState.storyLog.length === 0;
 
@@ -220,21 +221,25 @@ export const getNextStoryPart = async (
       ? currentState.players[currentState.currentPlayerIndex].name
       : "System";
 
+  // Create a summarized state to send to the model to keep the prompt size manageable.
   const stateForPrompt = {
     ...currentState,
+    // The story log is empty on the first turn, so this is fine.
     storyLog: (currentState.storyLog || []).slice(-10),
   };
 
   let actionText: string;
   let instructionText: string;
 
+  // Use a specific prompt for the first turn to generate the opening scene and starting items.
   if (isFirstTurn) {
-    actionText = "";
+    actionText = ""; // There is no preceding player action.
     instructionText =
       lang === "id"
         ? `Ini adalah awal petualangan. Hasilkan adegan pembuka yang menarik untuk kelompok yang disediakan dalam status permainan, dan berikan setiap pemain item awal (senjata dan ramuan kesehatan) yang sesuai dengan latar belakang mereka menggunakan bidang 'player_updates'. Tetapkan pemain berikutnya ke indeks 0.`
         : `This is the start of the adventure. Generate a compelling opening scene for the party provided in the game state, and provide each player with starting items (a weapon and a health potion) that fit their background using the 'player_updates' field. Set the next player to index 0.`;
   } else {
+    // For subsequent turns, use the standard prompt format.
     actionText =
       lang === "id"
         ? `Tindakan Pemain dari ${actingPlayerName}: "${playerChoice}"`
@@ -270,8 +275,9 @@ export const getNextStoryPart = async (
     rawResponseText = response.text;
     let jsonText = rawResponseText.trim();
 
+    // The model can sometimes wrap the JSON in markdown fences. This removes them.
     if (jsonText.startsWith("```json")) {
-      jsonText = jsonText.substring(7);
+      jsonText = jsonText.substring(7); // Remove ```json and potential newline
       if (jsonText.endsWith("```")) {
         jsonText = jsonText.slice(0, -3);
       }
@@ -339,33 +345,5 @@ export const generateCharacterBackstory = async (
   } catch (e) {
     console.error("Error generating character backstory:", e);
     throw new Error("Failed to generate backstory from the storyteller.");
-  }
-};
-
-export const generateCharacterAvatar = async (
-  race: string,
-  background: string
-): Promise<string> => {
-  const prompt = `Fantasy character portrait of a ${race} ${background}. Shoulder-level portrait. Simple background.`;
-  try {
-    const response = await ai.models.generateImages({
-      model: "imagen-4.0-generate-001",
-      prompt: prompt,
-      config: {
-        numberOfImages: 1,
-        outputMimeType: "image/jpeg",
-        aspectRatio: "1:1",
-      },
-    });
-
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-      return `data:image/jpeg;base64,${base64ImageBytes}`;
-    } else {
-      throw new Error("No avatar image was generated.");
-    }
-  } catch (e) {
-    console.error("Error generating character avatar from Imagen:", e);
-    return "";
   }
 };

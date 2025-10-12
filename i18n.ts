@@ -37,7 +37,7 @@ const translations = {
       "Assign each score from the standard array ({scores}) to a stat.",
     backstory: "Backstory (Optional)",
     backstoryPlaceholder: "Write a short backstory, or let us generate one.",
-    generateWithAi: "✨ Generate with AI",
+    generateWithAi: "Generate with AI",
     generating: "Generating...",
     cancel: "Cancel",
     createCharacter: "Create Character",

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { generateCharacterBackstory } from "../services/AIService";
+import { generateCharacterBackstory } from "../services/geminiService";
 import { Stats, Skills } from "../types";
 import { useLanguage } from "../i18n";
 
