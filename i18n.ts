@@ -9,7 +9,7 @@ import React, {
 const translations = {
   en: {
     // Welcome
-    welcomeTitle: "Tale Weaver",
+    welcomeTitle: "Gemini Adventure",
     welcomeDescription:
       "Gather your party, brave adventurers! A world of fantasy, danger, and untold stories awaits. Your journey is shaped by your choices, and the narrative is woven by a master storyteller. Are you ready to begin?",
     assembleParty: "Assemble Your Party",
@@ -37,7 +37,7 @@ const translations = {
       "Assign each score from the standard array ({scores}) to a stat.",
     backstory: "Backstory (Optional)",
     backstoryPlaceholder: "Write a short backstory, or let us generate one.",
-    generateWithAi: "Generate with AI",
+    generateWithAi: "✨ Generate with AI",
     generating: "Generating...",
     cancel: "Cancel",
     createCharacter: "Create Character",
@@ -73,10 +73,20 @@ const translations = {
     gameAlreadyStarted: "This game has already started.",
     gameNotFound: "Game not found.",
     failedToJoinGame: "Failed to join game. Please check the ID and try again.",
+    // Lore Codex
+    loreCodex: "Lore Codex",
+    close: "Close",
+    races: "Races",
+    backgrounds: "Backgrounds",
+    locations: "Locations",
+    characters: "Characters",
+    noEntriesFound: "No entries found for this category.",
+    backToList: "Back to list",
+    selectEntry: "Select an entry to read.",
   },
   id: {
     // Welcome
-    welcomeTitle: "Tale Weaver",
+    welcomeTitle: "Petualangan Gemini",
     welcomeDescription:
       "Kumpulkan kelompokmu, para petualang pemberani! Dunia fantasi, bahaya, dan kisah tak terhingga menanti. Perjalananmu dibentuk oleh pilihanmu, dan narasinya ditenun oleh seorang ahli cerita. Apakah kamu siap untuk memulai?",
     assembleParty: "Kumpulkan Kelompokmu",
@@ -142,6 +152,16 @@ const translations = {
     gameNotFound: "Game tidak ditemukan.",
     failedToJoinGame:
       "Gagal bergabung dengan game. Silakan periksa ID dan coba lagi.",
+    // Lore Codex
+    loreCodex: "Kodeks Lore",
+    close: "Tutup",
+    races: "Ras",
+    backgrounds: "Latar Belakang",
+    locations: "Lokasi",
+    characters: "Karakter",
+    noEntriesFound: "Tidak ada entri yang ditemukan untuk kategori ini.",
+    backToList: "Kembali ke daftar",
+    selectEntry: "Pilih entri untuk dibaca.",
   },
 };
 

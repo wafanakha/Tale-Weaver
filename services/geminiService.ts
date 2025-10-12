@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { GameState, GeminiResponse } from "../types";
+import { GameState, GeminiResponse, LoreCategory } from "../types";
 import { Language } from "../i18n";
 
 if (!process.env.API_KEY) {
@@ -38,6 +38,12 @@ const getResponseSchema = (lang: Language) => {
             "Daftar NAMA item yang akan dihapus dari inventaris (misalnya, setelah menggunakan ramuan).",
           enemy_update:
             "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
+          lore_codex_add:
+            "Daftar entri lore baru untuk ditambahkan ke kodeks game. HANYA tambahkan entri untuk konsep, karakter, atau lokasi yang signifikan dan baru diperkenalkan.",
+          lore_title: "Judul entri lore (misalnya, 'Kota Silverhaven').",
+          lore_category:
+            "Kategori entri (Ras, Latar Belakang, Lokasi, Karakter).",
+          lore_content: "Deskripsi singkat dan informatif untuk entri lore.",
           next_player:
             "Indeks pemain berikutnya yang akan bertindak. Dalam pertempuran, ini harus berputar melalui pemain. Di luar pertempuran, bisa jadi pemain mana pun yang relevan dengan cerita.",
         }
@@ -67,6 +73,14 @@ const getResponseSchema = (lang: Language) => {
             "A list of item NAMES to remove from inventory (e.g., after using a potion).",
           enemy_update:
             "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
+          lore_codex_add:
+            "A list of new lore entries to add to the game's codex. ONLY add entries for significant, newly introduced concepts, characters, or locations.",
+          lore_title:
+            "The title of the lore entry (e.g., 'The City of Silverhaven').",
+          lore_category:
+            "The category of the entry (Races, Backgrounds, Locations, Characters).",
+          lore_content:
+            "A concise, informative description for the lore entry.",
           next_player:
             "The index of the next player to act. In combat, this should cycle through players. Outside combat, it could be any player relevant to the story.",
         };
@@ -145,6 +159,22 @@ const getResponseSchema = (lang: Language) => {
           is_defeated: { type: Type.BOOLEAN },
         },
       },
+      lore_codex_add: {
+        type: Type.ARRAY,
+        description: d.lore_codex_add,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING, description: d.lore_title },
+            category: {
+              type: Type.STRING,
+              enum: Object.values(LoreCategory),
+              description: d.lore_category,
+            },
+            content: { type: Type.STRING, description: d.lore_content },
+          },
+        },
+      },
       next_player_index: { type: Type.INTEGER, description: d.next_player },
     },
     required: ["story", "choices"],
@@ -170,6 +200,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Tawarkan keterampilan tempur pemain saat ini sebagai pilihan.
     *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
 6.  **Status Game:** Kelola semua status pemain, inventaris, dan pertemuan pertempuran berdasarkan status JSON yang disediakan.
+7.  **Kodeks Lore:** Ketika karakter, lokasi, ras, atau latar belakang baru menjadi signifikan dalam cerita, tambahkan entri terperinci untuk itu di bidang 'lore_codex_add'. Jaga agar entri tetap ringkas namun informatif. Jangan menambahkan entri untuk pengetahuan umum atau detail yang tidak penting.
 
 **FORMAT RESPON:**
 - Anda HARUS SELALU merespons dalam format JSON yang disediakan dengan skema yang ditentukan. Isi dari bidang 'story' dan 'choices' HARUS dalam Bahasa Indonesia.
@@ -197,6 +228,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Offer the current player's combat skills as choices.
     *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
 6.  **Game State:** Manage all players' states, inventories, and combat encounters based on the provided JSON state.
+7.  **Lore Codex:** When a new character, location, race, or background becomes significant to the story, add a detailed entry for it in the 'lore_codex_add' field. Keep entries concise but informative. Do not add entries for common knowledge or insignificant details.
 
 **RESPONSE FORMAT:**
 - You MUST ALWAYS respond in the provided JSON format with the specified schema.

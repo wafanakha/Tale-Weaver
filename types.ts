@@ -87,6 +87,20 @@ export interface PlayerAction {
 
 export type GameStatus = "lobby" | "playing" | "finished";
 
+export enum LoreCategory {
+  RACES = "Races",
+  BACKGROUNDS = "Backgrounds",
+  LOCATIONS = "Locations",
+  CHARACTERS = "Characters",
+}
+
+export interface LoreEntry {
+  id: string; // combination of category and title
+  title: string;
+  category: LoreCategory;
+  content: string;
+}
+
 export interface GameState {
   gameId: string;
   hostId: string; // The ID of the player who created the game
@@ -99,6 +113,7 @@ export interface GameState {
   isLoading: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
+  loreCodex: LoreEntry[];
 }
 
 export interface GeminiResponse {
@@ -117,5 +132,10 @@ export interface GeminiResponse {
     maxHp: number;
     is_defeated: boolean;
   };
+  lore_codex_add?: {
+    title: string;
+    category: LoreCategory;
+    content: string;
+  }[];
   next_player_index?: number;
 }
