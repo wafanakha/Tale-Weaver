@@ -1,22 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
-import {
-  getNextStoryPart,
-  generateStoryImage,
-  generateCharacterAvatar,
-} from "./services/AIService";
+import { getNextStoryPart, generateStoryImage } from "./services/geminiService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
 import PlayerStatsPanel from "./components/PlayerStatsPanel";
 import InventoryPanel from "./components/InventoryPanel";
 import StoryDisplay from "./components/StoryDisplay";
-import ChoicePanel from "./components/ChoicePanel";
+import ActionInput from "./components/ActionInput";
 import CombatStatus from "./components/CombatStatus";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CharacterCreation, {
   CharacterDetails,
 } from "./components/CharacterCreation";
 import Lobby from "./components/Lobby";
+import LoreCodex from "./components/LoreCodex";
 
 const App: React.FC = () => {
   const [clientId] = useState(gameService.getClientId());
@@ -28,6 +25,7 @@ const App: React.FC = () => {
   >("welcome");
   const [error, setError] = useState<string | null>(null);
   const storyIdCounter = useRef(0);
+  const [isCodexOpen, setIsCodexOpen] = useState(false);
 
   // Subscribe to game state changes
   useEffect(() => {
@@ -125,6 +123,35 @@ const App: React.FC = () => {
           newState.storyLog = [];
         }
 
+        // Add new lore entries
+        if (response.lore_codex_add) {
+          if (!newState.loreCodex) {
+            newState.loreCodex = [];
+          }
+          response.lore_codex_add.forEach((newEntry) => {
+            // Avoid duplicates
+            const entryExists = newState.loreCodex.some(
+              (e) => e.title.toLowerCase() === newEntry.title.toLowerCase()
+            );
+            if (
+              !entryExists &&
+              newEntry.title &&
+              newEntry.category &&
+              newEntry.content
+            ) {
+              newState.loreCodex.push({
+                id: `${newEntry.category}-${newEntry.title.replace(
+                  /\s+/g,
+                  "-"
+                )}`, // create a unique id
+                title: newEntry.title,
+                category: newEntry.category,
+                content: newEntry.content,
+              });
+            }
+          });
+        }
+
         // Add story log entry
         const newStoryId = storyIdCounter.current++;
         const newStoryEntry: StoryLogEntry = {
@@ -141,8 +168,7 @@ const App: React.FC = () => {
 
         newState.storyLog.push(newStoryEntry);
 
-        // Update choices and next player, ensuring choices is always an array.
-        newState.choices = response.choices || [];
+        // Update next player
         newState.currentPlayerIndex =
           response.next_player_index ??
           (newState.currentPlayerIndex + 1) % newState.players.length;
@@ -236,19 +262,9 @@ const App: React.FC = () => {
       combatSkills: details.combatSkills,
       inventory: [],
       equipment: { weapon: null, armor: null },
-      avatarIsLoading: true,
     };
     await gameService.addPlayer(gameId, newPlayer);
     setScreen("lobby");
-
-    generateCharacterAvatar(details.race, details.background).then(
-      (avatarUrl) => {
-        gameService.updatePlayer(gameId, clientId, {
-          avatarUrl,
-          avatarIsLoading: false,
-        });
-      }
-    );
   };
 
   const handleStartGame = async () => {
@@ -263,7 +279,7 @@ const App: React.FC = () => {
     await gameService.updateGameState(gameId, { status: "playing" });
   };
 
-  const handleChoice = async (choice: string) => {
+  const handleActionSubmit = async (action: string) => {
     if (!gameId || !gameState || gameState.isLoading) return;
 
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -272,16 +288,16 @@ const App: React.FC = () => {
     const newPlayerChoiceId = storyIdCounter.current++;
     const newLog = {
       speaker: currentPlayer.name,
-      text: choice,
+      text: action,
       id: newPlayerChoiceId,
     };
 
+    // Optimistically update UI for the current player
     setGameState((prev) =>
       prev
         ? {
             ...prev,
             isLoading: true,
-            choices: [],
             storyLog: [...(prev.storyLog || []), newLog],
           }
         : null
@@ -290,10 +306,9 @@ const App: React.FC = () => {
     // Update state for everyone and post action for the host to process
     await gameService.updateGameState(gameId, {
       isLoading: true,
-      choices: [],
       storyLog: [...(gameState.storyLog || []), newLog],
     });
-    await gameService.postAction(gameId, clientId, choice);
+    await gameService.postAction(gameId, clientId, action);
   };
 
   const handleEquipItem = (itemToEquip: Item) => {
@@ -432,53 +447,86 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
-        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
-          <PlayerStatsPanel
-            players={gameState.players}
-            currentPlayerIndex={gameState.currentPlayerIndex}
-            clientId={clientId}
-          />
-          {myPlayer && (
-            <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
-          )}
-        </aside>
-
-        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-gray-800/50 rounded-lg shadow-lg p-4 lg:p-6 border border-gray-700">
-          <h1 className="text-3xl font-bold text-center mb-4 text-yellow-400 cinzel">
-            {t("yourStory")}
-          </h1>
-          <StoryDisplay storyLog={gameState.storyLog} />
-          <div className="mt-auto pt-4">
-            {gameState.isLoading && <LoadingSpinner />}
-            {gameState.error && (
-              <p className="text-red-400 text-center mb-2">{gameState.error}</p>
+      <>
+        <LoreCodex
+          isOpen={isCodexOpen}
+          onClose={() => setIsCodexOpen(false)}
+          loreEntries={gameState.loreCodex || []}
+        />
+        <div className="min-h-screen bg-gray-900 text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+          <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+            <PlayerStatsPanel
+              players={gameState.players}
+              currentPlayerIndex={gameState.currentPlayerIndex}
+              clientId={clientId}
+            />
+            {myPlayer && (
+              <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
             )}
-            {!gameState.isLoading && (
-              <>
-                {currentPlayer && (
-                  <p className="text-center text-yellow-400 mb-2 font-semibold">
-                    {t("whatWillPlayerDo", { playerName: currentPlayer.name })}
-                  </p>
-                )}
-                <ChoicePanel
-                  choices={gameState.choices}
-                  onChoice={handleChoice}
-                  disabled={
-                    currentPlayer?.id !== clientId || gameState.isLoading
-                  }
-                />
-              </>
-            )}
-          </div>
-        </main>
+          </aside>
 
-        <aside className="w-full lg:w-1/4 xl:w-1/5">
-          {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
-            <CombatStatus enemy={gameState.currentEnemy} />
-          )}
-        </aside>
-      </div>
+          <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-gray-800/50 rounded-lg shadow-lg p-4 lg:p-6 border border-gray-700">
+            <div className="flex items-center justify-center mb-4 relative">
+              <h1 className="text-3xl font-bold text-yellow-400 cinzel text-center">
+                {t("yourStory")}
+              </h1>
+              <button
+                onClick={() => setIsCodexOpen(true)}
+                title={t("loreCodex")}
+                aria-label={t("loreCodex")}
+                className="absolute right-0 p-2 rounded-full bg-gray-700 hover:bg-yellow-600 text-gray-200 hover:text-gray-900 transition-colors duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </button>
+            </div>
+            <StoryDisplay storyLog={gameState.storyLog} />
+            <div className="mt-auto pt-4">
+              {gameState.isLoading && <LoadingSpinner />}
+              {gameState.error && (
+                <p className="text-red-400 text-center mb-2">
+                  {gameState.error}
+                </p>
+              )}
+              {!gameState.isLoading && (
+                <>
+                  {currentPlayer && (
+                    <p className="text-center text-yellow-400 mb-2 font-semibold">
+                      {t("whatWillPlayerDo", {
+                        playerName: currentPlayer.name,
+                      })}
+                    </p>
+                  )}
+                  <ActionInput
+                    onActionSubmit={handleActionSubmit}
+                    disabled={
+                      currentPlayer?.id !== clientId || gameState.isLoading
+                    }
+                  />
+                </>
+              )}
+            </div>
+          </main>
+
+          <aside className="w-full lg:w-1/4 xl:w-1/5">
+            {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
+              <CombatStatus enemy={gameState.currentEnemy} />
+            )}
+          </aside>
+        </div>
+      </>
     );
   }
 

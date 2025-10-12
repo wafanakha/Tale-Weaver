@@ -1,10 +1,10 @@
 import { Type } from "@google/genai";
 
 export enum ItemType {
-  WEAPON = 'weapon',
-  ARMOR = 'armor',
-  POTION = 'potion',
-  MISC = 'misc',
+  WEAPON = "weapon",
+  ARMOR = "armor",
+  POTION = "potion",
+  MISC = "misc",
 }
 
 export interface Item {
@@ -53,8 +53,6 @@ export interface Player {
     weapon: Item | null;
     armor: Item | null;
   };
-  avatarUrl?: string;
-  avatarIsLoading?: boolean;
 }
 
 export interface Enemy {
@@ -75,7 +73,7 @@ export interface DiceRoll {
 
 export interface StoryLogEntry {
   id: number;
-  speaker: string; 
+  speaker: string;
   text: string;
   imageUrl?: string;
   imageIsLoading?: boolean;
@@ -87,7 +85,21 @@ export interface PlayerAction {
   choice: string;
 }
 
-export type GameStatus = 'lobby' | 'playing' | 'finished';
+export type GameStatus = "lobby" | "playing" | "finished";
+
+export enum LoreCategory {
+  RACES = "Races",
+  BACKGROUNDS = "Backgrounds",
+  LOCATIONS = "Locations",
+  CHARACTERS = "Characters",
+}
+
+export interface LoreEntry {
+  id: string; // combination of category and title
+  title: string;
+  category: LoreCategory;
+  content: string;
+}
 
 export interface GameState {
   gameId: string;
@@ -96,16 +108,15 @@ export interface GameState {
   players: Player[];
   currentPlayerIndex: number;
   storyLog: StoryLogEntry[];
-  choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
+  loreCodex: LoreEntry[];
 }
 
 export interface GeminiResponse {
   story: string;
-  choices: string[];
   dice_roll?: DiceRoll;
   player_updates?: {
     playerName: string;
@@ -119,5 +130,10 @@ export interface GeminiResponse {
     maxHp: number;
     is_defeated: boolean;
   };
+  lore_codex_add?: {
+    title: string;
+    category: LoreCategory;
+    content: string;
+  }[];
   next_player_index?: number;
 }

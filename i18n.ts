@@ -45,6 +45,8 @@ const translations = {
     // Game Screen
     yourStory: "Your Story",
     whatWillPlayerDo: "What will {playerName} do?",
+    enterYourAction: "Enter your action...",
+    send: "Send",
     theParty: "The Party",
     you: "(You)",
     yourInventory: "Your Inventory",
@@ -73,6 +75,16 @@ const translations = {
     gameAlreadyStarted: "This game has already started.",
     gameNotFound: "Game not found.",
     failedToJoinGame: "Failed to join game. Please check the ID and try again.",
+    // Lore Codex
+    loreCodex: "Lore Codex",
+    close: "Close",
+    races: "Races",
+    backgrounds: "Backgrounds",
+    locations: "Locations",
+    characters: "Characters",
+    noEntriesFound: "No entries found for this category.",
+    backToList: "Back to list",
+    selectEntry: "Select an entry to read.",
   },
   id: {
     // Welcome
@@ -114,6 +126,8 @@ const translations = {
     // Game Screen
     yourStory: "Kisahmu",
     whatWillPlayerDo: "Apa yang akan {playerName} lakukan?",
+    enterYourAction: "Masukkan aksimu...",
+    send: "Kirim",
     theParty: "Kelompok",
     you: "(Anda)",
     yourInventory: "Inventaris Anda",
@@ -142,6 +156,16 @@ const translations = {
     gameNotFound: "Game tidak ditemukan.",
     failedToJoinGame:
       "Gagal bergabung dengan game. Silakan periksa ID dan coba lagi.",
+    // Lore Codex
+    loreCodex: "Kodeks Lore",
+    close: "Tutup",
+    races: "Ras",
+    backgrounds: "Latar Belakang",
+    locations: "Lokasi",
+    characters: "Karakter",
+    noEntriesFound: "Tidak ada entri yang ditemukan untuk kategori ini.",
+    backToList: "Kembali ke daftar",
+    selectEntry: "Pilih entri untuk dibaca.",
   },
 };
 
