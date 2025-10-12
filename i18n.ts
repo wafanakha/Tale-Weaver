@@ -9,7 +9,7 @@ import React, {
 const translations = {
   en: {
     // Welcome
-    welcomeTitle: "Gemini Adventure",
+    welcomeTitle: "Tale Weaver",
     welcomeDescription:
       "Gather your party, brave adventurers! A world of fantasy, danger, and untold stories awaits. Your journey is shaped by your choices, and the narrative is woven by a master storyteller. Are you ready to begin?",
     assembleParty: "Assemble Your Party",
@@ -45,6 +45,8 @@ const translations = {
     // Game Screen
     yourStory: "Your Story",
     whatWillPlayerDo: "What will {playerName} do?",
+    enterYourAction: "Enter your action...",
+    send: "Send",
     theParty: "The Party",
     you: "(You)",
     yourInventory: "Your Inventory",
@@ -86,7 +88,7 @@ const translations = {
   },
   id: {
     // Welcome
-    welcomeTitle: "Petualangan Gemini",
+    welcomeTitle: "Tale Weaver",
     welcomeDescription:
       "Kumpulkan kelompokmu, para petualang pemberani! Dunia fantasi, bahaya, dan kisah tak terhingga menanti. Perjalananmu dibentuk oleh pilihanmu, dan narasinya ditenun oleh seorang ahli cerita. Apakah kamu siap untuk memulai?",
     assembleParty: "Kumpulkan Kelompokmu",
@@ -124,6 +126,8 @@ const translations = {
     // Game Screen
     yourStory: "Kisahmu",
     whatWillPlayerDo: "Apa yang akan {playerName} lakukan?",
+    enterYourAction: "Masukkan aksimu...",
+    send: "Kirim",
     theParty: "Kelompok",
     you: "(Anda)",
     yourInventory: "Inventaris Anda",

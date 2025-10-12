@@ -38,7 +38,6 @@ const createGame = async (hostId: string): Promise<string> => {
     players: [],
     currentPlayerIndex: 0,
     storyLog: [],
-    choices: [],
     currentEnemy: null,
     isLoading: false,
     error: null,

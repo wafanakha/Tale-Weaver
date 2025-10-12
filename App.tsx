@@ -6,7 +6,7 @@ import { useLanguage } from "./i18n";
 import PlayerStatsPanel from "./components/PlayerStatsPanel";
 import InventoryPanel from "./components/InventoryPanel";
 import StoryDisplay from "./components/StoryDisplay";
-import ChoicePanel from "./components/ChoicePanel";
+import ActionInput from "./components/ActionInput";
 import CombatStatus from "./components/CombatStatus";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CharacterCreation, {
@@ -168,8 +168,7 @@ const App: React.FC = () => {
 
         newState.storyLog.push(newStoryEntry);
 
-        // Update choices and next player, ensuring choices is always an array.
-        newState.choices = response.choices || [];
+        // Update next player
         newState.currentPlayerIndex =
           response.next_player_index ??
           (newState.currentPlayerIndex + 1) % newState.players.length;
@@ -280,7 +279,7 @@ const App: React.FC = () => {
     await gameService.updateGameState(gameId, { status: "playing" });
   };
 
-  const handleChoice = async (choice: string) => {
+  const handleActionSubmit = async (action: string) => {
     if (!gameId || !gameState || gameState.isLoading) return;
 
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -289,7 +288,7 @@ const App: React.FC = () => {
     const newPlayerChoiceId = storyIdCounter.current++;
     const newLog = {
       speaker: currentPlayer.name,
-      text: choice,
+      text: action,
       id: newPlayerChoiceId,
     };
 
@@ -299,7 +298,6 @@ const App: React.FC = () => {
         ? {
             ...prev,
             isLoading: true,
-            choices: [],
             storyLog: [...(prev.storyLog || []), newLog],
           }
         : null
@@ -308,10 +306,9 @@ const App: React.FC = () => {
     // Update state for everyone and post action for the host to process
     await gameService.updateGameState(gameId, {
       isLoading: true,
-      choices: [],
       storyLog: [...(gameState.storyLog || []), newLog],
     });
-    await gameService.postAction(gameId, clientId, choice);
+    await gameService.postAction(gameId, clientId, action);
   };
 
   const handleEquipItem = (itemToEquip: Item) => {
@@ -512,9 +509,8 @@ const App: React.FC = () => {
                       })}
                     </p>
                   )}
-                  <ChoicePanel
-                    choices={gameState.choices}
-                    onChoice={handleChoice}
+                  <ActionInput
+                    onActionSubmit={handleActionSubmit}
                     disabled={
                       currentPlayer?.id !== clientId || gameState.isLoading
                     }

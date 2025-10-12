@@ -108,7 +108,6 @@ export interface GameState {
   players: Player[];
   currentPlayerIndex: number;
   storyLog: StoryLogEntry[];
-  choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
   error: string | null;
@@ -118,7 +117,6 @@ export interface GameState {
 
 export interface GeminiResponse {
   story: string;
-  choices: string[];
   dice_roll?: DiceRoll;
   player_updates?: {
     playerName: string;
