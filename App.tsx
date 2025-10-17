@@ -14,6 +14,7 @@ import CharacterCreation, {
 } from "./components/CharacterCreation";
 import Lobby from "./components/Lobby";
 import LoreCodexPanel from "./components/LoreCodexPanel";
+import CharacterSheet from "./components/CharacterSheet";
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -103,6 +104,7 @@ const App: React.FC = () => {
   >("welcome");
   const [error, setError] = useState<string | null>(null);
   const storyIdCounter = useRef(0);
+  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
   // Subscribe to game state changes
   useEffect(() => {
@@ -146,9 +148,9 @@ const App: React.FC = () => {
             if (playerIndex > -1) {
               const p = newState.players[playerIndex];
               // Defensively ensure inventory exists before modification to prevent crashes.
-              if (!p.inventory) {
-                p.inventory = [];
-              }
+              if (!p.inventory) p.inventory = [];
+              if (!p.spellSlots) p.spellSlots = {};
+
               if (update.hp !== undefined) p.hp = update.hp;
               if (update.inventory_add)
                 p.inventory.push(...update.inventory_add);
@@ -156,6 +158,15 @@ const App: React.FC = () => {
                 p.inventory = p.inventory.filter(
                   (item) => !update.inventory_remove?.includes(item.name)
                 );
+              }
+              if (update.spell_slot_used) {
+                const level = update.spell_slot_used.level;
+                if (
+                  p.spellSlots[level] &&
+                  p.spellSlots[level].used < p.spellSlots[level].total
+                ) {
+                  p.spellSlots[level].used++;
+                }
               }
             }
           });
@@ -292,15 +303,22 @@ const App: React.FC = () => {
       id: clientId,
       name: details.name,
       race: details.race,
+      class: details.class,
       background: details.background,
       hp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       maxHp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       level: 1,
+      speed: details.speed,
+      hitDice: details.hitDice,
       stats: details.stats,
       skills: details.skills,
+      savingThrows: details.savingThrows,
       combatSkills: details.combatSkills,
+      proficiencies: details.proficiencies,
+      languages: details.languages,
       inventory: [],
       equipment: { weapon: null, armor: null },
+      spellSlots: details.spellSlots,
     };
     await gameService.addPlayer(gameId, newPlayer);
     setScreen("lobby");
@@ -506,11 +524,18 @@ const App: React.FC = () => {
 
     return (
       <div className="min-h-screen bg-gray-900 text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+        {viewingPlayer && (
+          <CharacterSheet
+            player={viewingPlayer}
+            onClose={() => setViewingPlayer(null)}
+          />
+        )}
         <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
           <PlayerStatsPanel
             players={gameState.players}
             currentPlayerIndex={gameState.currentPlayerIndex}
             clientId={clientId}
+            onPlayerClick={setViewingPlayer}
           />
           {myPlayer && (
             <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />

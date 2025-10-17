@@ -9,7 +9,7 @@ import React, {
 const translations = {
   en: {
     // Welcome
-    welcomeTitle: "Gemini Adventure",
+    welcomeTitle: "Tale-Weaver",
     welcomeDescription:
       "Gather your party, brave adventurers! A world of fantasy, danger, and untold stories awaits. Your journey is shaped by your choices, and the narrative is woven by a master storyteller. Are you ready to begin?",
     assembleParty: "Assemble Your Party",
@@ -32,6 +32,7 @@ const translations = {
     name: "Name",
     characterNamePlaceholder: "Character's name",
     race: "Race",
+    class: "Class",
     background: "Background",
     assignStats: "Assign Stats",
     assignStatsDesc:
@@ -62,6 +63,21 @@ const translations = {
     suggestions: "Suggestions",
     loreCodex: "Lore Codex",
     noDiscoveries: "No discoveries yet.",
+    // Character Sheet
+    characterSheet: "Character Sheet",
+    savingThrows: "Saving Throws",
+    skills: "Skills",
+    proficienciesAndLanguages: "Proficiencies & Languages",
+    armorClass: "Armor Class",
+    initiative: "Initiative",
+    speed: "Speed",
+    hitPoints: "Hit Points",
+    current: "Current",
+    max: "Max",
+    hitDice: "Hit Dice",
+    attacksAndSpellcasting: "Attacks & Spellcasting",
+    combatSkills: "Combat Skills",
+    spellSlots: "Spell Slots",
     // Loading/Messages
     storytellerWeavingFate: "The storyteller is weaving your fate...",
     playerEquippedItem: "{playerName} equipped the {itemName}.",
@@ -88,7 +104,7 @@ const translations = {
   },
   id: {
     // Welcome
-    welcomeTitle: "Petualangan Gemini",
+    welcomeTitle: "Tale-Weaver",
     welcomeDescription:
       "Kumpulkan kelompokmu, para petualang pemberani! Dunia fantasi, bahaya, dan kisah tak terhingga menanti. Perjalananmu dibentuk oleh pilihanmu, dan narasinya ditenun oleh seorang ahli cerita. Apakah kamu siap untuk memulai?",
     assembleParty: "Kumpulkan Kelompokmu",
@@ -99,6 +115,7 @@ const translations = {
     or: "ATAU",
     joinExistingGame: "Gabung Game yang Ada",
     enterGameId: "MASUKKAN ID GAME",
+
     joinGame: "Gabung Game",
     partyLobby: "Lobi Kelompok",
     shareGameId:
@@ -112,6 +129,7 @@ const translations = {
     name: "Nama",
     characterNamePlaceholder: "Nama karakter",
     race: "Ras",
+    class: "Kelas",
     background: "Latar Belakang",
     assignStats: "Atur Statistik",
     assignStatsDesc:
@@ -143,6 +161,21 @@ const translations = {
     suggestions: "Saran",
     loreCodex: "Kodeks Lore",
     noDiscoveries: "Belum ada penemuan.",
+    // Character Sheet
+    characterSheet: "Lembar Karakter",
+    savingThrows: "Lemparan Penyelamatan",
+    skills: "Keterampilan",
+    proficienciesAndLanguages: "Kecakapan & Bahasa",
+    armorClass: "Kelas Zirah",
+    initiative: "Inisiatif",
+    speed: "Kecepatan",
+    hitPoints: "Poin Nyawa",
+    current: "Saat Ini",
+    max: "Maks",
+    hitDice: "Dadu Nyawa",
+    attacksAndSpellcasting: "Serangan & Perapalan Mantra",
+    combatSkills: "Keterampilan Tempur",
+    spellSlots: "Slot Mantra",
     // Loading/Messages
     storytellerWeavingFate: "Sang pencerita sedang menenun takdirmu...",
     playerEquippedItem: "{playerName} memasang {itemName}.",

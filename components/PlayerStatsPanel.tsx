@@ -6,6 +6,7 @@ interface PlayerStatsPanelProps {
   players: Player[];
   currentPlayerIndex: number;
   clientId: string;
+  onPlayerClick: (player: Player) => void;
 }
 
 const HealthBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => {
@@ -49,13 +50,15 @@ const PlayerCard: React.FC<{
   player: Player;
   isCurrentTurn: boolean;
   isYou: boolean;
-}> = ({ player, isCurrentTurn, isYou }) => {
+  onPlayerClick: (player: Player) => void;
+}> = ({ player, isCurrentTurn, isYou, onPlayerClick }) => {
   const { t } = useLanguage();
   const borderColor = isCurrentTurn ? "border-yellow-400" : "border-gray-700";
 
   return (
-    <div
-      className={`bg-gray-800/50 rounded-lg p-3 shadow-md border ${borderColor} transition-all duration-300`}
+    <button
+      onClick={() => onPlayerClick(player)}
+      className={`w-full bg-gray-800/50 rounded-lg p-3 shadow-md border ${borderColor} transition-all duration-300 text-left hover:bg-gray-700/50 hover:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400`}
     >
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
@@ -66,11 +69,11 @@ const PlayerCard: React.FC<{
             {player.name}{" "}
             {isYou && <span className="text-sm text-blue-400">{t("you")}</span>}
           </h3>
-          <p className="text-xs text-gray-400 mb-2">{`Lvl ${player.level} ${player.race}`}</p>
+          <p className="text-xs text-gray-400 mb-2">{`Lvl ${player.level} ${player.race} ${player.class}`}</p>
           <HealthBar hp={player.hp} maxHp={player.maxHp} />
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 
@@ -78,6 +81,7 @@ const PlayerStatsPanel: React.FC<PlayerStatsPanelProps> = ({
   players,
   currentPlayerIndex,
   clientId,
+  onPlayerClick,
 }) => {
   const { t } = useLanguage();
   return (
@@ -92,6 +96,7 @@ const PlayerStatsPanel: React.FC<PlayerStatsPanelProps> = ({
             player={player}
             isCurrentTurn={index === currentPlayerIndex}
             isYou={player.id === clientId}
+            onPlayerClick={onPlayerClick}
           />
         ))}
       </div>

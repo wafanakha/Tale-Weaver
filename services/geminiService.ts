@@ -36,6 +36,10 @@ const getResponseSchema = (lang: Language) => {
             "Daftar item untuk ditambahkan ke inventaris pemain (misalnya, barang rampasan).",
           inventory_remove:
             "Daftar NAMA item yang akan dihapus dari inventaris (misalnya, setelah menggunakan ramuan).",
+          spell_slot_used:
+            "Jika pemain merapal mantra yang menggunakan slot, catat di sini. Abaikan jika tidak ada slot yang digunakan.",
+          spell_slot_level:
+            "Tingkat slot mantra yang digunakan (misalnya, 1 untuk mantra tingkat pertama).",
           enemy_update:
             "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
           next_player:
@@ -67,6 +71,10 @@ const getResponseSchema = (lang: Language) => {
             "A list of items to add to the player's inventory (e.g., loot).",
           inventory_remove:
             "A list of item NAMES to remove from inventory (e.g., after using a potion).",
+          spell_slot_used:
+            "If the player casts a spell that uses a slot, note it here. Omit if no slot was used.",
+          spell_slot_level:
+            "The level of the spell slot expended (e.g., 1 for a 1st-level spell).",
           enemy_update:
             "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
           next_player:
@@ -136,6 +144,13 @@ const getResponseSchema = (lang: Language) => {
               description: d.inventory_remove,
               items: { type: Type.STRING },
             },
+            spell_slot_used: {
+              type: Type.OBJECT,
+              description: d.spell_slot_used,
+              properties: {
+                level: { type: Type.INTEGER, description: d.spell_slot_level },
+              },
+            },
           },
         },
       },
@@ -185,6 +200,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Jelaskan tindakan pemain saat ini dan musuh apa pun.
     *   Tawarkan keterampilan tempur pemain saat ini sebagai saran dalam 'choices'.
     *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
+    *   **Perapalan Mantra:** Ketika seorang pemain merapal mantra dari keterampilan tempur mereka (misalnya, 'Guiding Bolt', 'Magic Missile'), mereka menggunakan slot mantra. Anda HARUS melaporkan ini dengan menyertakan objek \`spell_slot_used\` di \`player_updates\` untuk pemain tersebut, dengan menentukan tingkat mantra yang dirapal. Mantra seperti 'Sacred Flame' atau 'Fire Bolt' adalah cantrip dan TIDAK menggunakan slot mantra.
 6.  **Saran:** Bidang 'choices' digunakan untuk memberikan *saran* kepada pemain. Berikan 3-4 ide singkat untuk membantu memandu mereka jika mereka buntu. Mereka tidak terbatas pada pilihan ini.
 7.  **Kodeks Lore:** Saat Anda memperkenalkan karakter, lokasi, faksi, atau peristiwa sejarah yang signifikan, tambahkan mereka ke bidang 'lore_entries' dalam respons JSON Anda. Berikan judul yang ringkas dan satu paragraf deskripsi. Periksa 'loreCodex' saat ini dalam status permainan untuk menghindari pembuatan entri duplikat.
 
@@ -213,6 +229,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Describe the actions of the current player and any enemies.
     *   Offer the current player's combat skills as suggestions in 'choices'.
     *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
+    *   **Spellcasting:** When a player casts a spell from their combat skills (e.g., 'Guiding Bolt', 'Magic Missile'), they expend a spell slot. You MUST report this by including the \`spell_slot_used\` object in the \`player_updates\` for that player, specifying the level of the spell cast. Spells like 'Sacred Flame' or 'Fire Bolt' are cantrips and do NOT use spell slots.
 6.  **Suggestions:** The 'choices' field is for providing *suggestions* to the player. Provide 3-4 brief ideas to help guide them if they are stuck. They are not limited to these options.
 7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a paragraph of description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
 

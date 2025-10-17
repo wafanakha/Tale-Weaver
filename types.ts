@@ -37,22 +37,45 @@ export interface Skills {
   deception: boolean;
 }
 
+export interface SavingThrows {
+  strength: boolean;
+  dexterity: boolean;
+  constitution: boolean;
+  intelligence: boolean;
+  wisdom: boolean;
+  charisma: boolean;
+}
+
+export interface SpellSlots {
+  [level: number]: {
+    total: number;
+    used: number;
+  };
+}
+
 export interface Player {
   id: string; // Unique client ID for this player
   name: string;
   race: string;
+  class: string;
   background: string;
   hp: number;
   maxHp: number;
   level: number;
+  speed: number;
+  hitDice: string;
   stats: Stats;
   skills: Skills;
+  savingThrows: SavingThrows;
   combatSkills: string[];
+  proficiencies: string[];
+  languages: string[];
   inventory: Item[];
   equipment: {
     weapon: Item | null;
     armor: Item | null;
   };
+  spellSlots: SpellSlots;
 }
 
 export interface Enemy {
@@ -114,6 +137,9 @@ export interface GeminiResponse {
     hp?: number;
     inventory_add?: Item[];
     inventory_remove?: string[];
+    spell_slot_used?: {
+      level: number;
+    };
   }[];
   enemy_update?: {
     name: string;

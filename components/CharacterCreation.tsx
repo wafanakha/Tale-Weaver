@@ -1,16 +1,23 @@
 import React, { useState, useMemo } from "react";
 import { generateCharacterBackstory } from "../services/geminiService";
-import { Stats, Skills } from "../types";
+import { Stats, Skills, SavingThrows, SpellSlots } from "../types";
 import { useLanguage } from "../i18n";
 
 export interface CharacterDetails {
   name: string;
   race: string;
+  class: string;
   background: string;
   backstory: string;
   stats: Stats;
   skills: Skills;
+  savingThrows: SavingThrows;
   combatSkills: string[];
+  proficiencies: string[];
+  languages: string[];
+  speed: number;
+  hitDice: string;
+  spellSlots: SpellSlots;
 }
 
 interface CharacterCreationProps {
@@ -19,6 +26,7 @@ interface CharacterCreationProps {
 }
 
 const RACES = ["Human", "Elf", "Dwarf", "Halfling", "Orc"];
+const CLASSES = ["Cleric", "Fighter", "Rogue", "Wizard"];
 const BACKGROUNDS = ["Noble", "Rogue", "Scholar", "Soldier", "Outcast"];
 const STAT_NAMES: (keyof Stats)[] = [
   "strength",
@@ -30,17 +38,75 @@ const STAT_NAMES: (keyof Stats)[] = [
 ];
 const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 
-const BACKGROUND_BENEFITS: {
-  [key: string]: { skills: (keyof Skills)[]; combat: string[] };
+const CLASS_DATA: {
+  [key: string]: {
+    hitDice: string;
+    savingThrows: (keyof SavingThrows)[];
+    proficiencies: string[];
+    combatSkills: string[];
+    spellSlots?: SpellSlots;
+  };
 } = {
-  Noble: { skills: ["persuasion", "history"], combat: ["Rallying Cry"] },
-  Rogue: { skills: ["stealth", "deception"], combat: ["Precise Strike"] },
-  Scholar: {
-    skills: ["arcana", "investigation"],
-    combat: ["Analyze Weakness"],
+  Cleric: {
+    hitDice: "1d8",
+    savingThrows: ["wisdom", "charisma"],
+    proficiencies: ["Light armor", "Medium armor", "Shields", "Simple weapons"],
+    combatSkills: ["Sacred Flame", "Guiding Bolt"],
+    spellSlots: { 1: { total: 2, used: 0 } },
   },
-  Soldier: { skills: ["athletics", "perception"], combat: ["Power Attack"] },
-  Outcast: { skills: ["stealth", "perception"], combat: ["Dirty Fighting"] },
+  Fighter: {
+    hitDice: "1d10",
+    savingThrows: ["strength", "constitution"],
+    proficiencies: [
+      "All armor",
+      "Shields",
+      "Simple weapons",
+      "Martial weapons",
+    ],
+    combatSkills: ["Second Wind", "Power Attack"],
+  },
+  Rogue: {
+    hitDice: "1d8",
+    savingThrows: ["dexterity", "intelligence"],
+    proficiencies: [
+      "Light armor",
+      "Simple weapons",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords",
+    ],
+    combatSkills: ["Sneak Attack", "Precise Strike"],
+  },
+  Wizard: {
+    hitDice: "1d6",
+    savingThrows: ["intelligence", "wisdom"],
+    proficiencies: [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows",
+    ],
+    combatSkills: ["Fire Bolt", "Magic Missile"],
+    spellSlots: { 1: { total: 2, used: 0 } },
+  },
+};
+
+const RACE_DATA: { [key: string]: { speed: number; languages: string[] } } = {
+  Human: { speed: 30, languages: ["Common", "One extra"] },
+  Elf: { speed: 30, languages: ["Common", "Elvish"] },
+  Dwarf: { speed: 25, languages: ["Common", "Dwarvish"] },
+  Halfling: { speed: 25, languages: ["Common", "Halfling"] },
+  Orc: { speed: 30, languages: ["Common", "Orcish"] },
+};
+
+const BACKGROUND_SKILLS: { [key: string]: (keyof Skills)[] } = {
+  Noble: ["persuasion", "history"],
+  Rogue: ["stealth", "deception"],
+  Scholar: ["arcana", "investigation"],
+  Soldier: ["athletics", "perception"],
+  Outcast: ["stealth", "perception"],
 };
 
 const CharacterCreation: React.FC<CharacterCreationProps> = ({
@@ -50,6 +116,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
   const { t, language } = useLanguage();
   const [name, setName] = useState("");
   const [race, setRace] = useState("Human");
+  const [charClass, setCharClass] = useState("Fighter");
   const [background, setBackground] = useState("Soldier");
   const [backstory, setBackstory] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -76,7 +143,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
 
     const oldScore = newStats[stat];
     if (oldScore) {
-      // Effectively 'unassign' it for a moment
       delete newStats[stat];
     }
 
@@ -89,13 +155,22 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !race || !background || Object.keys(stats).length !== 6) {
+    if (
+      !name ||
+      !race ||
+      !background ||
+      !charClass ||
+      Object.keys(stats).length !== 6
+    ) {
       alert(
-        "Please fill out your name, race, background, and assign all stats."
+        "Please fill out your name, race, class, background, and assign all stats."
       );
       return;
     }
     setIsSubmitting(true);
+
+    const classInfo = CLASS_DATA[charClass];
+    const raceInfo = RACE_DATA[race];
 
     const finalSkills: Skills = {
       athletics: false,
@@ -108,21 +183,37 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
       persuasion: false,
       deception: false,
     };
-    const benefits = BACKGROUND_BENEFITS[background];
-    if (benefits) {
-      benefits.skills.forEach((skill) => {
-        finalSkills[skill] = true;
-      });
-    }
+    BACKGROUND_SKILLS[background]?.forEach((skill) => {
+      finalSkills[skill] = true;
+    });
+
+    const finalSavingThrows: SavingThrows = {
+      strength: false,
+      dexterity: false,
+      constitution: false,
+      intelligence: false,
+      wisdom: false,
+      charisma: false,
+    };
+    classInfo.savingThrows.forEach((st) => {
+      finalSavingThrows[st] = true;
+    });
 
     onCharacterCreate({
       name,
       race,
+      class: charClass,
       background,
       backstory,
       stats: stats as Stats,
       skills: finalSkills,
-      combatSkills: benefits ? benefits.combat : [],
+      savingThrows: finalSavingThrows,
+      combatSkills: classInfo.combatSkills,
+      proficiencies: classInfo.proficiencies,
+      languages: raceInfo.languages,
+      speed: raceInfo.speed,
+      hitDice: classInfo.hitDice,
+      spellSlots: classInfo.spellSlots || {},
     });
   };
 
@@ -151,6 +242,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     !name ||
     !race ||
     !background ||
+    !charClass ||
     isSubmitting ||
     Object.keys(stats).length !== 6;
 
@@ -162,9 +254,8 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6 text-left">
-          {/* Name, Race, Background */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
+            <div>
               <label
                 htmlFor="name"
                 className="block text-lg font-semibold mb-2 cinzel text-gray-300"
@@ -181,7 +272,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                 required
               />
             </div>
-            <div className="lg:col-span-2">
+            <div>
               <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
                 {t("race")}
               </label>
@@ -198,6 +289,27 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                     }`}
                   >
                     {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
+                {t("class")}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {CLASSES.map((c) => (
+                  <button
+                    type="button"
+                    key={c}
+                    onClick={() => setCharClass(c)}
+                    className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                      charClass === c
+                        ? "bg-yellow-500 text-gray-900 font-bold"
+                        : "bg-gray-700 hover:bg-gray-600"
+                    }`}
+                  >
+                    {c}
                   </button>
                 ))}
               </div>
@@ -225,7 +337,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
             </div>
           </div>
 
-          {/* Stat Assignment */}
           <div>
             <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
               {t("assignStats")}
@@ -263,7 +374,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
             </div>
           </div>
 
-          {/* Backstory */}
           <div>
             <label
               htmlFor="backstory"
@@ -291,7 +401,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
             </div>
           </div>
 
-          {/* Submit */}
           <div className="flex justify-center items-center gap-4 pt-4">
             <button
               type="button"
