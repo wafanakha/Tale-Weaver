@@ -36,11 +36,10 @@ const HealthBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => {
 };
 
 const AvatarDisplay: React.FC<{ name: string }> = ({ name }) => {
-  const initial = name ? name.charAt(0).toUpperCase() : "?";
   return (
     <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-900 border-2 border-yellow-400 flex items-center justify-center overflow-hidden shadow-lg">
-      <span className="text-3xl text-yellow-400 font-bold cinzel">
-        {initial}
+      <span className="text-2xl text-yellow-400 font-bold cinzel">
+        {name ? name.charAt(0).toUpperCase() : "?"}
       </span>
     </div>
   );

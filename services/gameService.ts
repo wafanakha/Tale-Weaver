@@ -2,19 +2,21 @@ import {
   ref,
   set,
   get,
-  update,
   onValue,
+  off,
+  update,
+  push,
   DataSnapshot,
 } from "firebase/database";
 import { db } from "./firebase";
 import { GameState, Player, PlayerAction } from "../types";
 
-// Simple session-based client ID generator
+// Use localStorage for a persistent client ID across sessions
 const getClientId = (): string => {
-  let clientId = sessionStorage.getItem("clientId");
+  let clientId = localStorage.getItem("clientId");
   if (!clientId) {
     clientId = "client_" + Math.random().toString(36).substring(2, 9);
-    sessionStorage.setItem("clientId", clientId);
+    localStorage.setItem("clientId", clientId);
   }
   return clientId;
 };
@@ -38,11 +40,11 @@ const createGame = async (hostId: string): Promise<string> => {
     players: [],
     currentPlayerIndex: 0,
     storyLog: [],
+    choices: [],
     currentEnemy: null,
     isLoading: false,
     error: null,
     lastPlayerAction: null,
-    loreCodex: [],
   };
   const gameRef = ref(db, `games/${gameId}`);
   await set(gameRef, initialGameState);
@@ -87,12 +89,13 @@ const listenToGame = (
   callback: (state: GameState) => void
 ): (() => void) => {
   const gameRef = ref(db, `games/${gameId}`);
-  const unsubscribe = onValue(gameRef, (snapshot: DataSnapshot) => {
+  const listener = (snapshot: DataSnapshot) => {
     if (snapshot.exists()) {
       callback(snapshot.val());
     }
-  });
-  return unsubscribe;
+  };
+  onValue(gameRef, listener);
+  return () => off(gameRef, "value", listener);
 };
 
 const updateGameState = async (
@@ -112,6 +115,38 @@ const postAction = async (
   await update(ref(db, `games/${gameId}`), { lastPlayerAction: action });
 };
 
+// Functions for managing the user's list of saved games in localStorage
+const getUserGameIds = (): string[] => {
+  const gamesJson = localStorage.getItem("userGames");
+  if (!gamesJson) return [];
+  try {
+    const gameIds = JSON.parse(gamesJson);
+    return Array.isArray(gameIds) ? gameIds : [];
+  } catch (e) {
+    console.error("Could not parse user games from localStorage", e);
+    return [];
+  }
+};
+
+const addUserGame = (gameId: string): void => {
+  const gameIds = getUserGameIds();
+  if (!gameIds.includes(gameId)) {
+    const newGameIds = [...gameIds, gameId];
+    localStorage.setItem("userGames", JSON.stringify(newGameIds));
+  }
+};
+
+const getUserGames = async (): Promise<GameState[]> => {
+  const gameIds = getUserGameIds();
+  if (gameIds.length === 0) return [];
+
+  const gamePromises = gameIds.map((id) => getGameState(id));
+  const games = await Promise.all(gamePromises);
+
+  // Filter out any games that might have been deleted from the database but are still in localStorage
+  return games.filter((game): game is GameState => game !== null);
+};
+
 export const gameService = {
   getClientId,
   createGame,
@@ -121,4 +156,6 @@ export const gameService = {
   listenToGame,
   updateGameState,
   postAction,
+  addUserGame,
+  getUserGames,
 };

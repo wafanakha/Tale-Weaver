@@ -71,7 +71,7 @@ const Lobby: React.FC<LobbyProps> = ({
                   className="bg-gray-700 p-3 rounded-lg text-center"
                 >
                   <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-900 border-2 border-yellow-400 flex items-center justify-center overflow-hidden shadow-lg">
-                    <span className="text-3xl text-yellow-400 font-bold cinzel">
+                    <span className="text-2xl text-yellow-400 font-bold cinzel">
                       {player.name ? player.name.charAt(0).toUpperCase() : "?"}
                     </span>
                   </div>
@@ -144,7 +144,7 @@ const Lobby: React.FC<LobbyProps> = ({
               type="text"
               id="joinId"
               value={joinId}
-              onChange={(e) => setJoinId(e.target.value)}
+              onChange={(e) => setJoinId(e.target.value.toUpperCase())}
               className="w-full p-3 bg-gray-700 rounded-md border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none text-center font-mono tracking-widest uppercase"
               placeholder={t("enterGameId")}
               required

@@ -75,8 +75,6 @@ export interface StoryLogEntry {
   id: number;
   speaker: string;
   text: string;
-  imageUrl?: string;
-  imageIsLoading?: boolean;
   diceRoll?: DiceRoll;
 }
 
@@ -87,20 +85,6 @@ export interface PlayerAction {
 
 export type GameStatus = "lobby" | "playing" | "finished";
 
-export enum LoreCategory {
-  RACES = "Races",
-  BACKGROUNDS = "Backgrounds",
-  LOCATIONS = "Locations",
-  CHARACTERS = "Characters",
-}
-
-export interface LoreEntry {
-  id: string; // combination of category and title
-  title: string;
-  category: LoreCategory;
-  content: string;
-}
-
 export interface GameState {
   gameId: string;
   hostId: string; // The ID of the player who created the game
@@ -108,15 +92,16 @@ export interface GameState {
   players: Player[];
   currentPlayerIndex: number;
   storyLog: StoryLogEntry[];
+  choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
-  loreCodex: LoreEntry[];
 }
 
 export interface GeminiResponse {
   story: string;
+  choices: string[];
   dice_roll?: DiceRoll;
   player_updates?: {
     playerName: string;
@@ -130,10 +115,5 @@ export interface GeminiResponse {
     maxHp: number;
     is_defeated: boolean;
   };
-  lore_codex_add?: {
-    title: string;
-    category: LoreCategory;
-    content: string;
-  }[];
   next_player_index?: number;
 }
