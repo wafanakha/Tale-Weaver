@@ -40,6 +40,8 @@ const getResponseSchema = (lang: Language) => {
             "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
           next_player:
             "Indeks pemain berikutnya yang akan bertindak. Dalam pertempuran, ini harus berputar melalui pemain. Di luar pertempuran, bisa jadi pemain mana pun yang relevan dengan cerita.",
+          lore_entries:
+            "Daftar entri lore baru yang ditemukan. Buat entri untuk orang, tempat, atau item penting saat diperkenalkan. Periksa `loreCodex` yang ada untuk menghindari duplikat.",
         }
       : {
           story:
@@ -69,6 +71,8 @@ const getResponseSchema = (lang: Language) => {
             "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
           next_player:
             "The index of the next player to act. In combat, this should cycle through players. Outside combat, it could be any player relevant to the story.",
+          lore_entries:
+            "A list of new lore entries discovered. Create entries for important people, places, or items as they are introduced. Check the existing `loreCodex` to avoid duplicates.",
         };
 
   return {
@@ -146,6 +150,18 @@ const getResponseSchema = (lang: Language) => {
         },
       },
       next_player_index: { type: Type.INTEGER, description: d.next_player },
+      lore_entries: {
+        type: Type.ARRAY,
+        description: d.lore_entries,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            description: { type: Type.STRING },
+          },
+          required: ["title", "description"],
+        },
+      },
     },
     required: ["story", "choices"],
   };
@@ -170,6 +186,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Tawarkan keterampilan tempur pemain saat ini sebagai saran dalam 'choices'.
     *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
 6.  **Saran:** Bidang 'choices' digunakan untuk memberikan *saran* kepada pemain. Berikan 3-4 ide singkat untuk membantu memandu mereka jika mereka buntu. Mereka tidak terbatas pada pilihan ini.
+7.  **Kodeks Lore:** Saat Anda memperkenalkan karakter, lokasi, faksi, atau peristiwa sejarah yang signifikan, tambahkan mereka ke bidang 'lore_entries' dalam respons JSON Anda. Berikan judul yang ringkas dan satu paragraf deskripsi. Periksa 'loreCodex' saat ini dalam status permainan untuk menghindari pembuatan entri duplikat.
 
 **FORMAT RESPON:**
 - Anda HARUS SELALU merespons dalam format JSON yang disediakan dengan skema yang ditentukan. Isi dari bidang 'story' dan 'choices' HARUS dalam Bahasa Indonesia.
@@ -197,6 +214,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Offer the current player's combat skills as suggestions in 'choices'.
     *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
 6.  **Suggestions:** The 'choices' field is for providing *suggestions* to the player. Provide 3-4 brief ideas to help guide them if they are stuck. They are not limited to these options.
+7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a paragraph of description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
 
 **RESPONSE FORMAT:**
 - You MUST ALWAYS respond in the provided JSON format with the specified schema.

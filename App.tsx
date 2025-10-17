@@ -13,6 +13,7 @@ import CharacterCreation, {
   CharacterDetails,
 } from "./components/CharacterCreation";
 import Lobby from "./components/Lobby";
+import LoreCodexPanel from "./components/LoreCodexPanel";
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -186,6 +187,23 @@ const App: React.FC = () => {
         // Defensively ensure storyLog exists before modification.
         if (!newState.storyLog) {
           newState.storyLog = [];
+        }
+
+        // Apply lore updates
+        if (response.lore_entries && response.lore_entries.length > 0) {
+          if (!newState.loreCodex) {
+            newState.loreCodex = [];
+          }
+          const existingTitles = new Set(
+            newState.loreCodex.map((e) => e.title.toLowerCase())
+          );
+          const newUniqueEntries = response.lore_entries.filter(
+            (entry) =>
+              entry.title && !existingTitles.has(entry.title.toLowerCase())
+          );
+          if (newUniqueEntries.length > 0) {
+            newState.loreCodex.push(...newUniqueEntries);
+          }
         }
 
         // Add story log entry
@@ -497,6 +515,7 @@ const App: React.FC = () => {
           {myPlayer && (
             <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
           )}
+          <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
         <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-gray-800/50 rounded-lg shadow-lg p-4 lg:p-6 border border-gray-700">

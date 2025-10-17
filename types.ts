@@ -85,6 +85,11 @@ export interface PlayerAction {
 
 export type GameStatus = "lobby" | "playing" | "finished";
 
+export interface LoreEntry {
+  title: string;
+  description: string;
+}
+
 export interface GameState {
   gameId: string;
   hostId: string; // The ID of the player who created the game
@@ -97,6 +102,7 @@ export interface GameState {
   isLoading: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
+  loreCodex?: LoreEntry[];
 }
 
 export interface GeminiResponse {
@@ -116,4 +122,5 @@ export interface GeminiResponse {
     is_defeated: boolean;
   };
   next_player_index?: number;
+  lore_entries?: LoreEntry[];
 }
