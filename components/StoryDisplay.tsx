@@ -52,7 +52,6 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
     endOfLogRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [storyLog]);
 
-  // Defensively handle cases where storyLog might be missing from the state object.
   const safeStoryLog = storyLog || [];
 
   return (
@@ -78,7 +77,7 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
                   {entry.text}
                 </p>
               );
-            default: // Player speaker
+            default:
               const colorClass = nameToColorClass(entry.speaker);
               return (
                 <div

@@ -7,14 +7,13 @@ interface CharacterSheetProps {
   onClose: () => void;
 }
 
-// --- Helper Functions & Data ---
 const getModifier = (score: number) => Math.floor((score - 10) / 2);
 const getModifierString = (score: number | undefined) => {
   if (score === undefined) return "+0";
   const mod = getModifier(score);
   return mod >= 0 ? `+${mod}` : `${mod}`;
 };
-const PROFICIENCY_BONUS = 2; // Level 1
+const PROFICIENCY_BONUS = 2;
 
 const STAT_NAMES: (keyof Stats)[] = [
   "strength",

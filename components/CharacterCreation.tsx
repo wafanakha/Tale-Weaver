@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { generateCharacterBackstory } from "../services/geminiService";
+import { generateCharacterBackstory } from "../services/AIService";
 import { Stats, Skills, SavingThrows, SpellSlots } from "../types";
 import { useLanguage } from "../i18n";
 
@@ -125,9 +125,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
 
   const unassignedScores = useMemo(() => {
     const assigned = Object.values(stats);
-    // FIX: The type of `score` can be inferred as `number | undefined` because `stats` is a `Partial<Stats>`.
-    // Using it as an index caused two errors. Adding a type guard to ensure `score` is a number before
-    // using it as an index satisfies TypeScript.
     const counts = assigned.reduce((acc, score) => {
       if (typeof score === "number") {
         acc[score] = (acc[score] || 0) + 1;

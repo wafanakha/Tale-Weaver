@@ -250,10 +250,8 @@ export const getNextStoryPart = async (
   const responseSchema = getResponseSchema(lang);
   const systemInstruction = getSystemInstruction(lang);
 
-  // Create a summarized game state to avoid overly long prompts as the story progresses.
   const summarizedGameState = {
     ...gameState,
-    // Only include the last 10 story entries to provide recent context without bloating the prompt.
     storyLog: (gameState.storyLog || []).slice(-10),
   };
 
@@ -268,7 +266,7 @@ export const getNextStoryPart = async (
     Generate the next part of the story based on this action.
     `;
 
-  let jsonText = ""; // Declared here to be accessible in the catch block for logging.
+  let jsonText = "";
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -285,7 +283,6 @@ export const getNextStoryPart = async (
     return responseObject;
   } catch (e) {
     console.error("Error generating content from Gemini:", e);
-    // Log the actual text that failed to parse for easier debugging.
     console.error("Failed to parse JSON response from Gemini:", jsonText);
     throw new Error("Failed to get a valid response from the storyteller.");
   }

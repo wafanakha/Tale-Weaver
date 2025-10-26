@@ -11,7 +11,7 @@ import {
 import { db } from "./firebase";
 import { GameState, Player, PlayerAction } from "../types";
 
-// Use localStorage for a persistent client ID across sessions
+// simpan progress di local storage
 const getClientId = (): string => {
   let clientId = localStorage.getItem("clientId");
   if (!clientId) {
@@ -21,7 +21,6 @@ const getClientId = (): string => {
   return clientId;
 };
 
-// Function to generate a random 5-letter game ID
 const generateGameId = (): string => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
@@ -61,7 +60,6 @@ const addPlayer = async (gameId: string, player: Player): Promise<void> => {
   const state = await getGameState(gameId);
   if (state) {
     const players = state.players || [];
-    // Prevent adding player with same id twice
     if (players.some((p) => p.id === player.id)) return;
 
     const newPlayers = [...players, player];
@@ -115,7 +113,7 @@ const postAction = async (
   await update(ref(db, `games/${gameId}`), { lastPlayerAction: action });
 };
 
-// Functions for managing the user's list of saved games in localStorage
+// Manage local Storage
 const getUserGameIds = (): string[] => {
   const gamesJson = localStorage.getItem("userGames");
   if (!gamesJson) return [];
@@ -143,7 +141,6 @@ const getUserGames = async (): Promise<GameState[]> => {
   const gamePromises = gameIds.map((id) => getGameState(id));
   const games = await Promise.all(gamePromises);
 
-  // Filter out any games that might have been deleted from the database but are still in localStorage
   return games.filter((game): game is GameState => game !== null);
 };
 

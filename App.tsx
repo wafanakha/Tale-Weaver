@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
-import { getNextStoryPart } from "./services/geminiService";
+import { getNextStoryPart } from "./services/AIService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
 import PlayerStatsPanel from "./components/PlayerStatsPanel";
@@ -106,7 +106,7 @@ const App: React.FC = () => {
   const storyIdCounter = useRef(0);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
-  // Subscribe to game state changes
+  // Ikuti State Change
   useEffect(() => {
     if (!gameId) return;
     const unsubscribe = gameService.listenToGame(gameId, (state) => {
@@ -119,7 +119,7 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, [gameId, screen]);
 
-  // Host client logic: watch for player actions and process turns
+  // Proses Turn
   useEffect(() => {
     if (
       !gameState ||
@@ -136,10 +136,10 @@ const App: React.FC = () => {
       try {
         const response = await getNextStoryPart(gameState, choice, language);
 
-        // Create a new state based on the AI's response
+        // Buat state baru berdasarkan respon AI
         const newState: GameState = JSON.parse(JSON.stringify(gameState)); // Deep copy
 
-        // Apply player updates
+        // update
         if (response.player_updates) {
           response.player_updates.forEach((update) => {
             const playerIndex = newState.players.findIndex(
@@ -147,7 +147,7 @@ const App: React.FC = () => {
             );
             if (playerIndex > -1) {
               const p = newState.players[playerIndex];
-              // Defensively ensure inventory exists before modification to prevent crashes.
+              // Inventory harus ada untuk mencegah error
               if (!p.inventory) p.inventory = [];
               if (!p.spellSlots) p.spellSlots = {};
 
@@ -172,13 +172,13 @@ const App: React.FC = () => {
           });
         }
 
-        // Apply enemy updates
+        // update enemy
         if (response.enemy_update) {
-          // If the enemy is defeated, remove it.
+          // Jika enemy mati, hapus
           if (response.enemy_update.is_defeated === true) {
             newState.currentEnemy = null;
           }
-          // Else, if we have enough info, create/update the enemy.
+          // jika tidak enemy update
           else if (
             response.enemy_update.name &&
             response.enemy_update.hp !== undefined &&
@@ -188,19 +188,16 @@ const App: React.FC = () => {
               name: response.enemy_update.name,
               hp: response.enemy_update.hp,
               maxHp: response.enemy_update.maxHp,
-              isDefeated: false, // Normalize to false if not explicitly defeated
+              isDefeated: false,
             };
           }
-          // Otherwise, the response is malformed, so we don't change the enemy state.
         }
-        // If no enemy_update is received, newState.currentEnemy from the deep copy is preserved.
 
-        // Defensively ensure storyLog exists before modification.
         if (!newState.storyLog) {
           newState.storyLog = [];
         }
 
-        // Apply lore updates
+        // update Lore Codex
         if (response.lore_entries && response.lore_entries.length > 0) {
           if (!newState.loreCodex) {
             newState.loreCodex = [];
@@ -217,7 +214,7 @@ const App: React.FC = () => {
           }
         }
 
-        // Add story log entry
+        // tambah story entry
         const newStoryId = storyIdCounter.current++;
         const newStoryEntry: StoryLogEntry = {
           speaker: "story",
@@ -225,20 +222,19 @@ const App: React.FC = () => {
           id: newStoryId,
         };
 
-        // Conditionally add the dice_roll to avoid writing 'undefined' to Firebase.
         if (response.dice_roll) {
           newStoryEntry.diceRoll = response.dice_roll;
         }
 
         newState.storyLog.push(newStoryEntry);
 
-        // Update choices and next player, ensuring choices is always an array.
+        // ubah pilihan jadi array.
         newState.choices = response.choices || [];
         newState.currentPlayerIndex =
           response.next_player_index ??
           (newState.currentPlayerIndex + 1) % newState.players.length;
 
-        // Reset loading state and clear the action that was just processed
+        // Reset loading dan aksi player
         newState.isLoading = false;
         newState.lastPlayerAction = null;
 
@@ -249,7 +245,7 @@ const App: React.FC = () => {
         if (currentState) {
           currentState.error = t("storytellerError");
           currentState.isLoading = false;
-          currentState.lastPlayerAction = null; // Clear action to allow retry
+          currentState.lastPlayerAction = null;
           await gameService.updateGameState(gameState.gameId, currentState);
         }
       }
@@ -327,10 +323,8 @@ const App: React.FC = () => {
   const handleStartGame = async () => {
     if (!gameId || !gameState) return;
 
-    // Set loading state for all players
+    // proses turn base
     await gameService.updateGameState(gameId, { isLoading: true });
-
-    // Host processes the initial turn
     const initialPrompt = t("adventureBegins");
     await gameService.postAction(gameId, clientId, initialPrompt);
     await gameService.updateGameState(gameId, { status: "playing" });
@@ -340,7 +334,7 @@ const App: React.FC = () => {
     if (!gameId || !gameState || gameState.isLoading) return;
 
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (currentPlayer.id !== clientId) return; // Not our turn
+    if (currentPlayer.id !== clientId) return;
 
     const newPlayerChoiceId = storyIdCounter.current++;
     const newLog = {
@@ -349,7 +343,7 @@ const App: React.FC = () => {
       id: newPlayerChoiceId,
     };
 
-    // Optimistically update UI for the current player
+    // update UI
     setGameState((prev) =>
       prev
         ? {
@@ -361,7 +355,7 @@ const App: React.FC = () => {
         : null
     );
 
-    // Update state for everyone and post action for the host to process
+    // update di semua player
     await gameService.updateGameState(gameId, {
       isLoading: true,
       choices: [],
@@ -378,12 +372,10 @@ const App: React.FC = () => {
 
     const player = { ...gameState.players[playerIndex] };
 
-    // Defensively ensure the equipment object exists before modification.
     if (!player.equipment) {
       player.equipment = { weapon: null, armor: null };
     }
 
-    // Defensively ensure the inventory array exists before modification.
     if (!player.inventory) {
       player.inventory = [];
     }
@@ -485,9 +477,6 @@ const App: React.FC = () => {
     );
   }
 
-  // FIX: This condition was too broad, catching all 'lobby' screens.
-  // It's now restricted to only show when there is no active game ID,
-  // correctly differentiating the "join/create" lobby from the "waiting" lobby.
   if (screen === "lobby" && !gameId) {
     return (
       <Lobby

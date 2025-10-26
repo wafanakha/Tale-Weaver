@@ -45,7 +45,6 @@ const Lobby: React.FC<LobbyProps> = ({
   };
 
   if (gameId && gameState) {
-    // We are in a game lobby, waiting for players
     const isHost = gameState.hostId === clientId;
     const canStart = gameState.players.length > 0;
 
@@ -107,7 +106,6 @@ const Lobby: React.FC<LobbyProps> = ({
     );
   }
 
-  // Default view: create or join
   return (
     <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
       <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-md w-full border-4 border-double border-amber-800">
