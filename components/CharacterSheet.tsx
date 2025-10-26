@@ -36,8 +36,6 @@ const SKILL_NAMES: { name: keyof Skills; stat: keyof Stats }[] = [
   { name: "stealth", stat: "dexterity" },
 ];
 
-// --- Sub-components for Sheet Sections ---
-
 const StatBox: React.FC<{ name: string; value: number }> = ({
   name,
   value,
@@ -125,11 +123,9 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
     const baseAC = 10;
     const dexMod = getModifier(player.stats.dexterity);
     const armorBonus = player.equipment?.armor?.armorClass || 0;
-    // Simplified AC calculation. Real D&D has more complex rules for armor types.
     return armorBonus > 0 ? armorBonus : baseAC + dexMod;
   };
 
-  // Defensively ensure spellSlots exists and is not null
   const spellSlots = player.spellSlots || {};
   const hasSpellSlots = Object.keys(spellSlots).length > 0;
 

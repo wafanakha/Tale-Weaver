@@ -39,9 +39,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
     return null;
   }
 
-  // Defensively handle cases where player.equipment might be missing from the state object.
   const equipment = player.equipment || { weapon: null, armor: null };
-  // Defensively handle cases where player.inventory might be missing from the state object.
   const inventory = player.inventory || [];
 
   return (
