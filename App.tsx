@@ -1,19 +1,98 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
-import { getNextStoryPart, generateStoryImage } from "./services/geminiService";
+import { getNextStoryPart } from "./services/geminiService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
 import PlayerStatsPanel from "./components/PlayerStatsPanel";
 import InventoryPanel from "./components/InventoryPanel";
 import StoryDisplay from "./components/StoryDisplay";
-import ActionInput from "./components/ActionInput";
+import ActionInputPanel from "./components/ChoicePanel";
 import CombatStatus from "./components/CombatStatus";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CharacterCreation, {
   CharacterDetails,
 } from "./components/CharacterCreation";
 import Lobby from "./components/Lobby";
-import LoreCodex from "./components/LoreCodex";
+import LoreCodexPanel from "./components/LoreCodexPanel";
+import CharacterSheet from "./components/CharacterSheet";
+
+interface LoadGameScreenProps {
+  onJoinGame: (gameId: string) => void;
+  onCancel: () => void;
+}
+
+const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
+  onJoinGame,
+  onCancel,
+}) => {
+  const { t } = useLanguage();
+  const [games, setGames] = useState<GameState[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      setIsLoading(true);
+      try {
+        const userGames = await gameService.getUserGames();
+        setGames(userGames);
+      } catch (e) {
+        console.error("Failed to load user games", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGames();
+  }, []);
+
+  const GameCard: React.FC<{ game: GameState }> = ({ game }) => (
+    <button
+      onClick={() => onJoinGame(game.gameId)}
+      className="w-full border-2 border-stone-400 bg-stone-500/10 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-500/20 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
+    >
+      <p className="font-bold text-red-800 font-mono tracking-widest">
+        {game.gameId}
+      </p>
+      <p className="text-sm text-stone-600 mt-2">
+        {t("players")}:{" "}
+        {(game.players || []).map((p) => p.name).join(", ") ||
+          t("noPlayersYet")}
+      </p>
+      <p className="text-xs text-stone-500 mt-1">
+        {t("status")}: {game.status}
+      </p>
+    </button>
+  );
+
+  return (
+    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-2xl w-full border-4 border-double border-amber-800">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
+          {t("loadGame")}
+        </h1>
+        {isLoading && <LoadingSpinner />}
+        {!isLoading && (
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {games.length > 0 ? (
+              games.map((game) => <GameCard key={game.gameId} game={game} />)
+            ) : (
+              <p className="text-stone-500 italic text-center">
+                {t("noSavedGames")}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="mt-8 text-center">
+          <button
+            onClick={onCancel}
+            className="cinzel text-lg bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition"
+          >
+            {t("back")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const [clientId] = useState(gameService.getClientId());
@@ -21,11 +100,11 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const { language, setLanguage, t } = useLanguage();
   const [screen, setScreen] = useState<
-    "welcome" | "lobby" | "creation" | "playing"
+    "welcome" | "lobby" | "creation" | "playing" | "load"
   >("welcome");
   const [error, setError] = useState<string | null>(null);
   const storyIdCounter = useRef(0);
-  const [isCodexOpen, setIsCodexOpen] = useState(false);
+  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
   // Subscribe to game state changes
   useEffect(() => {
@@ -69,9 +148,9 @@ const App: React.FC = () => {
             if (playerIndex > -1) {
               const p = newState.players[playerIndex];
               // Defensively ensure inventory exists before modification to prevent crashes.
-              if (!p.inventory) {
-                p.inventory = [];
-              }
+              if (!p.inventory) p.inventory = [];
+              if (!p.spellSlots) p.spellSlots = {};
+
               if (update.hp !== undefined) p.hp = update.hp;
               if (update.inventory_add)
                 p.inventory.push(...update.inventory_add);
@@ -80,13 +159,20 @@ const App: React.FC = () => {
                   (item) => !update.inventory_remove?.includes(item.name)
                 );
               }
+              if (update.spell_slot_used) {
+                const level = update.spell_slot_used.level;
+                if (
+                  p.spellSlots[level] &&
+                  p.spellSlots[level].used < p.spellSlots[level].total
+                ) {
+                  p.spellSlots[level].used++;
+                }
+              }
             }
           });
         }
 
         // Apply enemy updates
-        const previousEnemy = gameState.currentEnemy;
-
         if (response.enemy_update) {
           // If the enemy is defeated, remove it.
           if (response.enemy_update.is_defeated === true) {
@@ -109,47 +195,26 @@ const App: React.FC = () => {
         }
         // If no enemy_update is received, newState.currentEnemy from the deep copy is preserved.
 
-        let imagePrompt: string | undefined = undefined;
-        const newEnemy = newState.currentEnemy;
-        if (
-          newEnemy &&
-          (!previousEnemy || previousEnemy.name !== newEnemy.name)
-        ) {
-          imagePrompt = `A single fantasy ${newEnemy.name}, dark art style.`;
-        }
-
         // Defensively ensure storyLog exists before modification.
         if (!newState.storyLog) {
           newState.storyLog = [];
         }
 
-        // Add new lore entries
-        if (response.lore_codex_add) {
+        // Apply lore updates
+        if (response.lore_entries && response.lore_entries.length > 0) {
           if (!newState.loreCodex) {
             newState.loreCodex = [];
           }
-          response.lore_codex_add.forEach((newEntry) => {
-            // Avoid duplicates
-            const entryExists = newState.loreCodex.some(
-              (e) => e.title.toLowerCase() === newEntry.title.toLowerCase()
-            );
-            if (
-              !entryExists &&
-              newEntry.title &&
-              newEntry.category &&
-              newEntry.content
-            ) {
-              newState.loreCodex.push({
-                id: `${newEntry.category}-${newEntry.title.replace(
-                  /\s+/g,
-                  "-"
-                )}`, // create a unique id
-                title: newEntry.title,
-                category: newEntry.category,
-                content: newEntry.content,
-              });
-            }
-          });
+          const existingTitles = new Set(
+            newState.loreCodex.map((e) => e.title.toLowerCase())
+          );
+          const newUniqueEntries = response.lore_entries.filter(
+            (entry) =>
+              entry.title && !existingTitles.has(entry.title.toLowerCase())
+          );
+          if (newUniqueEntries.length > 0) {
+            newState.loreCodex.push(...newUniqueEntries);
+          }
         }
 
         // Add story log entry
@@ -158,7 +223,6 @@ const App: React.FC = () => {
           speaker: "story",
           text: response.story,
           id: newStoryId,
-          imageIsLoading: !!imagePrompt,
         };
 
         // Conditionally add the dice_roll to avoid writing 'undefined' to Firebase.
@@ -168,7 +232,8 @@ const App: React.FC = () => {
 
         newState.storyLog.push(newStoryEntry);
 
-        // Update next player
+        // Update choices and next player, ensuring choices is always an array.
+        newState.choices = response.choices || [];
         newState.currentPlayerIndex =
           response.next_player_index ??
           (newState.currentPlayerIndex + 1) % newState.players.length;
@@ -178,26 +243,6 @@ const App: React.FC = () => {
         newState.lastPlayerAction = null;
 
         await gameService.updateGameState(newState.gameId, newState);
-
-        if (imagePrompt) {
-          const imageUrl = await generateStoryImage(imagePrompt);
-          if (imageUrl) {
-            const finalState = await gameService.getGameState(newState.gameId);
-            if (finalState) {
-              const logIndex = finalState.storyLog.findIndex(
-                (l) => l.id === newStoryId
-              );
-              if (logIndex > -1) {
-                finalState.storyLog[logIndex].imageUrl = imageUrl;
-                finalState.storyLog[logIndex].imageIsLoading = false;
-                await gameService.updateGameState(
-                  finalState.gameId,
-                  finalState
-                );
-              }
-            }
-          }
-        }
       } catch (err) {
         console.error(err);
         const currentState = await gameService.getGameState(gameState.gameId);
@@ -216,6 +261,7 @@ const App: React.FC = () => {
   const handleCreateGame = async () => {
     try {
       const newGameId = await gameService.createGame(clientId);
+      gameService.addUserGame(newGameId);
       setGameId(newGameId);
       setScreen("creation");
     } catch (e) {
@@ -225,17 +271,21 @@ const App: React.FC = () => {
 
   const handleJoinGame = async (id: string) => {
     try {
-      const state = await gameService.getGameState(id);
+      const gameIdUpper = id.trim().toUpperCase();
+      const state = await gameService.getGameState(gameIdUpper);
       if (state) {
-        if (state.players.find((p) => p.id === clientId)) {
-          // Already in game, just join
-        } else if (state.status !== "lobby") {
+        const isPlayerInGame = state.players.some((p) => p.id === clientId);
+
+        if (!isPlayerInGame && state.status !== "lobby") {
           setError(t("gameAlreadyStarted"));
           return;
         }
-        setGameId(id);
-        if (state.players.find((p) => p.id === clientId)) {
-          setScreen("playing"); // Or lobby if not started
+
+        gameService.addUserGame(gameIdUpper);
+        setGameId(gameIdUpper);
+
+        if (isPlayerInGame) {
+          setScreen(state.status === "playing" ? "playing" : "lobby");
         } else {
           setScreen("creation");
         }
@@ -253,15 +303,22 @@ const App: React.FC = () => {
       id: clientId,
       name: details.name,
       race: details.race,
+      class: details.class,
       background: details.background,
       hp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       maxHp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       level: 1,
+      speed: details.speed,
+      hitDice: details.hitDice,
       stats: details.stats,
       skills: details.skills,
+      savingThrows: details.savingThrows,
       combatSkills: details.combatSkills,
+      proficiencies: details.proficiencies,
+      languages: details.languages,
       inventory: [],
       equipment: { weapon: null, armor: null },
+      spellSlots: details.spellSlots,
     };
     await gameService.addPlayer(gameId, newPlayer);
     setScreen("lobby");
@@ -298,6 +355,7 @@ const App: React.FC = () => {
         ? {
             ...prev,
             isLoading: true,
+            choices: [],
             storyLog: [...(prev.storyLog || []), newLog],
           }
         : null
@@ -306,6 +364,7 @@ const App: React.FC = () => {
     // Update state for everyone and post action for the host to process
     await gameService.updateGameState(gameId, {
       isLoading: true,
+      choices: [],
       storyLog: [...(gameState.storyLog || []), newLog],
     });
     await gameService.postAction(gameId, clientId, action);
@@ -368,8 +427,8 @@ const App: React.FC = () => {
         onClick={() => setLanguage("en")}
         className={`px-4 py-2 rounded-md text-sm transition-colors ${
           language === "en"
-            ? "bg-yellow-500 text-gray-900 font-bold"
-            : "bg-gray-700 hover:bg-gray-600"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
         }`}
       >
         English
@@ -378,8 +437,8 @@ const App: React.FC = () => {
         onClick={() => setLanguage("id")}
         className={`px-4 py-2 rounded-md text-sm transition-colors ${
           language === "id"
-            ? "bg-yellow-500 text-gray-900 font-bold"
-            : "bg-gray-700 hover:bg-gray-600"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
         }`}
       >
         Bahasa Indonesia
@@ -389,23 +448,40 @@ const App: React.FC = () => {
 
   if (screen === "welcome") {
     return (
-      <div className="h-screen w-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4">
-        <div className="text-center bg-gray-800 p-10 rounded-lg shadow-2xl max-w-2xl">
-          <h1 className="text-5xl font-bold text-yellow-400 mb-4 cinzel">
+      <div className="h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+        <div className="text-center bg-[#f3e9d2] p-10 rounded-lg shadow-2xl max-w-2xl border-4 border-double border-amber-800">
+          <h1 className="text-5xl font-bold text-red-900 mb-4 medieval">
             {t("welcomeTitle")}
           </h1>
-          <p className="text-lg mb-8 text-gray-300">
+          <p className="text-lg mb-8 text-stone-700 leading-relaxed">
             {t("welcomeDescription")}
           </p>
-          <button
-            onClick={() => setScreen("lobby")}
-            className="cinzel text-xl bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            {t("assembleParty")}
-          </button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <button
+              onClick={() => setScreen("lobby")}
+              className="cinzel text-xl bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              {t("assembleParty")}
+            </button>
+            <button
+              onClick={() => setScreen("load")}
+              className="cinzel text-xl bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              {t("loadGame")}
+            </button>
+          </div>
           <LanguageSelector />
         </div>
       </div>
+    );
+  }
+
+  if (screen === "load") {
+    return (
+      <LoadGameScreen
+        onJoinGame={handleJoinGame}
+        onCancel={() => setScreen("welcome")}
+      />
     );
   }
 
@@ -447,86 +523,61 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <>
-        <LoreCodex
-          isOpen={isCodexOpen}
-          onClose={() => setIsCodexOpen(false)}
-          loreEntries={gameState.loreCodex || []}
-        />
-        <div className="min-h-screen bg-gray-900 text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
-            <PlayerStatsPanel
-              players={gameState.players}
-              currentPlayerIndex={gameState.currentPlayerIndex}
-              clientId={clientId}
-            />
-            {myPlayer && (
-              <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
-            )}
-          </aside>
+      <div className="min-h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+        {viewingPlayer && (
+          <CharacterSheet
+            player={viewingPlayer}
+            onClose={() => setViewingPlayer(null)}
+          />
+        )}
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+          <PlayerStatsPanel
+            players={gameState.players}
+            currentPlayerIndex={gameState.currentPlayerIndex}
+            clientId={clientId}
+            onPlayerClick={setViewingPlayer}
+          />
+          {myPlayer && (
+            <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
+          )}
+          <LoreCodexPanel loreCodex={gameState.loreCodex} />
+        </aside>
 
-          <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-gray-800/50 rounded-lg shadow-lg p-4 lg:p-6 border border-gray-700">
-            <div className="flex items-center justify-center mb-4 relative">
-              <h1 className="text-3xl font-bold text-yellow-400 cinzel text-center">
-                {t("yourStory")}
-              </h1>
-              <button
-                onClick={() => setIsCodexOpen(true)}
-                title={t("loreCodex")}
-                aria-label={t("loreCodex")}
-                className="absolute right-0 p-2 rounded-full bg-gray-700 hover:bg-yellow-600 text-gray-200 hover:text-gray-900 transition-colors duration-200"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-              </button>
-            </div>
-            <StoryDisplay storyLog={gameState.storyLog} />
-            <div className="mt-auto pt-4">
-              {gameState.isLoading && <LoadingSpinner />}
-              {gameState.error && (
-                <p className="text-red-400 text-center mb-2">
-                  {gameState.error}
-                </p>
-              )}
-              {!gameState.isLoading && (
-                <>
-                  {currentPlayer && (
-                    <p className="text-center text-yellow-400 mb-2 font-semibold">
-                      {t("whatWillPlayerDo", {
-                        playerName: currentPlayer.name,
-                      })}
-                    </p>
-                  )}
-                  <ActionInput
-                    onActionSubmit={handleActionSubmit}
-                    disabled={
-                      currentPlayer?.id !== clientId || gameState.isLoading
-                    }
-                  />
-                </>
-              )}
-            </div>
-          </main>
-
-          <aside className="w-full lg:w-1/4 xl:w-1/5">
-            {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
-              <CombatStatus enemy={gameState.currentEnemy} />
+        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
+          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel">
+            {t("yourStory")}
+          </h1>
+          <StoryDisplay storyLog={gameState.storyLog} />
+          <div className="mt-auto pt-4">
+            {gameState.isLoading && <LoadingSpinner />}
+            {gameState.error && (
+              <p className="text-red-800 text-center mb-2">{gameState.error}</p>
             )}
-          </aside>
-        </div>
-      </>
+            {!gameState.isLoading && (
+              <>
+                {currentPlayer && (
+                  <p className="text-center text-red-900 mb-2 font-semibold">
+                    {t("whatWillPlayerDo", { playerName: currentPlayer.name })}
+                  </p>
+                )}
+                <ActionInputPanel
+                  suggestions={gameState.choices}
+                  onActionSubmit={handleActionSubmit}
+                  disabled={
+                    currentPlayer?.id !== clientId || gameState.isLoading
+                  }
+                />
+              </>
+            )}
+          </div>
+        </main>
+
+        <aside className="w-full lg:w-1/4 xl:w-1/5">
+          {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
+            <CombatStatus enemy={gameState.currentEnemy} />
+          )}
+        </aside>
+      </div>
     );
   }
 

@@ -13,6 +13,7 @@ const translations = {
     welcomeDescription:
       "Gather your party, brave adventurers! A world of fantasy, danger, and untold stories awaits. Your journey is shaped by your choices, and the narrative is woven by a master storyteller. Are you ready to begin?",
     assembleParty: "Assemble Your Party",
+    loadGame: "Load Game",
     // Lobby
     joinAdventure: "Join the Adventure",
     createNewGame: "Create New Game",
@@ -31,6 +32,7 @@ const translations = {
     name: "Name",
     characterNamePlaceholder: "Character's name",
     race: "Race",
+    class: "Class",
     background: "Background",
     assignStats: "Assign Stats",
     assignStatsDesc:
@@ -44,9 +46,7 @@ const translations = {
     addingToParty: "Adding to party...",
     // Game Screen
     yourStory: "Your Story",
-    whatWillPlayerDo: "What will {playerName} do?",
-    enterYourAction: "Enter your action...",
-    send: "Send",
+    whatWillPlayerDo: "It is {playerName}'s turn.",
     theParty: "The Party",
     you: "(You)",
     yourInventory: "Your Inventory",
@@ -58,6 +58,26 @@ const translations = {
     backpackEmpty: "Backpack is empty.",
     equip: "Equip",
     combat: "Combat",
+    actionInputPlaceholder: "What do you do?",
+    submitAction: "Submit",
+    suggestions: "Suggestions",
+    loreCodex: "Lore Codex",
+    noDiscoveries: "No discoveries yet.",
+    // Character Sheet
+    characterSheet: "Character Sheet",
+    savingThrows: "Saving Throws",
+    skills: "Skills",
+    proficienciesAndLanguages: "Proficiencies & Languages",
+    armorClass: "Armor Class",
+    initiative: "Initiative",
+    speed: "Speed",
+    hitPoints: "Hit Points",
+    current: "Current",
+    max: "Max",
+    hitDice: "Hit Dice",
+    attacksAndSpellcasting: "Attacks & Spellcasting",
+    combatSkills: "Combat Skills",
+    spellSlots: "Spell Slots",
     // Loading/Messages
     storytellerWeavingFate: "The storyteller is weaving your fate...",
     playerEquippedItem: "{playerName} equipped the {itemName}.",
@@ -75,16 +95,12 @@ const translations = {
     gameAlreadyStarted: "This game has already started.",
     gameNotFound: "Game not found.",
     failedToJoinGame: "Failed to join game. Please check the ID and try again.",
-    // Lore Codex
-    loreCodex: "Lore Codex",
-    close: "Close",
-    races: "Races",
-    backgrounds: "Backgrounds",
-    locations: "Locations",
-    characters: "Characters",
-    noEntriesFound: "No entries found for this category.",
-    backToList: "Back to list",
-    selectEntry: "Select an entry to read.",
+    // Load Game Screen
+    players: "Players",
+    noPlayersYet: "No players yet",
+    status: "Status",
+    noSavedGames: "No saved games found.",
+    back: "Back",
   },
   id: {
     // Welcome
@@ -92,12 +108,14 @@ const translations = {
     welcomeDescription:
       "Kumpulkan kelompokmu, para petualang pemberani! Dunia fantasi, bahaya, dan kisah tak terhingga menanti. Perjalananmu dibentuk oleh pilihanmu, dan narasinya ditenun oleh seorang ahli cerita. Apakah kamu siap untuk memulai?",
     assembleParty: "Kumpulkan Kelompokmu",
+    loadGame: "Muat Game",
     // Lobby
     joinAdventure: "Ikuti Petualangan",
     createNewGame: "Buat Game Baru",
     or: "ATAU",
     joinExistingGame: "Gabung Game yang Ada",
     enterGameId: "MASUKKAN ID GAME",
+
     joinGame: "Gabung Game",
     partyLobby: "Lobi Kelompok",
     shareGameId:
@@ -111,6 +129,7 @@ const translations = {
     name: "Nama",
     characterNamePlaceholder: "Nama karakter",
     race: "Ras",
+    class: "Kelas",
     background: "Latar Belakang",
     assignStats: "Atur Statistik",
     assignStatsDesc:
@@ -125,9 +144,7 @@ const translations = {
     addingToParty: "Menambahkan ke kelompok...",
     // Game Screen
     yourStory: "Kisahmu",
-    whatWillPlayerDo: "Apa yang akan {playerName} lakukan?",
-    enterYourAction: "Masukkan aksimu...",
-    send: "Kirim",
+    whatWillPlayerDo: "Sekarang giliran {playerName}.",
     theParty: "Kelompok",
     you: "(Anda)",
     yourInventory: "Inventaris Anda",
@@ -139,6 +156,26 @@ const translations = {
     backpackEmpty: "Tas punggung kosong.",
     equip: "Pasang",
     combat: "Pertarungan",
+    actionInputPlaceholder: "Apa yang kamu lakukan?",
+    submitAction: "Kirim",
+    suggestions: "Saran",
+    loreCodex: "Kodeks Lore",
+    noDiscoveries: "Belum ada penemuan.",
+    // Character Sheet
+    characterSheet: "Lembar Karakter",
+    savingThrows: "Lemparan Penyelamatan",
+    skills: "Keterampilan",
+    proficienciesAndLanguages: "Kecakapan & Bahasa",
+    armorClass: "Kelas Zirah",
+    initiative: "Inisiatif",
+    speed: "Kecepatan",
+    hitPoints: "Poin Nyawa",
+    current: "Saat Ini",
+    max: "Maks",
+    hitDice: "Dadu Nyawa",
+    attacksAndSpellcasting: "Serangan & Perapalan Mantra",
+    combatSkills: "Keterampilan Tempur",
+    spellSlots: "Slot Mantra",
     // Loading/Messages
     storytellerWeavingFate: "Sang pencerita sedang menenun takdirmu...",
     playerEquippedItem: "{playerName} memasang {itemName}.",
@@ -156,16 +193,12 @@ const translations = {
     gameNotFound: "Game tidak ditemukan.",
     failedToJoinGame:
       "Gagal bergabung dengan game. Silakan periksa ID dan coba lagi.",
-    // Lore Codex
-    loreCodex: "Kodeks Lore",
-    close: "Tutup",
-    races: "Ras",
-    backgrounds: "Latar Belakang",
-    locations: "Lokasi",
-    characters: "Karakter",
-    noEntriesFound: "Tidak ada entri yang ditemukan untuk kategori ini.",
-    backToList: "Kembali ke daftar",
-    selectEntry: "Pilih entri untuk dibaca.",
+    // Load Game Screen
+    players: "Pemain",
+    noPlayersYet: "Belum ada pemain",
+    status: "Status",
+    noSavedGames: "Tidak ada game yang tersimpan.",
+    back: "Kembali",
   },
 };
 

@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { GameState, GeminiResponse, LoreCategory } from "../types";
+import { GameState, GeminiResponse } from "../types";
 import { Language } from "../i18n";
 
 if (!process.env.API_KEY) {
@@ -14,6 +14,8 @@ const getResponseSchema = (lang: Language) => {
       ? {
           story:
             "Bagian cerita selanjutnya untuk kelompok. Jelaskan suasana, peristiwa, dan hasil dari tindakan pemain saat ini, termasuk pertempuran. Jadilah deskriptif dan menarik. Narasikan hasil dari setiap lemparan dadu.",
+          choices:
+            "Daftar 3-4 tindakan *saran* yang singkat dan relevan dengan konteks yang dapat diambil pemain saat ini. Pemain tidak terbatas pada pilihan ini.",
           dice_roll:
             "Jika tindakan pemain memerlukan uji keterampilan, berikan detail lemparan di sini. Abaikan jika tidak ada lemparan yang diperlukan.",
           dice_skill:
@@ -34,20 +36,22 @@ const getResponseSchema = (lang: Language) => {
             "Daftar item untuk ditambahkan ke inventaris pemain (misalnya, barang rampasan).",
           inventory_remove:
             "Daftar NAMA item yang akan dihapus dari inventaris (misalnya, setelah menggunakan ramuan).",
+          spell_slot_used:
+            "Jika pemain merapal mantra yang menggunakan slot, catat di sini. Abaikan jika tidak ada slot yang digunakan.",
+          spell_slot_level:
+            "Tingkat slot mantra yang digunakan (harus 1 atau lebih).",
           enemy_update:
             "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
-          lore_codex_add:
-            "Daftar entri lore baru untuk ditambahkan ke kodeks game. HANYA tambahkan entri untuk konsep, karakter, atau lokasi yang signifikan dan baru diperkenalkan.",
-          lore_title: "Judul entri lore (misalnya, 'Kota Silverhaven').",
-          lore_category:
-            "Kategori entri (Ras, Latar Belakang, Lokasi, Karakter).",
-          lore_content: "Deskripsi singkat dan informatif untuk entri lore.",
           next_player:
             "Indeks pemain berikutnya yang akan bertindak. Dalam pertempuran, ini harus berputar melalui pemain. Di luar pertempuran, bisa jadi pemain mana pun yang relevan dengan cerita.",
+          lore_entries:
+            "Daftar entri lore baru yang ditemukan. Buat entri untuk orang, tempat, atau item penting saat diperkenalkan. Periksa `loreCodex` yang ada untuk menghindari duplikat.",
         }
       : {
           story:
             "The next part of the story for the party. Describe the scene, events, and results of the current player's actions, including combat. Be descriptive and engaging. Narrate the outcome of any dice rolls.",
+          choices:
+            "A list of 3-4 brief, context-aware *suggested actions* the current player can take next. The player is not limited to these.",
           dice_roll:
             "If the player's action requires a skill check, provide the details of the roll here. Omit if no roll is needed.",
           dice_skill:
@@ -67,24 +71,27 @@ const getResponseSchema = (lang: Language) => {
             "A list of items to add to the player's inventory (e.g., loot).",
           inventory_remove:
             "A list of item NAMES to remove from inventory (e.g., after using a potion).",
+          spell_slot_used:
+            "If the player casts a spell that uses a slot, note it here. Omit if no slot was used.",
+          spell_slot_level:
+            "The level of the spell slot expended (must be 1 or greater).",
           enemy_update:
             "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
-          lore_codex_add:
-            "A list of new lore entries to add to the game's codex. ONLY add entries for significant, newly introduced concepts, characters, or locations.",
-          lore_title:
-            "The title of the lore entry (e.g., 'The City of Silverhaven').",
-          lore_category:
-            "The category of the entry (Races, Backgrounds, Locations, Characters).",
-          lore_content:
-            "A concise, informative description for the lore entry.",
           next_player:
             "The index of the next player to act. In combat, this should cycle through players. Outside combat, it could be any player relevant to the story.",
+          lore_entries:
+            "A list of new lore entries discovered. Create entries for important people, places, or items as they are introduced. Check the existing `loreCodex` to avoid duplicates.",
         };
 
   return {
     type: Type.OBJECT,
     properties: {
       story: { type: Type.STRING, description: d.story },
+      choices: {
+        type: Type.ARRAY,
+        items: { type: Type.STRING },
+        description: d.choices,
+      },
       dice_roll: {
         type: Type.OBJECT,
         description: d.dice_roll,
@@ -137,6 +144,13 @@ const getResponseSchema = (lang: Language) => {
               description: d.inventory_remove,
               items: { type: Type.STRING },
             },
+            spell_slot_used: {
+              type: Type.OBJECT,
+              description: d.spell_slot_used,
+              properties: {
+                level: { type: Type.INTEGER, description: d.spell_slot_level },
+              },
+            },
           },
         },
       },
@@ -150,51 +164,48 @@ const getResponseSchema = (lang: Language) => {
           is_defeated: { type: Type.BOOLEAN },
         },
       },
-      lore_codex_add: {
+      next_player_index: { type: Type.INTEGER, description: d.next_player },
+      lore_entries: {
         type: Type.ARRAY,
-        description: d.lore_codex_add,
+        description: d.lore_entries,
         items: {
           type: Type.OBJECT,
           properties: {
-            title: { type: Type.STRING, description: d.lore_title },
-            category: {
-              type: Type.STRING,
-              enum: Object.values(LoreCategory),
-              description: d.lore_category,
-            },
-            content: { type: Type.STRING, description: d.lore_content },
+            title: { type: Type.STRING },
+            description: { type: Type.STRING },
           },
+          required: ["title", "description"],
         },
       },
-      next_player_index: { type: Type.INTEGER, description: d.next_player },
     },
-    required: ["story"],
+    required: ["story", "choices"],
   };
 };
 
 const getSystemInstruction = (lang: Language): string => {
   if (lang === "id") {
-    return `Anda adalah pencerita ahli dan Dungeon Master for a dynamic, multiplayer text-based RPG berdasarkan aturan Dungeons & Dragons. Anda mengelola sebuah kelompok petualang yang akan memberikan aksi mereka sebagai masukan teks bebas. Berkomunikasi secara eksklusif dalam Bahasa Indonesia.
+    return `Anda adalah pencerita ahli dan Dungeon Master untuk RPG berbasis teks multipemain yang dinamis berdasarkan aturan Dungeons & Dragons. Anda mengelola sebuah kelompok petualang. Berkomunikasi secara eksklusif dalam Bahasa Indonesia.
 
 **MEKANIKA INTI:**
-1.  **Kelompok & Giliran:** Anda akan mengelola kelompok pemain. 'currentPlayerIndex' menunjukkan giliran siapa. Sapa pemain dengan nama. Respons Anda harus selalu menunjukkan pemain berikutnya yang akan bertindak melalui 'next_player_index'.
+1.  **Input & Giliran Pemain:** Pemain akan mengetik tindakan mereka dalam input teks. Anda harus menafsirkan dan bereaksi terhadap input ini. 'currentPlayerIndex' menunjukkan giliran siapa. Sapa pemain dengan nama. Respons Anda harus selalu menunjukkan pemain berikutnya yang akan bertindak melalui 'next_player_index'.
 2.  **Statistik & Pengubah:** Setiap pemain memiliki enam statistik inti. Pengubah untuk sebuah statistik dihitung sebagai floor((stat - 10) / 2).
 3.  **Uji Keterampilan:** Ketika seorang pemain mencoba tindakan dengan hasil yang tidak pasti, Anda akan memulai uji keterampilan.
     *   **Tentukan Keterampilan & DC:** Putuskan keterampilan yang sesuai dan tetapkan Tingkat Kesulitan (DC) berdasarkan tantangan (mis., Mudah=10, Sedang=15, Sulit=20).
     *   **Hitung Pengubah:** Gunakan statistik dan keterampilan pemain SAAT INI. Pengubahnya adalah pengubah stat mereka + bonus kemahiran +2 jika mereka mahir dalam keterampilan tersebut.
     *   **Simulasikan Lemparan & Tentukan Hasil:** Hasilkan lemparan d20. Jika lemparan + pengubah >= DC, ujian berhasil.
     *   **Laporkan:** Anda HARUS melaporkan detail ujian di bidang 'dice_roll' dari respons JSON Anda.
-4.  **Narasikan:** Di bidang 'story', narasikan hasil tindakan teks bebas pemain untuk seluruh kelompok. Jelaskan apa yang terjadi karena keberhasilan atau kegagalan.
+4.  **Narasikan:** Di bidang 'story', narasikan hasil tindakan untuk seluruh kelompok. Jelaskan apa yang terjadi karena keberhasilan atau kegagalan.
 5.  **Pertempuran:**
     *   Pertempuran berbasis giliran. Berputar melalui pemain menggunakan 'next_player_index'.
     *   Jelaskan tindakan pemain saat ini dan musuh apa pun.
-    *   Pemain akan menyatakan tindakan mereka, yang mungkin termasuk menggunakan salah satu keterampilan tempur mereka. Selesaikan tindakan ini dengan sesuai.
+    *   Tawarkan keterampilan tempur pemain saat ini sebagai saran dalam 'choices'.
     *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
-6.  **Status Game:** Kelola semua status pemain, inventaris, dan pertemuan pertempuran berdasarkan status JSON yang disediakan.
-7.  **Kodeks Lore:** Ketika karakter, lokasi, ras, atau latar belakang baru menjadi signifikan dalam cerita, tambahkan entri terperinci untuk itu di bidang 'lore_codex_add'. Jaga agar entri tetap ringkas namun informatif. Jangan menambahkan entri untuk pengetahuan umum atau detail yang tidak penting.
+    *   **Perapalan Mantra:** Ketika seorang pemain merapal mantra dari keterampilan tempur mereka (misalnya, 'Guiding Bolt', 'Magic Missile'), mereka menggunakan slot mantra. Anda HARUS melaporkan ini dengan menyertakan objek \`spell_slot_used\` di \`player_updates\` untuk pemain tersebut, dengan menentukan tingkat mantra yang dirapal (yang harus 1 atau lebih). Mantra seperti 'Sacred Flame' atau 'Fire Bolt' adalah cantrip (level 0) dan TIDAK menggunakan slot mantra, jadi jangan sertakan \`spell_slot_used\` untuk mereka.
+6.  **Saran:** Bidang 'choices' digunakan untuk memberikan *saran* kepada pemain. Berikan 3-4 ide singkat untuk membantu memandu mereka jika mereka buntu. Mereka tidak terbatas pada pilihan ini.
+7.  **Kodeks Lore:** Saat Anda memperkenalkan karakter, lokasi, faksi, atau peristiwa sejarah yang signifikan, tambahkan mereka ke bidang 'lore_entries' dalam respons JSON Anda. Berikan judul yang ringkas dan satu paragraf deskripsi. Periksa 'loreCodex' saat ini dalam status permainan untuk menghindari pembuatan entri duplikat.
 
 **FORMAT RESPON:**
-- Anda HARUS SELALU merespons dalam format JSON yang disediakan dengan skema yang ditentukan. Anda tidak lagi diharuskan memberikan pilihan kepada pemain. Isi dari bidang 'story' HARUS dalam Bahasa Indonesia.
+- Anda HARUS SELALU merespons dalam format JSON yang disediakan dengan skema yang ditentukan. Isi dari bidang 'story' dan 'choices' HARUS dalam Bahasa Indonesia.
 
 **SAAT MEMULAI:**
 - Kelompok karakter akan disediakan.
@@ -202,147 +213,81 @@ const getSystemInstruction = (lang: Language): string => {
 - Beri setiap pemain senjata awal yang sederhana dan ramuan kesehatan yang sesuai dengan latar belakang mereka. Gunakan bidang 'player_updates' untuk menambahkan item ini.`;
   }
 
-  return `You are a master storyteller and Dungeon Master for a dynamic, multiplayer text-based RPG based on Dungeons & Dragons rules. You are managing a party of adventurers who will provide their actions as free-text input.
+  return `You are a master storyteller and Dungeon Master for a dynamic, multiplayer text-based RPG based on Dungeons & Dragons rules. You are managing a party of adventurers.
 
 **CORE MECHANICS:**
-1.  **Party & Turns:** You will manage a party of players. The 'currentPlayerIndex' indicates whose turn it is. Address players by name. Your response should always indicate the next player to act via 'next_player_index'.
+1.  **Player Input & Turns:** Players will type their actions in a text input. You must interpret and react to this input. The 'currentPlayerIndex' indicates whose turn it is. Address players by name. Your response should always indicate the next player to act via 'next_player_index'.
 2.  **Stats & Modifiers:** Each player has six core stats. The modifier for a stat is calculated as floor((stat - 10) / 2).
 3.  **Skill Checks:** When a player attempts an action with an uncertain outcome, you will initiate a skill check.
     *   **Determine Skill & DC:** Decide the appropriate skill and set a Difficulty Class (DC) based on the challenge (e.g., Easy=10, Medium=15, Hard=20).
     *   **Calculate Modifier:** Use the CURRENT player's stats and skills. The modifier is their stat modifier + a proficiency bonus of +2 if they are proficient in the skill.
     *   **Simulate Roll & Determine Outcome:** Generate a d20 roll. If roll + modifier >= DC, the check succeeds.
     *   **Report:** You MUST report the check's details in the 'dice_roll' field of your JSON response.
-4.  **Narrate:** In the 'story' field, narrate the outcome of the player's free-text action for the whole party. Describe what happens because of success or failure.
+4.  **Narrate:** In the 'story' field, narrate the outcome of actions for the whole party. Describe what happens because of success or failure.
 5.  **Combat:**
     *   Combat is turn-based. Cycle through players using 'next_player_index'.
     *   Describe the actions of the current player and any enemies.
-    *   The player will state their action, which might include using one of their combat skills. Resolve these actions accordingly.
+    *   Offer the current player's combat skills as suggestions in 'choices'.
     *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
-6.  **Game State:** Manage all players' states, inventories, and combat encounters based on the provided JSON state.
-7.  **Lore Codex:** When a new character, location, race, or background becomes significant to the story, add a detailed entry for it in the 'lore_codex_add' field. Keep entries concise but informative. Do not add entries for common knowledge or insignificant details.
+    *   **Spellcasting:** When a player casts a spell from their combat skills (e.g., 'Guiding Bolt', 'Magic Missile'), they use a spell slot. You MUST report this by including a \`spell_slot_used\` object in \`player_updates\` for that player, specifying the level of the spell cast (which must be 1 or greater). Spells like 'Sacred Flame' or 'Fire Bolt' are cantrips (level 0) and DO NOT use spell slots, so do not include \`spell_slot_used\` for them.
+6.  **Suggestions:** The 'choices' field is for giving the player *suggestions*. Provide 3-4 brief ideas to help guide them if they're stuck. They are not limited to these options.
+7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a one-paragraph description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
 
 **RESPONSE FORMAT:**
-- You MUST ALWAYS respond in the provided JSON format with the specified schema. You are no longer required to provide choices to the player.
+- You MUST ALWAYS respond in the provided JSON format with the specified schema.
 
 **ON STARTING:**
 - The party of characters will be provided.
 - Create a compelling opening scene that brings the party together.
-- Give each player a simple starting weapon and a health potion that fits their background. Use the 'player_updates' field to add these items.`;
+- Grant each player a simple starting weapon and a health potion appropriate to their background. Use the 'player_updates' field to add these items.`;
 };
 
 export const getNextStoryPart = async (
-  currentState: GameState,
+  gameState: GameState,
   playerChoice: string,
   lang: Language
 ): Promise<GeminiResponse> => {
-  // Determine if this is the very first turn of the game.
-  const isFirstTurn =
-    !currentState.storyLog || currentState.storyLog.length === 0;
+  const responseSchema = getResponseSchema(lang);
+  const systemInstruction = getSystemInstruction(lang);
 
-  const actingPlayerName =
-    currentState.players.length > 0
-      ? currentState.players[currentState.currentPlayerIndex].name
-      : "System";
-
-  // Create a summarized state to send to the model to keep the prompt size manageable.
-  const stateForPrompt = {
-    ...currentState,
-    // The story log is empty on the first turn, so this is fine.
-    storyLog: (currentState.storyLog || []).slice(-10),
+  // Create a summarized game state to avoid overly long prompts as the story progresses.
+  const summarizedGameState = {
+    ...gameState,
+    // Only include the last 10 story entries to provide recent context without bloating the prompt.
+    storyLog: (gameState.storyLog || []).slice(-10),
   };
 
-  let actionText: string;
-  let instructionText: string;
-
-  // Use a specific prompt for the first turn to generate the opening scene and starting items.
-  if (isFirstTurn) {
-    actionText = ""; // There is no preceding player action.
-    instructionText =
-      lang === "id"
-        ? `Ini adalah awal petualangan. Hasilkan adegan pembuka yang menarik untuk kelompok yang disediakan dalam status permainan, dan berikan setiap pemain item awal (senjata dan ramuan kesehatan) yang sesuai dengan latar belakang mereka menggunakan bidang 'player_updates'. Tetapkan pemain berikutnya ke indeks 0.`
-        : `This is the start of the adventure. Generate a compelling opening scene for the party provided in the game state, and provide each player with starting items (a weapon and a health potion) that fit their background using the 'player_updates' field. Set the next player to index 0.`;
-  } else {
-    // For subsequent turns, use the standard prompt format.
-    actionText =
-      lang === "id"
-        ? `Tindakan Pemain dari ${actingPlayerName}: "${playerChoice}"`
-        : `Player's Action from ${actingPlayerName}: "${playerChoice}"`;
-    instructionText =
-      lang === "id"
-        ? `Berdasarkan keadaan saat ini dan tindakan pemain, hasilkan bagian cerita selanjutnya untuk kelompok, ikuti semua aturan.`
-        : `Based on the current state and the player's action, generate the next part of the story for the party, following all the rules.`;
-  }
-
   const prompt = `
-    Current Game State (summary of recent events):
-    ${JSON.stringify(stateForPrompt, null, 2)}
+    Current Game State:
+    ${JSON.stringify(summarizedGameState, null, 2)}
 
-    ${actionText}
+    The current player (${
+      gameState.players[gameState.currentPlayerIndex].name
+    }) chose to: "${playerChoice}"
 
-    ${instructionText}
+    Generate the next part of the story based on this action.
     `;
 
-  let rawResponseText = "";
+  let jsonText = ""; // Declared here to be accessible in the catch block for logging.
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
-        systemInstruction: getSystemInstruction(lang),
         responseMimeType: "application/json",
-        responseSchema: getResponseSchema(lang),
-        temperature: 0.8,
+        responseSchema: responseSchema,
+        systemInstruction: systemInstruction,
       },
     });
 
-    rawResponseText = response.text;
-    let jsonText = rawResponseText.trim();
-
-    // The model can sometimes wrap the JSON in markdown fences. This removes them.
-    if (jsonText.startsWith("```json")) {
-      jsonText = jsonText.substring(7); // Remove ```json and potential newline
-      if (jsonText.endsWith("```")) {
-        jsonText = jsonText.slice(0, -3);
-      }
-      jsonText = jsonText.trim();
-    }
-
-    const parsedResponse: GeminiResponse = JSON.parse(jsonText);
-    return parsedResponse;
+    jsonText = response.text.trim();
+    const responseObject: GeminiResponse = JSON.parse(jsonText);
+    return responseObject;
   } catch (e) {
     console.error("Error generating content from Gemini:", e);
-    if (e instanceof SyntaxError) {
-      console.error(
-        "Failed to parse JSON response from Gemini:",
-        rawResponseText
-      );
-    }
+    // Log the actual text that failed to parse for easier debugging.
+    console.error("Failed to parse JSON response from Gemini:", jsonText);
     throw new Error("Failed to get a valid response from the storyteller.");
-  }
-};
-
-export const generateStoryImage = async (prompt: string): Promise<string> => {
-  try {
-    const response = await ai.models.generateImages({
-      model: "imagen-4.0-generate-001",
-      prompt: prompt,
-      config: {
-        numberOfImages: 1,
-        outputMimeType: "image/jpeg",
-        aspectRatio: "16:9",
-      },
-    });
-
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-      return `data:image/jpeg;base64,${base64ImageBytes}`;
-    } else {
-      throw new Error("No image was generated.");
-    }
-  } catch (e) {
-    console.error("Error generating image from Imagen:", e);
-    // Fail gracefully in the UI
-    return "";
   }
 };
 
@@ -353,20 +298,17 @@ export const generateCharacterBackstory = async (
 ): Promise<string> => {
   const prompt =
     lang === "id"
-      ? `Buatlah kisah latar karakter yang singkat dan menarik untuk ${race} ${background} di dunia fantasi tinggi. Kisah latar harus sepanjang 2-4 kalimat dan memberikan kaitan untuk sebuah petualangan.`
-      : `Generate a short, compelling character backstory for a ${race} ${background} in a high-fantasy world. The backstory should be 2-4 sentences long and provide a hook for an adventure.`;
+      ? `Buatlah satu paragraf kisah latar belakang karakter untuk RPG fantasi. Karakter tersebut adalah seorang ${race} dengan latar belakang ${background}. Buatlah agar menarik dan ringkas.`
+      : `Generate a single paragraph of character backstory for a fantasy RPG. The character is a ${race} with a ${background} background. Make it engaging and concise.`;
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
-      config: {
-        temperature: 0.9,
-      },
     });
     return response.text.trim();
   } catch (e) {
-    console.error("Error generating character backstory:", e);
-    throw new Error("Failed to generate backstory from the storyteller.");
+    console.error("Error generating backstory:", e);
+    throw new Error("Failed to generate backstory.");
   }
 };

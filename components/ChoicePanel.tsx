@@ -1,31 +1,57 @@
+import React, { useState } from "react";
+import { useLanguage } from "../i18n";
 
-import React from 'react';
-
-interface ChoicePanelProps {
-  choices: string[];
-  onChoice: (choice: string) => void;
+interface ActionInputPanelProps {
+  suggestions: string[];
+  onActionSubmit: (action: string) => void;
   disabled?: boolean;
 }
 
-const ChoicePanel: React.FC<ChoicePanelProps> = ({ choices, onChoice, disabled = false }) => {
-  if (!choices || choices.length === 0) {
-    return null;
-  }
+const ActionInputPanel: React.FC<ActionInputPanelProps> = ({
+  suggestions,
+  onActionSubmit,
+  disabled = false,
+}) => {
+  const [actionText, setActionText] = useState("");
+  const { t } = useLanguage();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (actionText.trim() && !disabled) {
+      onActionSubmit(actionText.trim());
+      setActionText("");
+    }
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {choices.map((choice, index) => (
-        <button
-          key={index}
-          onClick={() => onChoice(choice)}
+    <div className="space-y-3">
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          type="text"
+          value={actionText}
+          onChange={(e) => setActionText(e.target.value)}
           disabled={disabled}
-          className="w-full bg-gray-700 text-gray-200 font-semibold p-3 rounded-lg text-left transition duration-300 ease-in-out hover:bg-yellow-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
+          placeholder={t("actionInputPlaceholder")}
+          className="w-full bg-stone-200 text-stone-800 p-3 rounded-lg border border-stone-400 focus:outline-none focus:ring-2 focus:ring-red-800 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
+          aria-label={t("actionInputPlaceholder")}
+        />
+        <button
+          type="submit"
+          disabled={disabled || !actionText.trim()}
+          className="bg-red-800 text-white font-bold px-6 py-3 rounded-lg transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-amber-600 disabled:bg-stone-500 disabled:text-stone-700 disabled:cursor-not-allowed"
+          aria-label={t("submitAction")}
         >
-          {choice}
+          {t("submitAction")}
         </button>
-      ))}
+      </form>
+      {suggestions && suggestions.length > 0 && (
+        <div className="text-center text-sm text-stone-600">
+          <span className="font-semibold">{t("suggestions")}:</span>
+          <span className="italic ml-1">{suggestions.join(", ")}</span>
+        </div>
+      )}
     </div>
   );
 };
 
-export default ChoicePanel;
+export default ActionInputPanel;
