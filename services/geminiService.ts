@@ -39,7 +39,7 @@ const getResponseSchema = (lang: Language) => {
           spell_slot_used:
             "Jika pemain merapal mantra yang menggunakan slot, catat di sini. Abaikan jika tidak ada slot yang digunakan.",
           spell_slot_level:
-            "Tingkat slot mantra yang digunakan (misalnya, 1 untuk mantra tingkat pertama).",
+            "Tingkat slot mantra yang digunakan (harus 1 atau lebih).",
           enemy_update:
             "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
           next_player:
@@ -74,7 +74,7 @@ const getResponseSchema = (lang: Language) => {
           spell_slot_used:
             "If the player casts a spell that uses a slot, note it here. Omit if no slot was used.",
           spell_slot_level:
-            "The level of the spell slot expended (e.g., 1 for a 1st-level spell).",
+            "The level of the spell slot expended (must be 1 or greater).",
           enemy_update:
             "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
           next_player:
@@ -200,7 +200,7 @@ const getSystemInstruction = (lang: Language): string => {
     *   Jelaskan tindakan pemain saat ini dan musuh apa pun.
     *   Tawarkan keterampilan tempur pemain saat ini sebagai saran dalam 'choices'.
     *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
-    *   **Perapalan Mantra:** Ketika seorang pemain merapal mantra dari keterampilan tempur mereka (misalnya, 'Guiding Bolt', 'Magic Missile'), mereka menggunakan slot mantra. Anda HARUS melaporkan ini dengan menyertakan objek \`spell_slot_used\` di \`player_updates\` untuk pemain tersebut, dengan menentukan tingkat mantra yang dirapal. Mantra seperti 'Sacred Flame' atau 'Fire Bolt' adalah cantrip dan TIDAK menggunakan slot mantra.
+    *   **Perapalan Mantra:** Ketika seorang pemain merapal mantra dari keterampilan tempur mereka (misalnya, 'Guiding Bolt', 'Magic Missile'), mereka menggunakan slot mantra. Anda HARUS melaporkan ini dengan menyertakan objek \`spell_slot_used\` di \`player_updates\` untuk pemain tersebut, dengan menentukan tingkat mantra yang dirapal (yang harus 1 atau lebih). Mantra seperti 'Sacred Flame' atau 'Fire Bolt' adalah cantrip (level 0) dan TIDAK menggunakan slot mantra, jadi jangan sertakan \`spell_slot_used\` untuk mereka.
 6.  **Saran:** Bidang 'choices' digunakan untuk memberikan *saran* kepada pemain. Berikan 3-4 ide singkat untuk membantu memandu mereka jika mereka buntu. Mereka tidak terbatas pada pilihan ini.
 7.  **Kodeks Lore:** Saat Anda memperkenalkan karakter, lokasi, faksi, atau peristiwa sejarah yang signifikan, tambahkan mereka ke bidang 'lore_entries' dalam respons JSON Anda. Berikan judul yang ringkas dan satu paragraf deskripsi. Periksa 'loreCodex' saat ini dalam status permainan untuk menghindari pembuatan entri duplikat.
 
@@ -229,9 +229,9 @@ const getSystemInstruction = (lang: Language): string => {
     *   Describe the actions of the current player and any enemies.
     *   Offer the current player's combat skills as suggestions in 'choices'.
     *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
-    *   **Spellcasting:** When a player casts a spell from their combat skills (e.g., 'Guiding Bolt', 'Magic Missile'), they expend a spell slot. You MUST report this by including the \`spell_slot_used\` object in the \`player_updates\` for that player, specifying the level of the spell cast. Spells like 'Sacred Flame' or 'Fire Bolt' are cantrips and do NOT use spell slots.
-6.  **Suggestions:** The 'choices' field is for providing *suggestions* to the player. Provide 3-4 brief ideas to help guide them if they are stuck. They are not limited to these options.
-7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a paragraph of description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
+    *   **Spellcasting:** When a player casts a spell from their combat skills (e.g., 'Guiding Bolt', 'Magic Missile'), they use a spell slot. You MUST report this by including a \`spell_slot_used\` object in \`player_updates\` for that player, specifying the level of the spell cast (which must be 1 or greater). Spells like 'Sacred Flame' or 'Fire Bolt' are cantrips (level 0) and DO NOT use spell slots, so do not include \`spell_slot_used\` for them.
+6.  **Suggestions:** The 'choices' field is for giving the player *suggestions*. Provide 3-4 brief ideas to help guide them if they're stuck. They are not limited to these options.
+7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a one-paragraph description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
 
 **RESPONSE FORMAT:**
 - You MUST ALWAYS respond in the provided JSON format with the specified schema.
@@ -239,96 +239,54 @@ const getSystemInstruction = (lang: Language): string => {
 **ON STARTING:**
 - The party of characters will be provided.
 - Create a compelling opening scene that brings the party together.
-- Give each player a simple starting weapon and a health potion that fits their background. Use the 'player_updates' field to add these items.`;
+- Grant each player a simple starting weapon and a health potion appropriate to their background. Use the 'player_updates' field to add these items.`;
 };
 
 export const getNextStoryPart = async (
-  currentState: GameState,
+  gameState: GameState,
   playerChoice: string,
   lang: Language
 ): Promise<GeminiResponse> => {
-  // Determine if this is the very first turn of the game.
-  const isFirstTurn =
-    !currentState.storyLog || currentState.storyLog.length === 0;
+  const responseSchema = getResponseSchema(lang);
+  const systemInstruction = getSystemInstruction(lang);
 
-  const actingPlayerName =
-    currentState.players.length > 0
-      ? currentState.players[currentState.currentPlayerIndex].name
-      : "System";
-
-  // Create a summarized state to send to the model to keep the prompt size manageable.
-  const stateForPrompt = {
-    ...currentState,
-    // The story log is empty on the first turn, so this is fine.
-    storyLog: (currentState.storyLog || []).slice(-10),
+  // Create a summarized game state to avoid overly long prompts as the story progresses.
+  const summarizedGameState = {
+    ...gameState,
+    // Only include the last 10 story entries to provide recent context without bloating the prompt.
+    storyLog: (gameState.storyLog || []).slice(-10),
   };
 
-  let actionText: string;
-  let instructionText: string;
-
-  // Use a specific prompt for the first turn to generate the opening scene and starting items.
-  if (isFirstTurn) {
-    actionText = ""; // There is no preceding player action.
-    instructionText =
-      lang === "id"
-        ? `Ini adalah awal petualangan. Hasilkan adegan pembuka yang menarik untuk kelompok yang disediakan dalam status permainan, dan berikan setiap pemain item awal (senjata dan ramuan kesehatan) yang sesuai dengan latar belakang mereka menggunakan bidang 'player_updates'. Tetapkan pemain berikutnya ke indeks 0.`
-        : `This is the start of the adventure. Generate a compelling opening scene for the party provided in the game state, and provide each player with starting items (a weapon and a health potion) that fit their background using the 'player_updates' field. Set the next player to index 0.`;
-  } else {
-    // For subsequent turns, use the standard prompt format.
-    actionText =
-      lang === "id"
-        ? `Tindakan Pemain dari ${actingPlayerName}: "${playerChoice}"`
-        : `Player's Action from ${actingPlayerName}: "${playerChoice}"`;
-    instructionText =
-      lang === "id"
-        ? `Berdasarkan keadaan saat ini dan tindakan pemain, hasilkan bagian cerita selanjutnya untuk kelompok, ikuti semua aturan.`
-        : `Based on the current state and the player's action, generate the next part of the story for the party, following all the rules.`;
-  }
-
   const prompt = `
-    Current Game State (summary of recent events):
-    ${JSON.stringify(stateForPrompt, null, 2)}
+    Current Game State:
+    ${JSON.stringify(summarizedGameState, null, 2)}
 
-    ${actionText}
+    The current player (${
+      gameState.players[gameState.currentPlayerIndex].name
+    }) chose to: "${playerChoice}"
 
-    ${instructionText}
+    Generate the next part of the story based on this action.
     `;
 
-  let rawResponseText = "";
+  let jsonText = ""; // Declared here to be accessible in the catch block for logging.
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
-        systemInstruction: getSystemInstruction(lang),
         responseMimeType: "application/json",
-        responseSchema: getResponseSchema(lang),
-        temperature: 0.8,
+        responseSchema: responseSchema,
+        systemInstruction: systemInstruction,
       },
     });
 
-    rawResponseText = response.text;
-    let jsonText = rawResponseText.trim();
-
-    // The model can sometimes wrap the JSON in markdown fences. This removes them.
-    if (jsonText.startsWith("```json")) {
-      jsonText = jsonText.substring(7); // Remove ```json and potential newline
-      if (jsonText.endsWith("```")) {
-        jsonText = jsonText.slice(0, -3);
-      }
-      jsonText = jsonText.trim();
-    }
-
-    const parsedResponse: GeminiResponse = JSON.parse(jsonText);
-    return parsedResponse;
+    jsonText = response.text.trim();
+    const responseObject: GeminiResponse = JSON.parse(jsonText);
+    return responseObject;
   } catch (e) {
     console.error("Error generating content from Gemini:", e);
-    if (e instanceof SyntaxError) {
-      console.error(
-        "Failed to parse JSON response from Gemini:",
-        rawResponseText
-      );
-    }
+    // Log the actual text that failed to parse for easier debugging.
+    console.error("Failed to parse JSON response from Gemini:", jsonText);
     throw new Error("Failed to get a valid response from the storyteller.");
   }
 };
@@ -340,20 +298,17 @@ export const generateCharacterBackstory = async (
 ): Promise<string> => {
   const prompt =
     lang === "id"
-      ? `Buatlah kisah latar karakter yang singkat dan menarik untuk ${race} ${background} di dunia fantasi tinggi. Kisah latar harus sepanjang 2-4 kalimat dan memberikan kaitan untuk sebuah petualangan.`
-      : `Generate a short, compelling character backstory for a ${race} ${background} in a high-fantasy world. The backstory should be 2-4 sentences long and provide a hook for an adventure.`;
+      ? `Buatlah satu paragraf kisah latar belakang karakter untuk RPG fantasi. Karakter tersebut adalah seorang ${race} dengan latar belakang ${background}. Buatlah agar menarik dan ringkas.`
+      : `Generate a single paragraph of character backstory for a fantasy RPG. The character is a ${race} with a ${background} background. Make it engaging and concise.`;
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
-      config: {
-        temperature: 0.9,
-      },
     });
     return response.text.trim();
   } catch (e) {
-    console.error("Error generating character backstory:", e);
-    throw new Error("Failed to generate backstory from the storyteller.");
+    console.error("Error generating backstory:", e);
+    throw new Error("Failed to generate backstory.");
   }
 };
