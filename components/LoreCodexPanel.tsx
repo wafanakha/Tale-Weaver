@@ -15,8 +15,8 @@ const LoreCodexPanel: React.FC<LoreCodexPanelProps> = ({ loreCodex = [] }) => {
   };
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4 shadow-md border border-gray-700 flex flex-col">
-      <h2 className="text-xl font-bold text-center mb-4 text-yellow-400 cinzel">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex flex-col">
+      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2">
         {t("loreCodex")}
       </h2>
       <div
@@ -26,15 +26,13 @@ const LoreCodexPanel: React.FC<LoreCodexPanelProps> = ({ loreCodex = [] }) => {
         {loreCodex.length > 0 ? (
           <div className="space-y-2">
             {loreCodex.map((entry) => (
-              <div key={entry.title} className="bg-gray-700 rounded-md">
+              <div key={entry.title} className="bg-stone-200/50 rounded-md">
                 <button
                   onClick={() => handleToggle(entry.title)}
-                  className="w-full text-left p-2 flex justify-between items-center hover:bg-gray-600 transition-colors duration-200"
+                  className="w-full text-left p-2 flex justify-between items-center hover:bg-stone-300/50 transition-colors duration-200"
                   aria-expanded={expandedEntry === entry.title}
                 >
-                  <span className="font-bold text-yellow-400">
-                    {entry.title}
-                  </span>
+                  <span className="font-bold text-red-800">{entry.title}</span>
                   <span
                     className={`transform transition-transform duration-200 text-xs ${
                       expandedEntry === entry.title ? "rotate-180" : ""
@@ -44,8 +42,8 @@ const LoreCodexPanel: React.FC<LoreCodexPanelProps> = ({ loreCodex = [] }) => {
                   </span>
                 </button>
                 {expandedEntry === entry.title && (
-                  <div className="p-3 border-t border-gray-600">
-                    <p className="text-sm text-gray-300 leading-relaxed">
+                  <div className="p-3 border-t border-stone-400">
+                    <p className="text-sm text-stone-700 leading-relaxed">
                       {entry.description}
                     </p>
                   </div>
@@ -54,7 +52,7 @@ const LoreCodexPanel: React.FC<LoreCodexPanelProps> = ({ loreCodex = [] }) => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 italic text-sm text-center mt-4">
+          <p className="text-stone-500 italic text-sm text-center mt-4">
             {t("noDiscoveries")}
           </p>
         )}

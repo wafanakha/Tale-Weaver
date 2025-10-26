@@ -32,20 +32,20 @@ const ActionInputPanel: React.FC<ActionInputPanelProps> = ({
           onChange={(e) => setActionText(e.target.value)}
           disabled={disabled}
           placeholder={t("actionInputPlaceholder")}
-          className="w-full bg-gray-700 text-gray-200 p-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
+          className="w-full bg-stone-200 text-stone-800 p-3 rounded-lg border border-stone-400 focus:outline-none focus:ring-2 focus:ring-red-800 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
           aria-label={t("actionInputPlaceholder")}
         />
         <button
           type="submit"
           disabled={disabled || !actionText.trim()}
-          className="bg-yellow-600 text-gray-900 font-bold px-6 py-3 rounded-lg transition duration-300 ease-in-out hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed"
+          className="bg-red-800 text-white font-bold px-6 py-3 rounded-lg transition duration-300 ease-in-out hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-amber-600 disabled:bg-stone-500 disabled:text-stone-700 disabled:cursor-not-allowed"
           aria-label={t("submitAction")}
         >
           {t("submitAction")}
         </button>
       </form>
       {suggestions && suggestions.length > 0 && (
-        <div className="text-center text-sm text-gray-400">
+        <div className="text-center text-sm text-stone-600">
           <span className="font-semibold">{t("suggestions")}:</span>
           <span className="italic ml-1">{suggestions.join(", ")}</span>
         </div>

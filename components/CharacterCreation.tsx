@@ -125,8 +125,13 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
 
   const unassignedScores = useMemo(() => {
     const assigned = Object.values(stats);
+    // FIX: The type of `score` can be inferred as `number | undefined` because `stats` is a `Partial<Stats>`.
+    // Using it as an index caused two errors. Adding a type guard to ensure `score` is a number before
+    // using it as an index satisfies TypeScript.
     const counts = assigned.reduce((acc, score) => {
-      acc[score] = (acc[score] || 0) + 1;
+      if (typeof score === "number") {
+        acc[score] = (acc[score] || 0) + 1;
+      }
       return acc;
     }, {} as Record<number, number>);
 
@@ -247,9 +252,9 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     Object.keys(stats).length !== 6;
 
   return (
-    <div className="min-h-screen w-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-2xl max-w-4xl w-full my-8">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-6 cinzel text-center">
+    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-4xl w-full my-8 border-4 border-double border-amber-800">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("createAdventurer")}
         </h1>
 
@@ -258,7 +263,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
             <div>
               <label
                 htmlFor="name"
-                className="block text-lg font-semibold mb-2 cinzel text-gray-300"
+                className="block text-lg font-semibold mb-2 cinzel text-stone-700"
               >
                 {t("name")}
               </label>
@@ -267,13 +272,13 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 bg-gray-700 rounded-md border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+                className="w-full p-3 bg-stone-200 rounded-md border border-stone-400 focus:ring-2 focus:ring-red-800 outline-none"
                 placeholder={t("characterNamePlaceholder")}
                 required
               />
             </div>
             <div>
-              <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
+              <label className="block text-lg font-semibold mb-2 cinzel text-stone-700">
                 {t("race")}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -284,8 +289,8 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                     onClick={() => setRace(r)}
                     className={`px-4 py-2 rounded-md text-sm transition-colors ${
                       race === r
-                        ? "bg-yellow-500 text-gray-900 font-bold"
-                        : "bg-gray-700 hover:bg-gray-600"
+                        ? "bg-red-800 text-white font-bold"
+                        : "bg-stone-500/50 hover:bg-stone-600/50"
                     }`}
                   >
                     {r}
@@ -294,7 +299,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               </div>
             </div>
             <div>
-              <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
+              <label className="block text-lg font-semibold mb-2 cinzel text-stone-700">
                 {t("class")}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -305,8 +310,8 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                     onClick={() => setCharClass(c)}
                     className={`px-4 py-2 rounded-md text-sm transition-colors ${
                       charClass === c
-                        ? "bg-yellow-500 text-gray-900 font-bold"
-                        : "bg-gray-700 hover:bg-gray-600"
+                        ? "bg-red-800 text-white font-bold"
+                        : "bg-stone-500/50 hover:bg-stone-600/50"
                     }`}
                   >
                     {c}
@@ -315,7 +320,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               </div>
             </div>
             <div className="lg:col-span-3">
-              <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
+              <label className="block text-lg font-semibold mb-2 cinzel text-stone-700">
                 {t("background")}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -326,8 +331,8 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                     onClick={() => setBackground(b)}
                     className={`px-4 py-2 rounded-md text-sm transition-colors ${
                       background === b
-                        ? "bg-yellow-500 text-gray-900 font-bold"
-                        : "bg-gray-700 hover:bg-gray-600"
+                        ? "bg-red-800 text-white font-bold"
+                        : "bg-stone-500/50 hover:bg-stone-600/50"
                     }`}
                   >
                     {b}
@@ -338,10 +343,10 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
           </div>
 
           <div>
-            <label className="block text-lg font-semibold mb-2 cinzel text-gray-300">
+            <label className="block text-lg font-semibold mb-2 cinzel text-stone-700">
               {t("assignStats")}
             </label>
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm text-stone-600 mb-2">
               {t("assignStatsDesc", { scores: STANDARD_ARRAY.join(", ") })}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -349,7 +354,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                 <div key={stat}>
                   <label
                     htmlFor={stat}
-                    className="block text-sm font-bold capitalize text-yellow-400"
+                    className="block text-sm font-bold capitalize text-red-900"
                   >
                     {stat}
                   </label>
@@ -357,7 +362,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                     id={stat}
                     value={stats[stat] || ""}
                     onChange={(e) => handleStatChange(stat, e.target.value)}
-                    className="w-full p-2 mt-1 bg-gray-700 rounded-md border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+                    className="w-full p-2 mt-1 bg-stone-200 rounded-md border border-stone-400 focus:ring-2 focus:ring-red-800 outline-none"
                   >
                     <option value="">-</option>
                     {stats[stat] && (
@@ -377,7 +382,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
           <div>
             <label
               htmlFor="backstory"
-              className="block text-lg font-semibold mb-2 cinzel text-gray-300"
+              className="block text-lg font-semibold mb-2 cinzel text-stone-700"
             >
               {t("backstory")}
             </label>
@@ -385,7 +390,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               id="backstory"
               value={backstory}
               onChange={(e) => setBackstory(e.target.value)}
-              className="w-full p-3 bg-gray-700 rounded-md border border-gray-600 focus:ring-2 focus:ring-yellow-500 outline-none"
+              className="w-full p-3 bg-stone-200 rounded-md border border-stone-400 focus:ring-2 focus:ring-red-800 outline-none"
               rows={3}
               placeholder={t("backstoryPlaceholder")}
             />
@@ -394,7 +399,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                 type="button"
                 onClick={handleGenerateBackstory}
                 disabled={!race || !background || isGenerating}
-                className="cinzel text-sm bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-gray-600 disabled:cursor-not-allowed"
+                className="cinzel text-sm bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-stone-500 disabled:cursor-not-allowed"
               >
                 {isGenerating ? t("generating") : t("generateWithAi")}
               </button>
@@ -405,14 +410,14 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="cinzel text-lg bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg transition"
+              className="cinzel text-lg bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition"
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={formIsInvalid}
-              className="cinzel text-xl bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed"
+              className="cinzel text-xl bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105 disabled:bg-stone-500 disabled:cursor-not-allowed"
             >
               {isSubmitting ? t("addingToParty") : t("createCharacter")}
             </button>

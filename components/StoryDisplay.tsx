@@ -12,10 +12,10 @@ const nameToColorClass = (name: string): string => {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
   const colors = [
-    "text-blue-400",
-    "text-green-400",
-    "text-purple-400",
-    "text-orange-400",
+    "text-blue-800",
+    "text-green-800",
+    "text-purple-800",
+    "text-orange-800",
   ];
   const index = Math.abs(hash % colors.length);
   return colors[index];
@@ -23,22 +23,22 @@ const nameToColorClass = (name: string): string => {
 
 const DiceRollDisplay: React.FC<{ roll: DiceRoll }> = ({ roll }) => {
   const { t } = useLanguage();
-  const resultClass = roll.success ? "text-green-400" : "text-red-400";
+  const resultClass = roll.success ? "text-green-800" : "text-red-800";
   const resultText = roll.success ? t("success") : t("failure");
   const modifierText =
     roll.modifier >= 0 ? `+ ${roll.modifier}` : `- ${Math.abs(roll.modifier)}`;
 
   return (
-    <div className="bg-gray-900/50 border border-gray-600 rounded-lg p-3 my-4 text-center">
-      <p className="font-bold text-yellow-400 text-lg cinzel">
+    <div className="bg-stone-300/50 border border-stone-400 rounded-lg p-3 my-4 text-center">
+      <p className="font-bold text-red-800 text-lg cinzel">
         {t("skillCheck", { skill: roll.skill })}
       </p>
-      <div className="flex justify-center items-center gap-2 my-2 text-gray-300">
+      <div className="flex justify-center items-center gap-2 my-2 text-stone-700">
         <span>🎲{roll.roll}</span>
         <span>{modifierText}</span>
         <span>=</span>
-        <span className="font-bold text-xl text-white">{roll.total}</span>
-        <span className="text-gray-500">(vs DC {roll.dc})</span>
+        <span className="font-bold text-xl text-stone-900">{roll.total}</span>
+        <span className="text-stone-500">(vs DC {roll.dc})</span>
       </div>
       <p className={`font-bold text-lg ${resultClass}`}>{resultText}</p>
     </div>
@@ -56,7 +56,7 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
   const safeStoryLog = storyLog || [];
 
   return (
-    <div className="flex-grow bg-black/30 rounded-lg p-4 overflow-y-auto border border-gray-700 h-96 lg:h-auto">
+    <div className="flex-grow bg-stone-200/50 rounded-lg p-4 overflow-y-auto border-2 border-stone-400 shadow-inner h-96 lg:h-auto">
       <div className="space-y-6">
         {safeStoryLog.map((entry) => {
           switch (entry.speaker) {
@@ -64,14 +64,16 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
               return (
                 <div key={entry.id}>
                   {entry.diceRoll && <DiceRollDisplay roll={entry.diceRoll} />}
-                  <p className="text-gray-300 leading-relaxed">{entry.text}</p>
+                  <p className="text-stone-800 leading-relaxed whitespace-pre-wrap">
+                    {entry.text}
+                  </p>
                 </div>
               );
             case "system":
               return (
                 <p
                   key={entry.id}
-                  className="text-center text-yellow-400 text-sm italic"
+                  className="text-center text-amber-700 text-sm italic"
                 >
                   {entry.text}
                 </p>
@@ -79,9 +81,12 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
             default: // Player speaker
               const colorClass = nameToColorClass(entry.speaker);
               return (
-                <div key={entry.id} className="pl-2 border-l-2 border-gray-600">
+                <div
+                  key={entry.id}
+                  className="pl-2 border-l-2 border-stone-400"
+                >
                   <p className={`font-bold ${colorClass}`}>{entry.speaker}:</p>
-                  <p className="text-gray-300 italic">{entry.text}</p>
+                  <p className="text-stone-700 italic">{entry.text}</p>
                 </div>
               );
           }

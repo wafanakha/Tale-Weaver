@@ -14,16 +14,16 @@ const ItemCard: React.FC<{
 }> = ({ item, onEquip, isEquippable }) => {
   const { t } = useLanguage();
   return (
-    <div className="bg-gray-700 p-2 rounded-md hover:bg-gray-600 transition-colors duration-200">
+    <div className="bg-stone-200/50 p-2 rounded-md hover:bg-stone-300/50 transition-colors duration-200">
       <div className="flex justify-between items-start">
         <div>
-          <p className="font-bold text-yellow-400">{item.name}</p>
-          <p className="text-xs text-gray-400 italic">{item.description}</p>
+          <p className="font-bold text-red-800">{item.name}</p>
+          <p className="text-xs text-stone-600 italic">{item.description}</p>
         </div>
         {isEquippable && (
           <button
             onClick={() => onEquip(item)}
-            className="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold py-1 px-2 rounded ml-2 flex-shrink-0"
+            className="text-xs bg-red-800 hover:bg-red-700 text-white font-bold py-1 px-2 rounded ml-2 flex-shrink-0"
           >
             {t("equip")}
           </button>
@@ -45,32 +45,32 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
   const inventory = player.inventory || [];
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4 shadow-md flex-grow border border-gray-700 flex flex-col">
-      <h2 className="text-xl font-bold text-center mb-4 text-yellow-400 cinzel">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex-grow flex flex-col">
+      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2">
         {t("yourInventory")}
       </h2>
 
       <div className="mb-4">
-        <h3 className="text-sm uppercase text-gray-400 font-semibold mb-2">
+        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-2">
           {t("equipped")}
         </h3>
         <div className="space-y-2 text-sm">
           <p>
-            <span className="font-bold text-gray-300">{t("weapon")}:</span>{" "}
+            <span className="font-bold text-stone-700">{t("weapon")}:</span>{" "}
             {equipment.weapon?.name || t("none")}
           </p>
           <p>
-            <span className="font-bold text-gray-300">{t("armor")}:</span>{" "}
+            <span className="font-bold text-stone-700">{t("armor")}:</span>{" "}
             {equipment.armor?.name || t("none")}
           </p>
         </div>
       </div>
 
       <div
-        className="border-t border-gray-600 pt-4 flex-grow overflow-y-auto"
+        className="border-t border-stone-400 pt-4 flex-grow overflow-y-auto"
         style={{ maxHeight: "400px" }}
       >
-        <h3 className="text-sm uppercase text-gray-400 font-semibold mb-2">
+        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-2">
           {t("carriedItems")}
         </h3>
         {inventory.length > 0 ? (
@@ -87,7 +87,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 italic text-sm text-center mt-4">
+          <p className="text-stone-500 italic text-sm text-center mt-4">
             {t("backpackEmpty")}
           </p>
         )}

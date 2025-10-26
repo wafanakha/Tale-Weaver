@@ -9,7 +9,7 @@ import React, {
 const translations = {
   en: {
     // Welcome
-    welcomeTitle: "Tale-Weaver",
+    welcomeTitle: "Tale Weaver",
     welcomeDescription:
       "Gather your party, brave adventurers! A world of fantasy, danger, and untold stories awaits. Your journey is shaped by your choices, and the narrative is woven by a master storyteller. Are you ready to begin?",
     assembleParty: "Assemble Your Party",
@@ -104,7 +104,7 @@ const translations = {
   },
   id: {
     // Welcome
-    welcomeTitle: "Tale-Weaver",
+    welcomeTitle: "Tale Weaver",
     welcomeDescription:
       "Kumpulkan kelompokmu, para petualang pemberani! Dunia fantasi, bahaya, dan kisah tak terhingga menanti. Perjalananmu dibentuk oleh pilihanmu, dan narasinya ditenun oleh seorang ahli cerita. Apakah kamu siap untuk memulai?",
     assembleParty: "Kumpulkan Kelompokmu",

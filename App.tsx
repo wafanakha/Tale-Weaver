@@ -47,26 +47,26 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   const GameCard: React.FC<{ game: GameState }> = ({ game }) => (
     <button
       onClick={() => onJoinGame(game.gameId)}
-      className="w-full bg-gray-700 p-4 rounded-lg text-left transition hover:bg-yellow-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+      className="w-full border-2 border-stone-400 bg-stone-500/10 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-500/20 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
     >
-      <p className="font-bold text-yellow-400 font-mono tracking-widest">
+      <p className="font-bold text-red-800 font-mono tracking-widest">
         {game.gameId}
       </p>
-      <p className="text-sm text-gray-300 mt-2">
+      <p className="text-sm text-stone-600 mt-2">
         {t("players")}:{" "}
         {(game.players || []).map((p) => p.name).join(", ") ||
           t("noPlayersYet")}
       </p>
-      <p className="text-xs text-gray-500 mt-1">
+      <p className="text-xs text-stone-500 mt-1">
         {t("status")}: {game.status}
       </p>
     </button>
   );
 
   return (
-    <div className="min-h-screen w-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-2xl max-w-2xl w-full">
-        <h1 className="text-4xl font-bold text-yellow-400 mb-6 cinzel text-center">
+    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-2xl w-full border-4 border-double border-amber-800">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("loadGame")}
         </h1>
         {isLoading && <LoadingSpinner />}
@@ -75,7 +75,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
             {games.length > 0 ? (
               games.map((game) => <GameCard key={game.gameId} game={game} />)
             ) : (
-              <p className="text-gray-500 italic text-center">
+              <p className="text-stone-500 italic text-center">
                 {t("noSavedGames")}
               </p>
             )}
@@ -84,7 +84,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
         <div className="mt-8 text-center">
           <button
             onClick={onCancel}
-            className="cinzel text-lg bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg transition"
+            className="cinzel text-lg bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition"
           >
             {t("back")}
           </button>
@@ -427,8 +427,8 @@ const App: React.FC = () => {
         onClick={() => setLanguage("en")}
         className={`px-4 py-2 rounded-md text-sm transition-colors ${
           language === "en"
-            ? "bg-yellow-500 text-gray-900 font-bold"
-            : "bg-gray-700 hover:bg-gray-600"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
         }`}
       >
         English
@@ -437,8 +437,8 @@ const App: React.FC = () => {
         onClick={() => setLanguage("id")}
         className={`px-4 py-2 rounded-md text-sm transition-colors ${
           language === "id"
-            ? "bg-yellow-500 text-gray-900 font-bold"
-            : "bg-gray-700 hover:bg-gray-600"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
         }`}
       >
         Bahasa Indonesia
@@ -448,24 +448,24 @@ const App: React.FC = () => {
 
   if (screen === "welcome") {
     return (
-      <div className="h-screen w-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4">
-        <div className="text-center bg-gray-800 p-10 rounded-lg shadow-2xl max-w-2xl">
-          <h1 className="text-5xl font-bold text-yellow-400 mb-4 cinzel">
+      <div className="h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+        <div className="text-center bg-[#f3e9d2] p-10 rounded-lg shadow-2xl max-w-2xl border-4 border-double border-amber-800">
+          <h1 className="text-5xl font-bold text-red-900 mb-4 medieval">
             {t("welcomeTitle")}
           </h1>
-          <p className="text-lg mb-8 text-gray-300">
+          <p className="text-lg mb-8 text-stone-700 leading-relaxed">
             {t("welcomeDescription")}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={() => setScreen("lobby")}
-              className="cinzel text-xl bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+              className="cinzel text-xl bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
             >
               {t("assembleParty")}
             </button>
             <button
               onClick={() => setScreen("load")}
-              className="cinzel text-xl bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+              className="cinzel text-xl bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
             >
               {t("loadGame")}
             </button>
@@ -523,7 +523,7 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-200 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <div className="min-h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
@@ -543,20 +543,20 @@ const App: React.FC = () => {
           <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
-        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-gray-800/50 rounded-lg shadow-lg p-4 lg:p-6 border border-gray-700">
-          <h1 className="text-3xl font-bold text-center mb-4 text-yellow-400 cinzel">
+        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
+          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel">
             {t("yourStory")}
           </h1>
           <StoryDisplay storyLog={gameState.storyLog} />
           <div className="mt-auto pt-4">
             {gameState.isLoading && <LoadingSpinner />}
             {gameState.error && (
-              <p className="text-red-400 text-center mb-2">{gameState.error}</p>
+              <p className="text-red-800 text-center mb-2">{gameState.error}</p>
             )}
             {!gameState.isLoading && (
               <>
                 {currentPlayer && (
-                  <p className="text-center text-yellow-400 mb-2 font-semibold">
+                  <p className="text-center text-red-900 mb-2 font-semibold">
                     {t("whatWillPlayerDo", { playerName: currentPlayer.name })}
                   </p>
                 )}
