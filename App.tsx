@@ -414,59 +414,108 @@ const App: React.FC = () => {
   };
 
   const LanguageSelector = () => (
-    <div className="flex justify-center gap-4 mt-8">
-      <button
-        onClick={() => setLanguage("en")}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          language === "en"
-            ? "bg-red-800 text-white font-bold"
-            : "bg-stone-500/50 hover:bg-stone-600/50"
-        }`}
-      >
-        English
-      </button>
-      <button
-        onClick={() => setLanguage("id")}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          language === "id"
-            ? "bg-red-800 text-white font-bold"
-            : "bg-stone-500/50 hover:bg-stone-600/50"
-        }`}
-      >
-        Bahasa Indonesia
-      </button>
-    </div>
-  );
+  <div className="absolute top-5 right-6 flex justify-center gap-3">
+        <button
+          onClick={() => setLanguage("en")}
+          className={`
+            font-cinzel font-semibold
+            px-3 py-1 /* Dibuat lebih kecil */
+            rounded-md
+            border-2 
+            transition-all duration-300
+            ${
+              language === "en"
+                ? // === GAYA AKTIF (Kontras Tinggi) ===
+                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
+                : // === GAYA TIDAK AKTIF (Redup) ===
+                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
+            }
+          `}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLanguage("id")}
+          className={`
+            font-cinzel font-semibold
+            px-3 py-1 /* Dibuat lebih kecil */
+            rounded-md
+            border-2 
+            transition-all duration-300
+            ${
+              language === "id"
+                ? // === GAYA AKTIF (Kontras Tinggi) ===
+                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
+                : // === GAYA TIDAK AKTIF (Redup) ===
+                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
+            }
+          `}
+        >
+          Bahasa Indonesia
+        </button>
+      </div>
+    );
 
   if (screen === "welcome") {
     return (
-      <div className="h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
-        <div className="text-center bg-[#f3e9d2] p-10 rounded-lg shadow-2xl max-w-2xl border-4 border-double border-amber-800">
-          <h1 className="text-5xl font-bold text-red-900 mb-4 medieval">
-            {t("welcomeTitle")}
-          </h1>
-          <p className="text-lg mb-8 text-stone-700 leading-relaxed">
+      <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+        <div className="text-center content-frame w-full max-w-2xl p-16 shadow-2xl relative">
+          {/* === UBAH: Ganti .jpg menjadi .png === */}
+          <LanguageSelector />
+          <img
+            src="/logo.png"
+            alt="Tale Weaver Logo"
+            className="w-44 h-44 mx-auto mb-6"
+          />
+
+          {/* === UBAH: Ganti text-stone-700 menjadi text-stone-900 (lebih gelap/hitam) === */}
+          <p className="text-lg mb-8 text-stone-900 leading-relaxed text-glow">
             {t("welcomeDescription")}
           </p>
+
+          {/* Tombol-tombol ini tidak diubah, warnanya sudah cukup kontras */}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={() => setScreen("lobby")}
-              className="cinzel text-xl bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+              className="
+                font-cinzel text-lg font-bold text-white
+                bg-gradient-to-b from-yellow-600 to-yellow-800
+                border-2 border-yellow-400
+                rounded-lg px-8 py-3
+                shadow-lg shadow-black/30
+                hover:from-yellow-500 hover:to-yellow-700
+                hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:scale-105
+              "
             >
-              {t("assembleParty")}
+              ASSEMBLE YOUR PARTY
             </button>
             <button
               onClick={() => setScreen("load")}
-              className="cinzel text-xl bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+              className="
+                font-cinzel text-lg font-bold text-white
+                bg-gradient-to-b from-red-600 to-red-800
+                border-2 border-red-400
+                rounded-lg px-8 py-3
+                shadow-lg shadow-black/30
+                hover:from-red-500 hover:to-red-700  
+                hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:scale-105
+                "
             >
-              {t("loadGame")}
+              LOAD GAME
             </button>
           </div>
+
+          {/* Memanggil LanguageSelector yang sudah diperbaiki di atas */}
           <LanguageSelector />
         </div>
       </div>
     );
   }
+
 
   if (screen === "load") {
     return (
@@ -483,6 +532,7 @@ const App: React.FC = () => {
         onJoinGame={handleJoinGame}
         onCreateGame={handleCreateGame}
         error={error}
+        onCancel={() => setScreen("welcome")}
       />
     );
   }
