@@ -297,8 +297,8 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
 
 
   return (
-    <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-4xl w-full my-8">
+    <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-4xl w-full">
         <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("createAdventurer")}
         </h1>
@@ -422,7 +422,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
             <label className={labelClass}>
               {t("assignStats")}
             </label>
-            <p className="text-sm text-stone-800 mb-2 text-glow">
+            <p className="text-sm text-stone-900 mb-2 text-glow">
               {t("assignStatsDesc", { scores: STANDARD_ARRAY.join(", ") })}
             </p>
             
