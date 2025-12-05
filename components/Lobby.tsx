@@ -10,6 +10,7 @@ interface LobbyProps {
   onJoinGame?: (gameId: string) => void;
   onCreateGame?: () => void;
   onStartGame?: () => void;
+  onCancel?: () => void; 
 }
 
 const Lobby: React.FC<LobbyProps> = ({
@@ -20,6 +21,7 @@ const Lobby: React.FC<LobbyProps> = ({
   onJoinGame = () => {},
   onCreateGame = () => {},
   onStartGame = () => {},
+  onCancel = () => {}, 
 }) => {
   const { t } = useLanguage();
   const [joinId, setJoinId] = useState("");
@@ -44,17 +46,20 @@ const Lobby: React.FC<LobbyProps> = ({
     }
   };
 
+  
   if (gameId && gameState) {
     const isHost = gameState.hostId === clientId;
     const canStart = gameState.players.length > 0;
 
     return (
-      <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
-        <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-2xl w-full text-center border-4 border-double border-amber-800">
+      
+      <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+        {}
+        <div className="content-frame relative p-12 shadow-2xl max-w-2xl w-full text-center">
           <h1 className="text-4xl font-bold text-red-900 mb-4 cinzel">
             {t("partyLobby")}
           </h1>
-          <p className="text-stone-600 mb-6">{t("shareGameId")}</p>
+          <p className="text-stone-800 text-glow mb-6">{t("shareGameId")}</p> {}
           <div
             className="bg-stone-200 text-red-900 text-3xl font-mono tracking-widest p-4 rounded-lg mb-6 cursor-pointer border-2 border-dashed border-stone-500 hover:border-amber-700"
             onClick={copyGameId}
@@ -66,6 +71,7 @@ const Lobby: React.FC<LobbyProps> = ({
           <h2 className="text-2xl font-bold text-red-900 mb-4 cinzel">
             {t("adventurersJoined")}
           </h2>
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 min-h-[120px]">
             {gameState.players.length > 0 ? (
               gameState.players.map((player) => (
@@ -83,7 +89,7 @@ const Lobby: React.FC<LobbyProps> = ({
                 </div>
               ))
             ) : (
-              <p className="text-stone-500 italic col-span-full pt-8">
+              <p className="text-stone-500 italic col-span-full pt-8 text-glow">
                 {t("waitingForAdventurers")}
               </p>
             )}
@@ -99,16 +105,17 @@ const Lobby: React.FC<LobbyProps> = ({
             </button>
           )}
           {!isHost && (
-            <p className="text-amber-700 italic">{t("waitingForHost")}</p>
+            <p className="text-amber-700 italic text-glow">{t("waitingForHost")}</p>
           )}
         </div>
       </div>
     );
   }
 
+  
   return (
-    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-md w-full border-4 border-double border-amber-800">
+    <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="content-frame relative p-16 shadow-2xl max-w-2xl w-full">
         <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("joinAdventure")}
         </h1>
@@ -123,13 +130,24 @@ const Lobby: React.FC<LobbyProps> = ({
           <div>
             <button
               onClick={onCreateGame}
-              className="w-full cinzel text-lg bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition"
+              
+              className="
+                w-full font-cinzel text-lg font-bold text-white
+                bg-gradient-to-b from-yellow-600 to-yellow-800
+                border-2 border-yellow-400
+                rounded-lg py-3 px-6
+                shadow-lg shadow-black/30
+                hover:from-yellow-500 hover:to-yellow-700
+                hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:scale-105
+              "
             >
               {t("createNewGame")}
             </button>
           </div>
 
-          <div className="flex items-center text-stone-600">
+          <div className="flex items-center text-stone-700 text-glow">
             <hr className="flex-grow border-t border-stone-400" />
             <span className="px-4">{t("or")}</span>
             <hr className="flex-grow border-t border-stone-400" />
@@ -138,7 +156,7 @@ const Lobby: React.FC<LobbyProps> = ({
           <form onSubmit={handleJoinSubmit} className="space-y-3">
             <label
               htmlFor="joinId"
-              className="block text-lg font-semibold cinzel text-stone-700 text-center"
+              className="block text-lg font-semibold cinzel text-stone-700 text-center text-glow"
             >
               {t("joinExistingGame")}
             </label>
@@ -153,12 +171,32 @@ const Lobby: React.FC<LobbyProps> = ({
             />
             <button
               type="submit"
-              className="w-full cinzel text-lg bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg transition"
+              className="
+                w-full font-cinzel text-lg font-bold text-white
+                bg-gradient-to-b from-red-600 to-red-800
+                border-2 border-red-400
+                rounded-lg py-3 px-6
+                shadow-lg shadow-black/30
+                hover:from-red-500 hover:to-red-700
+                hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:scale-105
+              "
             >
               {t("joinGame")}
             </button>
           </form>
         </div>
+
+        <div className="text-center mt-8">
+          <button
+            onClick={onCancel}
+            className="cinzel text-md text-stone-700  hover:text-stone-900 transition underline text-glow"
+          >
+            {t('back', 'Back to Welcome')}
+          </button>
+        </div>
+        
       </div>
     </div>
   );
