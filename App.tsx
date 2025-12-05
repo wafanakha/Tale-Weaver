@@ -47,44 +47,51 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   const GameCard: React.FC<{ game: GameState }> = ({ game }) => (
     <button
       onClick={() => onJoinGame(game.gameId)}
-      className="w-full border-2 border-stone-400 bg-stone-500/10 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-500/20 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
+     
+      className="w-full border-2 border-stone-400 bg-stone-200/60 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-100/80 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
     >
-      <p className="font-bold text-red-800 font-mono tracking-widest">
+      <p className="font-bold text-red-900 font-mono tracking-widest">
         {game.gameId}
       </p>
-      <p className="text-sm text-stone-600 mt-2">
+      <p className="text-sm text-stone-700 mt-2">
         {t("players")}:{" "}
         {(game.players || []).map((p) => p.name).join(", ") ||
           t("noPlayersYet")}
       </p>
-      <p className="text-xs text-stone-500 mt-1">
+      <p className="text-xs text-stone-600 mt-1">
         {t("status")}: {game.status}
       </p>
     </button>
   );
 
   return (
-    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-2xl w-full border-4 border-double border-amber-800">
+    
+    <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      {}
+      <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-2xl w-full">
         <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("loadGame")}
         </h1>
+        
         {isLoading && <LoadingSpinner />}
+        
         {!isLoading && (
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
             {games.length > 0 ? (
               games.map((game) => <GameCard key={game.gameId} game={game} />)
             ) : (
-              <p className="text-stone-500 italic text-center">
+              <p className="text-stone-800 italic text-center text-glow">
                 {t("noSavedGames")}
               </p>
             )}
           </div>
         )}
+
+        {}
         <div className="mt-8 text-center">
           <button
             onClick={onCancel}
-            className="cinzel text-lg bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition"
+            className="cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow"
           >
             {t("back")}
           </button>
@@ -425,9 +432,9 @@ const App: React.FC = () => {
             transition-all duration-300
             ${
               language === "en"
-                ? // === GAYA AKTIF (Kontras Tinggi) ===
+                ? 
                   "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                : // === GAYA TIDAK AKTIF (Redup) ===
+                : 
                   "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
             }
           `}
@@ -444,9 +451,9 @@ const App: React.FC = () => {
             transition-all duration-300
             ${
               language === "id"
-                ? // === GAYA AKTIF (Kontras Tinggi) ===
+                ? 
                   "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                : // === GAYA TIDAK AKTIF (Redup) ===
+                :
                   "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
             }
           `}
@@ -460,7 +467,7 @@ const App: React.FC = () => {
     return (
       <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
         <div className="text-center content-frame w-full max-w-2xl p-16 shadow-2xl relative">
-          {/* === UBAH: Ganti .jpg menjadi .png === */}
+          {}
           <LanguageSelector />
           <img
             src="/logo.png"
@@ -468,12 +475,12 @@ const App: React.FC = () => {
             className="w-44 h-44 mx-auto mb-6"
           />
 
-          {/* === UBAH: Ganti text-stone-700 menjadi text-stone-900 (lebih gelap/hitam) === */}
+          {}
           <p className="text-lg mb-8 text-stone-900 leading-relaxed text-glow">
             {t("welcomeDescription")}
           </p>
 
-          {/* Tombol-tombol ini tidak diubah, warnanya sudah cukup kontras */}
+          {}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={() => setScreen("lobby")}
@@ -489,7 +496,7 @@ const App: React.FC = () => {
                 transform hover:scale-105
               "
             >
-              ASSEMBLE YOUR PARTY
+              {t("assembleParty")}
             </button>
             <button
               onClick={() => setScreen("load")}
@@ -505,11 +512,11 @@ const App: React.FC = () => {
                 transform hover:scale-105
                 "
             >
-              LOAD GAME
+              {t("loadGame")}
             </button>
           </div>
 
-          {/* Memanggil LanguageSelector yang sudah diperbaiki di atas */}
+          {}
           <LanguageSelector />
         </div>
       </div>
@@ -541,7 +548,10 @@ const App: React.FC = () => {
     return (
       <CharacterCreation
         onCharacterCreate={handleCharacterCreate}
-        onCancel={() => setScreen("lobby")}
+        onCancel={() => {
+          setScreen("lobby");
+          setGameId(null); 
+        }}
       />
     );
   }
