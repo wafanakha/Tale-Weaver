@@ -113,6 +113,12 @@ export interface LoreEntry {
   description: string;
 }
 
+export interface WorldSetting {
+  name: string;
+  genre: string;
+  description: string;
+}
+
 export interface GameState {
   gameId: string;
   hostId: string;
@@ -125,14 +131,15 @@ export interface GameState {
   isLoading: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
-  loreCodex?: LoreEntry[];
   worldSetting?: WorldSetting;
+  loreCodex?: LoreEntry[];
 }
 
-export interface WorldSetting {
-  name: string;
-  genre: string;
-  description: string;
+export interface LevelUpDetails {
+  level: number;
+  maxHpIncrease: number;
+  newSkill?: string;
+  statsIncrease?: Partial<Stats>;
 }
 
 export interface GeminiResponse {
@@ -142,6 +149,10 @@ export interface GeminiResponse {
   player_updates?: {
     playerName: string;
     hp?: number;
+    maxHp?: number; // Added for leveling/buffs
+    level?: number; // Added for leveling
+    new_skills?: string[]; // Added for leveling
+    stats_update?: Partial<Stats>; // Added for leveling
     inventory_add?: Item[];
     inventory_remove?: string[];
     spell_slot_used?: {

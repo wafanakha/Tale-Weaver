@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { GameState, GeminiResponse } from "../types";
+import { GameState, GeminiResponse, WorldSetting } from "../types";
 import { Language } from "../i18n";
 
 if (!process.env.API_KEY) {
@@ -30,8 +30,13 @@ const getResponseSchema = (lang: Language) => {
           player_updates:
             "Daftar pembaruan status pemain. HANYA sertakan pemain yang statusnya telah berubah.",
           player_name: "Nama pemain yang sedang diperbarui.",
-          player_hp:
-            "HP baru pemain setelah menerima kerusakan atau penyembuhan.",
+          player_hp: "HP saat ini (Current HP).",
+          player_max_hp: "HP Maksimum baru (jika naik level).",
+          player_level: "Level baru (jika naik level).",
+          new_skills:
+            "Daftar nama keterampilan/kemampuan/mantra baru yang diperoleh (jika naik level).",
+          stats_update:
+            "Objek yang berisi statistik yang ditingkatkan (misalnya { strength: 16 }).",
           inventory_add:
             "Daftar item untuk ditambahkan ke inventaris pemain (misalnya, barang rampasan).",
           inventory_remove:
@@ -66,7 +71,14 @@ const getResponseSchema = (lang: Language) => {
           player_updates:
             "A list of updates to any player's state. ONLY include players whose state has changed.",
           player_name: "The name of the player being updated.",
-          player_hp: "The player's new HP after taking damage or healing.",
+          player_hp: "The player's new Current HP.",
+          player_max_hp:
+            "The player's new Max HP (only if leveling up or buffed).",
+          player_level: "The player's new Level (only if leveling up).",
+          new_skills:
+            "List of new ability/spell names gained (only if leveling up).",
+          stats_update:
+            "Object containing updated stats (e.g. { strength: 16 }) (only if leveling up).",
           inventory_add:
             "A list of items to add to the player's inventory (e.g., loot).",
           inventory_remove:
@@ -112,6 +124,25 @@ const getResponseSchema = (lang: Language) => {
           properties: {
             playerName: { type: Type.STRING, description: d.player_name },
             hp: { type: Type.INTEGER, description: d.player_hp },
+            maxHp: { type: Type.INTEGER, description: d.player_max_hp },
+            level: { type: Type.INTEGER, description: d.player_level },
+            new_skills: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: d.new_skills,
+            },
+            stats_update: {
+              type: Type.OBJECT,
+              description: d.stats_update,
+              properties: {
+                strength: { type: Type.INTEGER },
+                dexterity: { type: Type.INTEGER },
+                constitution: { type: Type.INTEGER },
+                intelligence: { type: Type.INTEGER },
+                wisdom: { type: Type.INTEGER },
+                charisma: { type: Type.INTEGER },
+              },
+            },
             inventory_add: {
               type: Type.ARRAY,
               description: d.inventory_add,
@@ -182,9 +213,39 @@ const getResponseSchema = (lang: Language) => {
   };
 };
 
-const getSystemInstruction = (lang: Language): string => {
+const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
+  const worldInstruction = world
+    ? `\n**SETTING THE WORLD:**\nThe game takes place in "${world.name}".\n**Genre:** ${world.genre}.\n**Description:** ${world.description}.\n\nIMPORTANT: While the underlying mechanics are D&D 5e (stats, dice), you MUST flavor all descriptions, items, and skills to fit the '${world.genre}' genre. For example, in a Sci-Fi setting, a 'Crossbow' might be described as a 'Laser Rifle', 'Magic Missile' as 'Hacking Darts', and 'Potions' as 'Nano-Stims'. Maintain the setting's tone throughout.`
+    : `\n**SETTING:**\nThe game takes place in a high fantasy world.`;
+
+  const progressionRules =
+    lang === "id"
+      ? `**KEMAJUAN KARAKTER (LEVEL UP):**
+        - Anda mengontrol kapan pemain naik level menggunakan 'Milestone Leveling'.
+        - Berikan Level Up setelah pemain menyelesaikan pencapaian cerita utama, mengalahkan musuh, atau menyelesaikan misi penting.
+        - **Saat pemain naik level:**
+          1. Tingkatkan Level mereka di 'player_updates'.
+          2. Tingkatkan Max HP mereka (Hit Die Kelas + Pengubah Konstitusi).
+          3. Sembuhkan mereka sepenuhnya ke Max HP baru.
+          4. Tingkatkan satu statistik utama sebesar +1 atau +2 (sesuai kelas).
+          5. Berikan 1 keterampilan tempur atau mantra baru yang sesuai dengan kelas dan level mereka (misalnya, Wizard Lvl 2 mendapat mantra baru, Fighter mendapat Action Surge).
+          6. Jelaskan peningkatan ini dalam narasi 'story'.`
+      : `**CHARACTER PROGRESSION (LEVEL UP):**
+        - You control when players level up using 'Milestone Leveling'.
+        - Grant a Level Up after the party completes major story milestones, defeats a boss, or finishes a significant quest.
+        - **When a player levels up:**
+          1. Increase their Level in 'player_updates'.
+          2. Increase their Max HP (Class Hit Die + Constitution Modifier).
+          3. Heal them fully to the new Max HP.
+          4. Increase one core stat by +1 or +2 (appropriate for their class).
+          5. Grant 1 new combat skill or spell appropriate for their class and level (e.g., Wizard Lvl 2 gets a new spell, Fighter gets Action Surge).
+          6. Describe this improvement in the 'story' narration.`;
+
   if (lang === "id") {
     return `Anda adalah pencerita ahli dan Dungeon Master untuk RPG berbasis teks multipemain yang dinamis berdasarkan aturan Dungeons & Dragons. Anda mengelola sebuah kelompok petualang. Berkomunikasi secara eksklusif dalam Bahasa Indonesia.
+${worldInstruction}
+
+${progressionRules}
 
 **MEKANIKA INTI:**
 1.  **Input & Giliran Pemain:** Pemain akan mengetik tindakan mereka dalam input teks. Anda harus menafsirkan dan bereaksi terhadap input ini. 'currentPlayerIndex' menunjukkan giliran siapa. Sapa pemain dengan nama. Respons Anda harus selalu menunjukkan pemain berikutnya yang akan bertindak melalui 'next_player_index'.
@@ -197,9 +258,12 @@ const getSystemInstruction = (lang: Language): string => {
 4.  **Narasikan:** Di bidang 'story', narasikan hasil tindakan untuk seluruh kelompok. Jelaskan apa yang terjadi karena keberhasilan atau kegagalan.
 5.  **Pertempuran:**
     *   Pertempuran berbasis giliran. Berputar melalui pemain menggunakan 'next_player_index'.
-    *   Jelaskan tindakan pemain saat ini dan musuh apa pun.
+    *   Jelaskan tindakan pemain saat ini.
+    *   **GILIRAN MUSUH (WAJIB):** Jika ada musuh aktif (HP > 0), musuh **HARUS** menyerang pemain segera setelah pemain bertindak. Jangan lewati giliran musuh.
+    *   Pilih target pemain secara logis.
+    *   Jelaskan serangan musuh secara naratif.
+    *   Hitung kerusakan pada pemain. **Anda HARUS mengurangi HP pemain di bidang 'player_updates'.**
     *   Tawarkan keterampilan tempur pemain saat ini sebagai saran dalam 'choices'.
-    *   Kerusakan dari musuh dapat memengaruhi pemain mana pun; sebutkan siapa yang menjadi target dalam cerita dan perbarui HP mereka di 'player_updates'.
     *   **Perapalan Mantra:** Ketika seorang pemain merapal mantra dari keterampilan tempur mereka (misalnya, 'Guiding Bolt', 'Magic Missile'), mereka menggunakan slot mantra. Anda HARUS melaporkan ini dengan menyertakan objek \`spell_slot_used\` di \`player_updates\` untuk pemain tersebut, dengan menentukan tingkat mantra yang dirapal (yang harus 1 atau lebih). Mantra seperti 'Sacred Flame' atau 'Fire Bolt' adalah cantrip (level 0) dan TIDAK menggunakan slot mantra, jadi jangan sertakan \`spell_slot_used\` untuk mereka.
 6.  **Saran:** Bidang 'choices' digunakan untuk memberikan *saran* kepada pemain. Berikan 3-4 ide singkat untuk membantu memandu mereka jika mereka buntu. Mereka tidak terbatas pada pilihan ini.
 7.  **Kodeks Lore:** Saat Anda memperkenalkan karakter, lokasi, faksi, atau peristiwa sejarah yang signifikan, tambahkan mereka ke bidang 'lore_entries' dalam respons JSON Anda. Berikan judul yang ringkas dan satu paragraf deskripsi. Periksa 'loreCodex' saat ini dalam status permainan untuk menghindari pembuatan entri duplikat.
@@ -210,10 +274,13 @@ const getSystemInstruction = (lang: Language): string => {
 **SAAT MEMULAI:**
 - Kelompok karakter akan disediakan.
 - Buat adegan pembuka yang menarik yang menyatukan kelompok.
-- Beri setiap pemain senjata awal yang sederhana dan ramuan kesehatan yang sesuai dengan latar belakang mereka. Gunakan bidang 'player_updates' untuk menambahkan item ini.`;
+- Beri setiap pemain senjata awal yang sederhana dan ramuan kesehatan yang sesuai dengan latar belakang mereka (disesuaikan dengan genre dunia). Gunakan bidang 'player_updates' untuk menambahkan item ini.`;
   }
 
   return `You are a master storyteller and Dungeon Master for a dynamic, multiplayer text-based RPG based on Dungeons & Dragons rules. You are managing a party of adventurers.
+${worldInstruction}
+
+${progressionRules}
 
 **CORE MECHANICS:**
 1.  **Player Input & Turns:** Players will type their actions in a text input. You must interpret and react to this input. The 'currentPlayerIndex' indicates whose turn it is. Address players by name. Your response should always indicate the next player to act via 'next_player_index'.
@@ -226,9 +293,12 @@ const getSystemInstruction = (lang: Language): string => {
 4.  **Narrate:** In the 'story' field, narrate the outcome of actions for the whole party. Describe what happens because of success or failure.
 5.  **Combat:**
     *   Combat is turn-based. Cycle through players using 'next_player_index'.
-    *   Describe the actions of the current player and any enemies.
+    *   Describe the actions of the current player.
+    *   **ENEMY TURN (MANDATORY):** If there is an active enemy (HP > 0), they **MUST** attack a player immediately after the player acts. Do not skip the enemy's turn.
+    *   Choose a player target logically.
+    *   Describe the enemy's attack narratively.
+    *   Calculate damage to the player. **You MUST reduce the player's HP in the 'player_updates' field.**
     *   Offer the current player's combat skills as suggestions in 'choices'.
-    *   Damage from enemies can affect any player; specify who is targeted in the story and update their HP in 'player_updates'.
     *   **Spellcasting:** When a player casts a spell from their combat skills (e.g., 'Guiding Bolt', 'Magic Missile'), they use a spell slot. You MUST report this by including a \`spell_slot_used\` object in \`player_updates\` for that player, specifying the level of the spell cast (which must be 1 or greater). Spells like 'Sacred Flame' or 'Fire Bolt' are cantrips (level 0) and DO NOT use spell slots, so do not include \`spell_slot_used\` for them.
 6.  **Suggestions:** The 'choices' field is for giving the player *suggestions*. Provide 3-4 brief ideas to help guide them if they're stuck. They are not limited to these options.
 7.  **Lore Codex:** As you introduce significant characters, locations, factions, or historical events, add them to the 'lore_entries' field in your JSON response. Provide a concise title and a one-paragraph description. Check the current 'loreCodex' in the game state to avoid creating duplicate entries.
@@ -239,7 +309,7 @@ const getSystemInstruction = (lang: Language): string => {
 **ON STARTING:**
 - The party of characters will be provided.
 - Create a compelling opening scene that brings the party together.
-- Grant each player a simple starting weapon and a health potion appropriate to their background. Use the 'player_updates' field to add these items.`;
+- Grant each player a simple starting weapon and a health potion appropriate to their background and the world's genre. Use the 'player_updates' field to add these items.`;
 };
 
 export const getNextStoryPart = async (
@@ -248,10 +318,12 @@ export const getNextStoryPart = async (
   lang: Language
 ): Promise<GeminiResponse> => {
   const responseSchema = getResponseSchema(lang);
-  const systemInstruction = getSystemInstruction(lang);
+  const systemInstruction = getSystemInstruction(lang, gameState.worldSetting);
 
+  // Create a summarized game state to avoid overly long prompts as the story progresses.
   const summarizedGameState = {
     ...gameState,
+    // Only include the last 10 story entries to provide recent context without bloating the prompt.
     storyLog: (gameState.storyLog || []).slice(-10),
   };
 
@@ -266,7 +338,7 @@ export const getNextStoryPart = async (
     Generate the next part of the story based on this action.
     `;
 
-  let jsonText = "";
+  let jsonText = ""; // Declared here to be accessible in the catch block for logging.
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -283,6 +355,7 @@ export const getNextStoryPart = async (
     return responseObject;
   } catch (e) {
     console.error("Error generating content from Gemini:", e);
+    // Log the actual text that failed to parse for easier debugging.
     console.error("Failed to parse JSON response from Gemini:", jsonText);
     throw new Error("Failed to get a valid response from the storyteller.");
   }
