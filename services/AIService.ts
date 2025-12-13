@@ -222,7 +222,7 @@ const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
     lang === "id"
       ? `**KEMAJUAN KARAKTER (LEVEL UP):**
         - Anda mengontrol kapan pemain naik level menggunakan 'Milestone Leveling'.
-        - Berikan Level Up setelah pemain menyelesaikan pencapaian cerita utama, mengalahkan musuh, atau menyelesaikan misi penting.
+        - Berikan Level Up setelah pemain menyelesaikan pencapaian cerita utama, mengalahkan bos besar, atau menyelesaikan misi penting.
         - **Saat pemain naik level:**
           1. Tingkatkan Level mereka di 'player_updates'.
           2. Tingkatkan Max HP mereka (Hit Die Kelas + Pengubah Konstitusi).
@@ -341,7 +341,7 @@ export const getNextStoryPart = async (
   let jsonText = ""; // Declared here to be accessible in the catch block for logging.
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-lite",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -362,14 +362,15 @@ export const getNextStoryPart = async (
 };
 
 export const generateCharacterBackstory = async (
+  name: string,
   race: string,
   background: string,
   lang: Language
 ): Promise<string> => {
   const prompt =
     lang === "id"
-      ? `Buatlah satu paragraf kisah latar belakang karakter untuk RPG fantasi. Karakter tersebut adalah seorang ${race} dengan latar belakang ${background}. Buatlah agar menarik dan ringkas.`
-      : `Generate a single paragraph of character backstory for a fantasy RPG. The character is a ${race} with a ${background} background. Make it engaging and concise.`;
+      ? `Buatlah satu paragraf kisah latar belakang karakter untuk RPG fantasi. Karakter tersebut bernama ${name}, seorang ${race} dengan latar belakang ${background}. Buatlah agar menarik dan ringkas.`
+      : `Generate a single paragraph of character backstory for a fantasy RPG. The character is named ${name}, a ${race} with a ${background} background. Make it engaging and concise.`;
 
   try {
     const response = await ai.models.generateContent({

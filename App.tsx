@@ -184,7 +184,13 @@ const App: React.FC = () => {
                     const k = key as keyof Stats;
                     if (p.stats[k] !== undefined && update.stats_update![k]) {
                       p.stats[k] =
-                        (p.stats[k] || 10) + (update.stats_update![k] || 0);
+                        (p.stats[k] || 10) + (update.stats_update![k] || 0); // Currently AI returns *new* stat or *increase*? Schema says "Object containing updated stats" usually implies absolute or delta.
+                      // Gemini 2.5 Flash typically follows instructions well.
+                      // If instruction says "Increase one core stat by +1", it might return {strength: 1} (delta) or {strength: 17} (absolute).
+                      // The schema description "e.g. { strength: 16 }" suggests absolute.
+                      // Let's assume absolute for robustness if value > 5, delta if < 5?
+                      // Actually, let's treat it as REPLACE for simplicity based on typical JSON responses for "updates".
+                      p.stats[k] = update.stats_update![k]!;
                     }
                   });
                 }
@@ -198,6 +204,8 @@ const App: React.FC = () => {
                   p.combatSkills.push(...skillsToAdd);
                 }
 
+                // Trigger Modal only if we are the host (processing it) or maybe just for everyone?
+                // Currently this hook runs on Host.
                 if (gameState.hostId === clientId) {
                   setLevelUpData({
                     playerName: p.name,
@@ -581,7 +589,7 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="min-h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden">
         {levelUpData && (
           <LevelUpModal
             data={levelUpData}
@@ -594,7 +602,8 @@ const App: React.FC = () => {
             onClose={() => setViewingPlayer(null)}
           />
         )}
-        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4 lg:overflow-y-auto">
           <PlayerStatsPanel
             players={gameState.players}
             currentPlayerIndex={gameState.currentPlayerIndex}
@@ -607,12 +616,12 @@ const App: React.FC = () => {
           <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
-        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
-          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel">
+        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400 lg:overflow-hidden">
+          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel flex-shrink-0">
             {t("yourStory")}
           </h1>
           <StoryDisplay storyLog={gameState.storyLog} />
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-4 flex-shrink-0">
             {gameState.isLoading && <LoadingSpinner />}
             {gameState.error && (
               <p className="text-red-800 text-center mb-2">{gameState.error}</p>
@@ -636,7 +645,7 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <aside className="w-full lg:w-1/4 xl:w-1/5">
+        <aside className="w-full lg:w-1/4 xl:w-1/5 lg:overflow-y-auto">
           {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
             <CombatStatus enemy={gameState.currentEnemy} />
           )}
