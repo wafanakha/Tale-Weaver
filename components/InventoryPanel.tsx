@@ -43,16 +43,16 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
   const inventory = player.inventory || [];
 
   return (
-    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex-grow flex flex-col">
-      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex-grow flex flex-col h-1/3">
+      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-1">
         {t("yourInventory")}
       </h2>
 
-      <div className="mb-4">
-        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-2">
+      <div className="mb-1">
+        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-1">
           {t("equipped")}
         </h3>
-        <div className="space-y-2 text-sm">
+        <div className="space-y-1 text-sm">
           <p>
             <span className="font-bold text-stone-700">{t("weapon")}:</span>{" "}
             {equipment.weapon?.name || t("none")}
@@ -68,7 +68,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
         className="border-t border-stone-400 pt-4 flex-grow overflow-y-auto"
         style={{ maxHeight: "400px" }}
       >
-        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-2">
+        <h3 className="text-sm uppercase text-stone-500 font-semibold mb-2 " >
           {t("carriedItems")}
         </h3>
         {inventory.length > 0 ? (

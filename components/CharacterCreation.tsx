@@ -259,7 +259,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
   const cancelLinkClass = "cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow";
   const genButtonClass = "cinzel text-sm bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-stone-500 disabled:cursor-not-allowed";
 
-  // Gaya Tooltip (muncul di BAWAH tombol)
+  
   const tooltipStyle = `
     absolute hidden group-hover:block 
     top-full mt-2 
@@ -271,35 +271,35 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
     transition-opacity duration-200 delay-200
   `;
 
-  // --- PERUBAHAN DI SINI: FUNGSI HELPER DIPERBARUI ---
+  
   const getButtonTooltipPosition = (name: string) => {
     switch (name) {
-      // Tombol Rata KIRI
+      
       case "Human":
-      case "Elf": // <-- INI PERBAIKANNYA
+      case "Elf": 
       case "Orc":
       case "Cleric":
       case "Noble":
       case "Outcast":
-        return "left-0"; // Rata kiri
+        return "left-0"; 
 
-      // Tombol Rata KANAN
+      
       case "Halfling":
       case "Wizard":
       case "Soldier":
-        return "right-0"; // Rata kanan
+        return "right-0"; 
 
-      // Tombol Rata TENGAH (default untuk "Dwarf", "Fighter", "thief", "Rogue", "Scholar")
+      
       default:
-        return "left-1/2 -translate-x-1/2"; // Rata tengah
+        return "left-1/2 -translate-x-1/2"; 
     }
   };
 
 
   return (
     <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-4xl w-full">
-        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
+      <div className="content-frame relative p-8 sm:p-12 shadow-2xl max-w-4xl w-full">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center text-glow">
           {t("createAdventurer")}
         </h1>
 

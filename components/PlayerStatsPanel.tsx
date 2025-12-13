@@ -80,11 +80,11 @@ const PlayerStatsPanel: React.FC<PlayerStatsPanelProps> = ({
 }) => {
   const { t } = useLanguage();
   return (
-    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm">
-      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm h-1/3 flex flex-col">
+      <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2 flex-shrink-0">
         {t("theParty")}
       </h2>
-      <div className="space-y-3">
+      <div className="space-y-3 flex-grow overflow-y-auto pr-1">
         {players.map((player, index) => (
           <PlayerCard
             key={player.id}
