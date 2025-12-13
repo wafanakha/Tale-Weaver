@@ -115,7 +115,7 @@ export interface LoreEntry {
 
 export interface GameState {
   gameId: string;
-  hostId: string; // The ID of the player who created the game
+  hostId: string;
   status: GameStatus;
   players: Player[];
   currentPlayerIndex: number;
@@ -126,6 +126,13 @@ export interface GameState {
   error: string | null;
   lastPlayerAction: PlayerAction | null;
   loreCodex?: LoreEntry[];
+  worldSetting?: WorldSetting;
+}
+
+export interface WorldSetting {
+  name: string;
+  genre: string;
+  description: string;
 }
 
 export interface GeminiResponse {
