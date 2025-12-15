@@ -572,7 +572,7 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="h-screen overflow-hidden parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <div className="h-screen overflow-y-auto parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
