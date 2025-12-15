@@ -56,7 +56,7 @@ const Lobby: React.FC<LobbyProps> = ({
       <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
         {}
         <div className="content-frame relative p-12 shadow-2xl max-w-2xl w-full text-center">
-          <h1 className="text-4xl font-bold text-red-900 mb-4 cinzel">
+          <h1 className="text-4xl font-bold text-red-900 mb-4 cinzel text-glow ">
             {t("partyLobby")}
           </h1>
           <p className="text-stone-800 text-glow mb-6">{t("shareGameId")}</p> {}
@@ -116,7 +116,7 @@ const Lobby: React.FC<LobbyProps> = ({
   return (
     <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
       <div className="content-frame relative p-16 shadow-2xl max-w-2xl w-full">
-        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center text-glow">
           {t("joinAdventure")}
         </h1>
 

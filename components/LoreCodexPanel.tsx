@@ -15,7 +15,7 @@ const LoreCodexPanel: React.FC<LoreCodexPanelProps> = ({ loreCodex = [] }) => {
   };
 
   return (
-    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex flex-col">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex flex-col h-1/3">
       <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2">
         {t("loreCodex")}
       </h2>

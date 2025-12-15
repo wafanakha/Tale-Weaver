@@ -589,7 +589,7 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden">
+      <div className="h-screen overflow-y-auto parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
         {levelUpData && (
           <LevelUpModal
             data={levelUpData}
