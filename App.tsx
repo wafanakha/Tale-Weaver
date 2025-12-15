@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
+import {
+  GameState,
+  Item,
+  ItemType,
+  Player,
+  StoryLogEntry,
+  Stats,
+} from "./types";
 import { getNextStoryPart } from "./services/AIService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
@@ -15,6 +22,7 @@ import CharacterCreation, {
 import Lobby from "./components/Lobby";
 import LoreCodexPanel from "./components/LoreCodexPanel";
 import CharacterSheet from "./components/CharacterSheet";
+import LevelUpModal, { LevelUpData } from "./components/LevelUpModal";
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -47,51 +55,44 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   const GameCard: React.FC<{ game: GameState }> = ({ game }) => (
     <button
       onClick={() => onJoinGame(game.gameId)}
-     
-      className="w-full border-2 border-stone-400 bg-stone-200/60 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-100/80 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
+      className="w-full border-2 border-stone-400 bg-stone-500/10 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-500/20 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
     >
-      <p className="font-bold text-red-900 font-mono tracking-widest">
+      <p className="font-bold text-red-800 font-mono tracking-widest">
         {game.gameId}
       </p>
-      <p className="text-sm text-stone-700 mt-2">
+      <p className="text-sm text-stone-600 mt-2">
         {t("players")}:{" "}
         {(game.players || []).map((p) => p.name).join(", ") ||
           t("noPlayersYet")}
       </p>
-      <p className="text-xs text-stone-600 mt-1">
+      <p className="text-xs text-stone-500 mt-1">
         {t("status")}: {game.status}
       </p>
     </button>
   );
 
   return (
-    
-    <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      {}
-      <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-2xl w-full">
+    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="bg-[#f3e9d2] p-8 rounded-lg shadow-2xl max-w-2xl w-full border-4 border-double border-amber-800">
         <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("loadGame")}
         </h1>
-        
         {isLoading && <LoadingSpinner />}
-        
         {!isLoading && (
-          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
             {games.length > 0 ? (
               games.map((game) => <GameCard key={game.gameId} game={game} />)
             ) : (
-              <p className="text-stone-800 italic text-center text-glow">
+              <p className="text-stone-500 italic text-center">
                 {t("noSavedGames")}
               </p>
             )}
           </div>
         )}
-
-        {}
         <div className="mt-8 text-center">
           <button
             onClick={onCancel}
-            className="cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow"
+            className="cinzel text-lg bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition"
           >
             {t("back")}
           </button>
@@ -113,7 +114,12 @@ const App: React.FC = () => {
   const storyIdCounter = useRef(0);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
-  // Ikuti State Change
+  // Local state to show the Level Up Modal on the Host machine
+  // (Note: In a real multi-client sync, we'd trigger this via Firebase for all clients,
+  // but for now, the host processes it and sees the immediate feedback).
+  const [levelUpData, setLevelUpData] = useState<LevelUpData | null>(null);
+
+  // Subscribe to game state changes
   useEffect(() => {
     if (!gameId) return;
     const unsubscribe = gameService.listenToGame(gameId, (state) => {
@@ -126,7 +132,7 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, [gameId, screen]);
 
-  // Proses Turn
+  // Host client logic: watch for player actions and process turns
   useEffect(() => {
     if (
       !gameState ||
@@ -143,10 +149,10 @@ const App: React.FC = () => {
       try {
         const response = await getNextStoryPart(gameState, choice, language);
 
-        // Buat state baru berdasarkan respon AI
+        // Create a new state based on the AI's response
         const newState: GameState = JSON.parse(JSON.stringify(gameState)); // Deep copy
 
-        // update
+        // Apply player updates
         if (response.player_updates) {
           response.player_updates.forEach((update) => {
             const playerIndex = newState.players.findIndex(
@@ -154,11 +160,67 @@ const App: React.FC = () => {
             );
             if (playerIndex > -1) {
               const p = newState.players[playerIndex];
-              // Inventory harus ada untuk mencegah error
+              // Defensively ensure inventory exists before modification to prevent crashes.
               if (!p.inventory) p.inventory = [];
               if (!p.spellSlots) p.spellSlots = {};
 
               if (update.hp !== undefined) p.hp = update.hp;
+
+              // Level Up Logic
+              if (update.level && update.level > p.level) {
+                p.level = update.level;
+
+                // Track changes for the Modal
+                const oldMaxHp = p.maxHp;
+                let hpIncrease = 0;
+
+                if (update.maxHp) {
+                  p.maxHp = update.maxHp;
+                  hpIncrease = update.maxHp - oldMaxHp;
+                }
+
+                if (update.stats_update) {
+                  Object.keys(update.stats_update).forEach((key) => {
+                    const k = key as keyof Stats;
+                    if (p.stats[k] !== undefined && update.stats_update![k]) {
+                      p.stats[k] =
+                        (p.stats[k] || 10) + (update.stats_update![k] || 0); // Currently AI returns *new* stat or *increase*? Schema says "Object containing updated stats" usually implies absolute or delta.
+                      // Gemini 2.5 Flash typically follows instructions well.
+                      // If instruction says "Increase one core stat by +1", it might return {strength: 1} (delta) or {strength: 17} (absolute).
+                      // The schema description "e.g. { strength: 16 }" suggests absolute.
+                      // Let's assume absolute for robustness if value > 5, delta if < 5?
+                      // Actually, let's treat it as REPLACE for simplicity based on typical JSON responses for "updates".
+                      p.stats[k] = update.stats_update![k]!;
+                    }
+                  });
+                }
+
+                if (update.new_skills) {
+                  if (!p.combatSkills) p.combatSkills = [];
+                  // Avoid duplicates
+                  const skillsToAdd = update.new_skills.filter(
+                    (s) => !p.combatSkills.includes(s)
+                  );
+                  p.combatSkills.push(...skillsToAdd);
+                }
+
+                // Trigger Modal only if we are the host (processing it) or maybe just for everyone?
+                // Currently this hook runs on Host.
+                if (gameState.hostId === clientId) {
+                  setLevelUpData({
+                    playerName: p.name,
+                    newLevel: update.level,
+                    newMaxHp: p.maxHp,
+                    hpIncrease: hpIncrease,
+                    newSkills: update.new_skills,
+                    statsIncreased: update.stats_update,
+                  });
+                }
+              } else {
+                // Non-level up maxHP update (buffs)
+                if (update.maxHp !== undefined) p.maxHp = update.maxHp;
+              }
+
               if (update.inventory_add)
                 p.inventory.push(...update.inventory_add);
               if (update.inventory_remove) {
@@ -179,13 +241,13 @@ const App: React.FC = () => {
           });
         }
 
-        // update enemy
+        // Apply enemy updates
         if (response.enemy_update) {
-          // Jika enemy mati, hapus
+          // If the enemy is defeated, remove it.
           if (response.enemy_update.is_defeated === true) {
             newState.currentEnemy = null;
           }
-          // jika tidak enemy update
+          // Else, if we have enough info, create/update the enemy.
           else if (
             response.enemy_update.name &&
             response.enemy_update.hp !== undefined &&
@@ -195,16 +257,19 @@ const App: React.FC = () => {
               name: response.enemy_update.name,
               hp: response.enemy_update.hp,
               maxHp: response.enemy_update.maxHp,
-              isDefeated: false,
+              isDefeated: false, // Normalize to false if not explicitly defeated
             };
           }
+          // Otherwise, the response is malformed, so we don't change the enemy state.
         }
+        // If no enemy_update is received, newState.currentEnemy from the deep copy is preserved.
 
+        // Defensively ensure storyLog exists before modification.
         if (!newState.storyLog) {
           newState.storyLog = [];
         }
 
-        // update Lore Codex
+        // Apply lore updates
         if (response.lore_entries && response.lore_entries.length > 0) {
           if (!newState.loreCodex) {
             newState.loreCodex = [];
@@ -221,7 +286,7 @@ const App: React.FC = () => {
           }
         }
 
-        // tambah story entry
+        // Add story log entry
         const newStoryId = storyIdCounter.current++;
         const newStoryEntry: StoryLogEntry = {
           speaker: "story",
@@ -229,19 +294,20 @@ const App: React.FC = () => {
           id: newStoryId,
         };
 
+        // Conditionally add the dice_roll to avoid writing 'undefined' to Firebase.
         if (response.dice_roll) {
           newStoryEntry.diceRoll = response.dice_roll;
         }
 
         newState.storyLog.push(newStoryEntry);
 
-        // ubah pilihan jadi array.
+        // Update choices and next player, ensuring choices is always an array.
         newState.choices = response.choices || [];
         newState.currentPlayerIndex =
           response.next_player_index ??
           (newState.currentPlayerIndex + 1) % newState.players.length;
 
-        // Reset loading dan aksi player
+        // Reset loading state and clear the action that was just processed
         newState.isLoading = false;
         newState.lastPlayerAction = null;
 
@@ -252,7 +318,7 @@ const App: React.FC = () => {
         if (currentState) {
           currentState.error = t("storytellerError");
           currentState.isLoading = false;
-          currentState.lastPlayerAction = null;
+          currentState.lastPlayerAction = null; // Clear action to allow retry
           await gameService.updateGameState(gameState.gameId, currentState);
         }
       }
@@ -330,8 +396,10 @@ const App: React.FC = () => {
   const handleStartGame = async () => {
     if (!gameId || !gameState) return;
 
-    // proses turn base
+    // Set loading state for all players
     await gameService.updateGameState(gameId, { isLoading: true });
+
+    // Host processes the initial turn
     const initialPrompt = t("adventureBegins");
     await gameService.postAction(gameId, clientId, initialPrompt);
     await gameService.updateGameState(gameId, { status: "playing" });
@@ -341,7 +409,7 @@ const App: React.FC = () => {
     if (!gameId || !gameState || gameState.isLoading) return;
 
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (currentPlayer.id !== clientId) return;
+    if (currentPlayer.id !== clientId) return; // Not our turn
 
     const newPlayerChoiceId = storyIdCounter.current++;
     const newLog = {
@@ -350,7 +418,7 @@ const App: React.FC = () => {
       id: newPlayerChoiceId,
     };
 
-    // update UI
+    // Optimistically update UI for the current player
     setGameState((prev) =>
       prev
         ? {
@@ -362,7 +430,7 @@ const App: React.FC = () => {
         : null
     );
 
-    // update di semua player
+    // Update state for everyone and post action for the host to process
     await gameService.updateGameState(gameId, {
       isLoading: true,
       choices: [],
@@ -379,10 +447,12 @@ const App: React.FC = () => {
 
     const player = { ...gameState.players[playerIndex] };
 
+    // Defensively ensure the equipment object exists before modification.
     if (!player.equipment) {
       player.equipment = { weapon: null, armor: null };
     }
 
+    // Defensively ensure the inventory array exists before modification.
     if (!player.inventory) {
       player.inventory = [];
     }
@@ -421,108 +491,59 @@ const App: React.FC = () => {
   };
 
   const LanguageSelector = () => (
-  <div className="absolute top-5 right-6 flex justify-center gap-3">
-        <button
-          onClick={() => setLanguage("en")}
-          className={`
-            font-cinzel font-semibold
-            px-3 py-1 /* Dibuat lebih kecil */
-            rounded-md
-            border-2 
-            transition-all duration-300
-            ${
-              language === "en"
-                ? 
-                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                : 
-                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
-            }
-          `}
-        >
-          English
-        </button>
-        <button
-          onClick={() => setLanguage("id")}
-          className={`
-            font-cinzel font-semibold
-            px-3 py-1 /* Dibuat lebih kecil */
-            rounded-md
-            border-2 
-            transition-all duration-300
-            ${
-              language === "id"
-                ? 
-                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                :
-                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
-            }
-          `}
-        >
-          Bahasa Indonesia
-        </button>
-      </div>
-    );
+    <div className="flex justify-center gap-4 mt-8">
+      <button
+        onClick={() => setLanguage("en")}
+        className={`px-4 py-2 rounded-md text-sm transition-colors ${
+          language === "en"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
+        }`}
+      >
+        English
+      </button>
+      <button
+        onClick={() => setLanguage("id")}
+        className={`px-4 py-2 rounded-md text-sm transition-colors ${
+          language === "id"
+            ? "bg-red-800 text-white font-bold"
+            : "bg-stone-500/50 hover:bg-stone-600/50"
+        }`}
+      >
+        Bahasa Indonesia
+      </button>
+    </div>
+  );
 
   if (screen === "welcome") {
     return (
-      <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
-        <div className="text-center content-frame w-full max-w-2xl p-16 shadow-2xl relative">
-          {}
-          <LanguageSelector />
-          <img
-            src="/logo.png"
-            alt="Tale Weaver Logo"
-            className="w-44 h-44 mx-auto mb-6"
-          />
-
-          {}
-          <p className="text-lg mb-8 text-stone-900 leading-relaxed text-glow">
+      <div className="h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
+        <div className="text-center bg-[#f3e9d2] p-10 rounded-lg shadow-2xl max-w-2xl border-4 border-double border-amber-800">
+          <h1 className="text-5xl font-bold text-red-900 mb-4 medieval">
+            {t("welcomeTitle")}
+          </h1>
+          <p className="text-lg mb-8 text-stone-700 leading-relaxed">
             {t("welcomeDescription")}
           </p>
-
-          {}
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
               onClick={() => setScreen("lobby")}
-              className="
-                font-cinzel text-lg font-bold text-white
-                bg-gradient-to-b from-yellow-600 to-yellow-800
-                border-2 border-yellow-400
-                rounded-lg px-8 py-3
-                shadow-lg shadow-black/30
-                hover:from-yellow-500 hover:to-yellow-700
-                hover:shadow-xl
-                transition-all duration-300 ease-in-out
-                transform hover:scale-105
-              "
+              className="cinzel text-xl bg-red-800 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
             >
               {t("assembleParty")}
             </button>
             <button
               onClick={() => setScreen("load")}
-              className="
-                font-cinzel text-lg font-bold text-white
-                bg-gradient-to-b from-red-600 to-red-800
-                border-2 border-red-400
-                rounded-lg px-8 py-3
-                shadow-lg shadow-black/30
-                hover:from-red-500 hover:to-red-700  
-                hover:shadow-xl
-                transition-all duration-300 ease-in-out
-                transform hover:scale-105
-                "
+              className="cinzel text-xl bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
             >
               {t("loadGame")}
             </button>
           </div>
-
-          {}
           <LanguageSelector />
         </div>
       </div>
     );
   }
-
 
   if (screen === "load") {
     return (
@@ -539,7 +560,6 @@ const App: React.FC = () => {
         onJoinGame={handleJoinGame}
         onCreateGame={handleCreateGame}
         error={error}
-        onCancel={() => setScreen("welcome")}
       />
     );
   }
@@ -548,10 +568,7 @@ const App: React.FC = () => {
     return (
       <CharacterCreation
         onCharacterCreate={handleCharacterCreate}
-        onCancel={() => {
-          setScreen("lobby");
-          setGameId(null); 
-        }}
+        onCancel={() => setScreen("lobby")}
       />
     );
   }
@@ -572,14 +589,21 @@ const App: React.FC = () => {
     const myPlayer = gameState.players.find((p) => p.id === clientId);
 
     return (
-      <div className="min-h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden">
+        {levelUpData && (
+          <LevelUpModal
+            data={levelUpData}
+            onClose={() => setLevelUpData(null)}
+          />
+        )}
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
             onClose={() => setViewingPlayer(null)}
           />
         )}
-        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4 lg:overflow-y-auto">
           <PlayerStatsPanel
             players={gameState.players}
             currentPlayerIndex={gameState.currentPlayerIndex}
@@ -592,12 +616,12 @@ const App: React.FC = () => {
           <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
-        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
-          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel">
+        <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400 lg:overflow-hidden">
+          <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel flex-shrink-0">
             {t("yourStory")}
           </h1>
           <StoryDisplay storyLog={gameState.storyLog} />
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-4 flex-shrink-0">
             {gameState.isLoading && <LoadingSpinner />}
             {gameState.error && (
               <p className="text-red-800 text-center mb-2">{gameState.error}</p>
@@ -621,7 +645,7 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <aside className="w-full lg:w-1/4 xl:w-1/5">
+        <aside className="w-full lg:w-1/4 xl:w-1/5 lg:overflow-y-auto">
           {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
             <CombatStatus enemy={gameState.currentEnemy} />
           )}
