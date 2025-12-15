@@ -3,7 +3,6 @@ import { generateCharacterBackstory } from "../services/AIService";
 import { Stats, Skills, SavingThrows, SpellSlots } from "../types";
 import { useLanguage } from "../i18n";
 
-
 export interface CharacterDetails {
   name: string;
   race: string;
@@ -221,13 +220,14 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
   };
 
   const handleGenerateBackstory = async () => {
-    if (!race || !background) {
-      alert("Please select a race and background first.");
+    if (!name || !race || !background) {
+      alert("Please enter a name, and select a race and background first.");
       return;
     }
     setIsGenerating(true);
     try {
       const generated = await generateCharacterBackstory(
+        name,
         race,
         background,
         language
@@ -248,16 +248,20 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     !charClass ||
     isSubmitting ||
     Object.keys(stats).length !== 6;
-const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-glow";
-  const statLabelClass = "block text-sm font-bold text-red-900 text-glow"; 
+  const labelClass =
+    "block text-lg font-semibold mb-2 cinzel text-red-900 text-glow";
+  const statLabelClass = "block text-sm font-bold text-red-900 text-glow";
   const inactiveButtonClass = "bg-stone-600 text-stone-100 hover:bg-stone-700";
   const activeButtonClass = "bg-red-800 text-white font-bold";
-  const inputStyleBase = "w-full bg-stone-100/70 border-2 border-stone-700/50 rounded-xl shadow-inner focus:ring-2 focus:ring-amber-700 focus:border-amber-700 outline-none text-stone-800 placeholder-stone-600";
+  const inputStyleBase =
+    "w-full bg-stone-100/70 border-2 border-stone-700/50 rounded-xl shadow-inner focus:ring-2 focus:ring-amber-700 focus:border-amber-700 outline-none text-stone-800 placeholder-stone-600";
   const inputBaseClass = `${inputStyleBase} p-3`;
-  const selectBaseClass = `${inputStyleBase} p-2 mt-1`; 
+  const selectBaseClass = `${inputStyleBase} p-2 mt-1`;
   const textAreaClass = `${inputStyleBase} p-3`;
-  const cancelLinkClass = "cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow";
-  const genButtonClass = "cinzel text-sm bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-stone-500 disabled:cursor-not-allowed";
+  const cancelLinkClass =
+    "cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow";
+  const genButtonClass =
+    "cinzel text-sm bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-stone-500 disabled:cursor-not-allowed";
 
   
   const tooltipStyle = `
@@ -295,7 +299,6 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
     }
   };
 
-
   return (
     <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
       <div className="content-frame relative p-8 sm:p-12 shadow-2xl max-w-4xl w-full">
@@ -303,13 +306,12 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
           {t("createAdventurer")}
         </h1>
 
-        <form 
-          onSubmit={handleSubmit} 
+        <form
+          onSubmit={handleSubmit}
           className="space-y-6 text-left max-h-[75vh] overflow-y-auto pr-4"
         >
           {/* === Layout Grid 2 Kolom === */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-            
             {/* --- Kolom Kiri --- */}
             <div className="space-y-6">
               <div>
@@ -328,9 +330,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
               </div>
 
               <div>
-                <label className={labelClass}>
-                  {t("race")}
-                </label>
+                <label className={labelClass}>{t("race")}</label>
                 <div className="flex flex-wrap gap-2">
                   {/* --- Menerapkan fungsi helper posisi yang baru --- */}
                   {RACES.map((r) => {
@@ -359,9 +359,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
             {/* --- Kolom Kanan --- */}
             <div className="space-y-6">
               <div>
-                <label className={labelClass}>
-                  {t("class")}
-                </label>
+                <label className={labelClass}>{t("class")}</label>
                 <div className="flex flex-wrap gap-2">
                   {/* --- Menerapkan fungsi helper posisi yang baru --- */}
                   {CLASSES.map((c) => {
@@ -372,7 +370,9 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                           type="button"
                           onClick={() => setCharClass(c)}
                           className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                            charClass === c ? activeButtonClass : inactiveButtonClass
+                            charClass === c
+                              ? activeButtonClass
+                              : inactiveButtonClass
                           }`}
                         >
                           {c}
@@ -387,9 +387,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
               </div>
 
               <div>
-                <label className={labelClass}>
-                  {t("background")}
-                </label>
+                <label className={labelClass}>{t("background")}</label>
                 <div className="flex flex-wrap gap-2">
                   {/* --- Menerapkan fungsi helper posisi yang baru --- */}
                   {BACKGROUNDS.map((b) => {
@@ -401,7 +399,9 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                           key={b}
                           onClick={() => setBackground(b)}
                           className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                            background === b ? activeButtonClass : inactiveButtonClass
+                            background === b
+                              ? activeButtonClass
+                              : inactiveButtonClass
                           }`}
                         >
                           {b}
@@ -416,20 +416,17 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
               </div>
             </div>
           </div>
-          
+
           {/* --- Bagian Bawah (Full Width) --- */}
           <div>
-            <label className={labelClass}>
-              {t("assignStats")}
-            </label>
+            <label className={labelClass}>{t("assignStats")}</label>
             <p className="text-sm text-stone-900 mb-2 text-glow">
               {t("assignStatsDesc", { scores: STANDARD_ARRAY.join(", ") })}
             </p>
-            
+
             {/* Tooltip untuk Stats (tetap di atas) */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {STAT_NAMES.map((stat, index) => {
-                
                 const getTooltipPosition = (index: number) => {
                   const totalItems = STAT_NAMES.length;
                   if (index < 2) {
@@ -448,8 +445,8 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                       htmlFor={stat}
                       className={`${statLabelClass} flex items-center gap-1.5 group`}
                     >
-                      <span className="capitalize">{stat}</span> 
-                      <span 
+                      <span className="capitalize">{stat}</span>
+                      <span
                         className="
                           cursor-help text-[#4f1b17]
                           border border-[#4f1b17]
@@ -464,9 +461,9 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                       >
                         i
                       </span>
-                      
+
                       {/* Tooltip STATS masih menggunakan 'bottom-full' */}
-                      <div 
+                      <div
                         className={`
                           absolute hidden group-hover:block 
                           bottom-full mb-2 
@@ -487,14 +484,34 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                       id={stat}
                       value={stats[stat] || ""}
                       onChange={(e) => handleStatChange(stat, e.target.value)}
-                      className={selectBaseClass} 
+                      className={selectBaseClass}
                     >
-                      <option style={{ backgroundColor: '#f5f5f4', color: '#292524' }} value="">-</option>
+                      <option
+                        style={{ backgroundColor: "#f5f5f4", color: "#292524" }}
+                        value=""
+                      >
+                        -
+                      </option>
                       {stats[stat] && (
-                        <option style={{ backgroundColor: '#f5f5f4', color: '#292524' }} value={stats[stat]}>{stats[stat]}</option>
-                     )}
+                        <option
+                          style={{
+                            backgroundColor: "#f5f5f4",
+                            color: "#292524",
+                          }}
+                          value={stats[stat]}
+                        >
+                          {stats[stat]}
+                        </option>
+                      )}
                       {unassignedScores.map((score, index) => (
-                        <option style={{ backgroundColor: '#f5f5f4', color: '#292524' }} key={`${score}-${index}`} value={score}>
+                        <option
+                          style={{
+                            backgroundColor: "#f5f5f4",
+                            color: "#292524",
+                          }}
+                          key={`${score}-${index}`}
+                          value={score}
+                        >
                           {score}
                         </option>
                       ))}
@@ -537,7 +554,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
             >
               {t("cancel")}
             </button>
-            
+
             <button
               type="submit"
               disabled={formIsInvalid}
@@ -551,7 +568,7 @@ const labelClass = "block text-lg font-semibold mb-2 cinzel text-red-900 text-gl
                 hover:shadow-xl
                 transition-all duration-300 ease-in-out
                 transform hover:scale-105
-              " 
+              "
             >
               {isSubmitting ? t("addingToParty") : t("createCharacter")}
             </button>

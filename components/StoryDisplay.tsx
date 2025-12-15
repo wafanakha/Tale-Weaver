@@ -52,10 +52,11 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
     endOfLogRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [storyLog]);
 
+  // Defensively handle cases where storyLog might be missing from the state object.
   const safeStoryLog = storyLog || [];
 
   return (
-    <div className="flex-grow bg-stone-200/50 rounded-lg p-4 overflow-y-auto border-2 border-stone-400 shadow-inner h-96 lg:h-auto">
+    <div className="flex-grow bg-stone-200/50 rounded-lg p-4 overflow-y-auto border-2 border-stone-400 shadow-inner h-96 lg:h-auto lg:flex-1 lg:min-h-0">
       <div className="space-y-6">
         {safeStoryLog.map((entry) => {
           switch (entry.speaker) {
@@ -77,7 +78,7 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ storyLog }) => {
                   {entry.text}
                 </p>
               );
-            default:
+            default: // Player speaker
               const colorClass = nameToColorClass(entry.speaker);
               return (
                 <div

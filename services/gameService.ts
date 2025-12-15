@@ -9,7 +9,8 @@ import {
   DataSnapshot,
 } from "firebase/database";
 import { db } from "./firebase";
-import { GameState, Player, PlayerAction } from "../types";
+import { GameState, Player, PlayerAction, WorldSetting } from "../types";
+import { WORLD_BIBLE } from "@/WorldBook";
 
 // simpan progress di local storage
 const getClientId = (): string => {
@@ -44,6 +45,7 @@ const createGame = async (hostId: string): Promise<string> => {
     isLoading: false,
     error: null,
     lastPlayerAction: null,
+    worldSetting: WORLD_BIBLE,
   };
   const gameRef = ref(db, `games/${gameId}`);
   await set(gameRef, initialGameState);
