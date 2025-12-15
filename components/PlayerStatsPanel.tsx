@@ -14,7 +14,7 @@ const HealthBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => {
   const healthColor = "bg-red-800";
 
   return (
-    <div>
+    <div >
       <div className="flex mb-1 items-center justify-between text-xs">
         <span className="font-semibold text-stone-600">HP</span>
         <span className="font-semibold text-stone-600">
@@ -59,8 +59,8 @@ const PlayerCard: React.FC<{
         <div className="flex-shrink-0">
           <AvatarDisplay name={player.name} />
         </div>
-        <div className="flex-grow">
-          <h3 className="text-lg font-bold text-red-900 cinzel truncate">
+        <div className="flex-grow min-w-0">
+          <h3 className="text-lg font-bold text-red-900 cinzel">
             {player.name}{" "}
             {isYou && <span className="text-sm text-blue-800">{t("you")}</span>}
           </h3>
