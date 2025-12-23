@@ -341,7 +341,7 @@ export const getNextStoryPart = async (
   let jsonText = ""; // Declared here to be accessible in the catch block for logging.
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-lite",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
