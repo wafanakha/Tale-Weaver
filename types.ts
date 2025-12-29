@@ -15,6 +15,16 @@ export interface Item {
   armorClass?: number;
   healing?: number;
 }
+export enum StatusType {
+  BUFF = "buff",
+  DEBUFF = "debuff",
+}
+export interface StatusEffect {
+  name: string;
+  type: StatusType;
+  description: string;
+  icon?: string;
+}
 
 export interface Stats {
   strength: number;
@@ -61,6 +71,8 @@ export interface Player {
   background: string;
   hp: number;
   maxHp: number;
+  xp: number;
+  maxXp: number;
   level: number;
   speed: number;
   hitDice: string;
@@ -76,21 +88,24 @@ export interface Player {
     armor: Item | null;
   };
   spellSlots: SpellSlots;
+  statusEffects?: StatusEffect[];
+  initiativeBonus?: number;
 }
 
 export interface Enemy {
   name: string;
   hp: number;
   maxHp: number;
+  xpValue: number; // XP rewarded when defeated
   isDefeated: boolean;
 }
 
 export interface DiceRoll {
-  skill: string; // e.g., 'Perception', 'Strength'
-  roll: number; // The d20 roll
+  skill: string;
+  roll: number;
   modifier: number;
   total: number;
-  dc: number; // Difficulty Class
+  dc: number;
   success: boolean;
 }
 
@@ -129,6 +144,7 @@ export interface GameState {
   choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
+  isProcessingAI?: boolean;
   error: string | null;
   lastPlayerAction: PlayerAction | null;
   worldSetting?: WorldSetting;
@@ -149,20 +165,26 @@ export interface GeminiResponse {
   player_updates?: {
     playerName: string;
     hp?: number;
-    maxHp?: number; // Added for leveling/buffs
-    level?: number; // Added for leveling
-    new_skills?: string[]; // Added for leveling
-    stats_update?: Partial<Stats>; // Added for leveling
+    maxHp?: number;
+    xp?: number; // Updated current XP
+    maxXp?: number; // New threshold if leveled up
+    level?: number;
+    new_skills?: string[];
+    stats_update?: Partial<Stats>;
     inventory_add?: Item[];
     inventory_remove?: string[];
     spell_slot_used?: {
       level: number;
     };
+    status_effects_add?: StatusEffect[];
+    status_effects_remove?: string[];
+    initiativeBonus?: number;
   }[];
   enemy_update?: {
     name: string;
     hp: number;
     maxHp: number;
+    xpValue?: number; // How much XP this enemy is worth
     is_defeated: boolean;
   };
   next_player_index?: number;

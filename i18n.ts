@@ -33,9 +33,9 @@ const translations = {
       "A divine warrior who wields magic in service of a higher power. Proficient with medium armor and spells like Guiding Bolt.",
     classFighterDescription:
       "A master of combat, proficient with all armor and weapons. With high stamina (1d10 Hit Dice), they are a force on the battlefield.",
-    classThiefDescription: 
+    classThiefDescription:
       "A cunning opportunist who uses stealth (Sneak Attack) and dexterity to overcome foes. Excels in skills and finesse.",
-      classWizardDescription:
+    classWizardDescription:
       "A scholarly master of arcane magic. Though fragile (1d6 Hit Dice), they command powerful spells like Fire Bolt and Magic Missile.",
 
     // --- RACE DESCRIPTIONS (NEW) ---
@@ -61,23 +61,23 @@ const translations = {
       "You are a trained warrior, familiar with the chain of command. You are proficient in Athletics and Perception.",
     bgOutcastDescription:
       "You grew up on the fringes of society, fending for yourself. You are proficient in Stealth and Perception.",
-      // --- STAT DESCRIPTIONS (NEW) ---
+    // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
       "Measures physical power, athletic training, and the extent to which you can exert raw physical force.",
-    
+
     dexterityDescription: "Measures agility, reflexes, and balance.",
-    
+
     constitutionDescription: "Measures health, stamina, and vital force.",
-    
+
     intelligenceDescription:
       "Measures mental acuity, accuracy of recall, and the ability to reason.",
-    
+
     wisdomDescription:
       "Measures perceptiveness, intuition, and practical judgment.",
-    
+
     charismaDescription:
       "Measures force of personality, persuasiveness, and leadership.",
-    
+
     createAdventurer: "Create Your Adventurer",
     name: "Name",
     characterNamePlaceholder: "Character's name",
@@ -128,6 +128,7 @@ const translations = {
     attacksAndSpellcasting: "Attacks & Spellcasting",
     combatSkills: "Combat Skills",
     spellSlots: "Spell Slots",
+    activeEffects: "Active Effects",
     // Loading/Messages
     storytellerWeavingFate: "The storyteller is weaving your fate...",
     playerEquippedItem: "{playerName} equipped the {itemName}.",
@@ -180,7 +181,7 @@ const translations = {
       "Seorang pejuang suci yang menggunakan sihir untuk melayani kekuatan yang lebih tinggi. Mahir dengan zirah medium dan mantra seperti Guiding Bolt.",
     classFighterDescription:
       "Seorang ahli tempur, mahir dengan semua zirah dan senjata. Dengan stamina tinggi (d10 Dadu Nyawa), mereka adalah kekuatan di medan perang.",
-    classThiefDescription: 
+    classThiefDescription:
       "Seorang oportunis licik yang menggunakan kesunyian (Sneak Attack) dan kegesitan untuk mengalahkan musuh. Unggul dalam keterampilan dan ketangkasan.",
     classWizardDescription:
       "Seorang ahli sihir misterius yang terpelajar. Meskipun rapuh (d6 Dadu Nyawa), mereka menguasai mantra kuat seperti Fire Bolt dan Magic Missile.",
@@ -208,19 +209,19 @@ const translations = {
       "Anda adalah pejuang terlatih, akrab dengan rantai komando. Anda mahir dalam Atletik dan Persepsi.",
     bgOutcastDescription:
       "Anda tumbuh di pinggiran masyarakat, berjuang sendiri. Anda mahir dalam Kesunyian dan Persepsi.",
-      // --- STAT DESCRIPTIONS (NEW) ---
+    // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
       "Mengukur kekuatan fisik, latihan atletik, dan sejauh mana Anda dapat menggunakan kekuatan fisik murni.",
-    
+
     dexterityDescription: "Mengukur kegesitan, refleks, dan keseimbangan.",
-    
+
     constitutionDescription: "Mengukur kesehatan, stamina, dan kekuatan vital.",
-    
+
     intelligenceDescription:
       "Mengukur ketajaman mental, akurasi ingatan, dan kemampuan bernalar.",
-    
+
     wisdomDescription: "MengKukur persepsi, intuisi, dan penilaian praktis.",
-    
+
     charismaDescription:
       "Mengukur kekuatan kepribadian, kemampuan membujuk, dan kepemimpinan.",
     createAdventurer: "Ciptakan Petualangmu",
@@ -274,6 +275,7 @@ const translations = {
     attacksAndSpellcasting: "Serangan & Perapalan Mantra",
     combatSkills: "Keterampilan Tempur",
     spellSlots: "Slot Mantra",
+    activeEffects: "Efek Aktif",
     // Loading/Messages
     storytellerWeavingFate: "Sang pencerita sedang menenun takdirmu...",
     playerEquippedItem: "{playerName} memasang {itemName}.",

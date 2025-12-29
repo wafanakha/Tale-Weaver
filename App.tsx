@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { GameState, Item, ItemType, Player, StoryLogEntry } from "./types";
+import {
+  GameState,
+  Item,
+  ItemType,
+  Player,
+  StoryLogEntry,
+  Stats,
+  StatusEffect,
+} from "./types";
 import { getNextStoryPart } from "./services/AIService";
 import { gameService } from "./services/gameService";
 import { useLanguage } from "./i18n";
@@ -15,6 +23,7 @@ import CharacterCreation, {
 import Lobby from "./components/Lobby";
 import LoreCodexPanel from "./components/LoreCodexPanel";
 import CharacterSheet from "./components/CharacterSheet";
+import LevelUpModal, { LevelUpData } from "./components/LevelUpModal";
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -47,7 +56,6 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   const GameCard: React.FC<{ game: GameState }> = ({ game }) => (
     <button
       onClick={() => onJoinGame(game.gameId)}
-     
       className="w-full border-2 border-stone-400 bg-stone-200/60 p-4 rounded-md shadow-sm text-left transition hover:bg-stone-100/80 hover:border-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600"
     >
       <p className="font-bold text-red-900 font-mono tracking-widest">
@@ -65,16 +73,15 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
   );
 
   return (
-    
     <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
       {}
       <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-2xl w-full">
         <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
           {t("loadGame")}
         </h1>
-        
+
         {isLoading && <LoadingSpinner />}
-        
+
         {!isLoading && (
           <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
             {games.length > 0 ? (
@@ -421,10 +428,10 @@ const App: React.FC = () => {
   };
 
   const LanguageSelector = () => (
-  <div className="absolute top-5 right-6 flex justify-center gap-3">
-        <button
-          onClick={() => setLanguage("en")}
-          className={`
+    <div className="absolute top-5 right-6 flex justify-center gap-3">
+      <button
+        onClick={() => setLanguage("en")}
+        className={`
             font-cinzel font-semibold
             px-3 py-1 /* Dibuat lebih kecil */
             rounded-md
@@ -432,18 +439,16 @@ const App: React.FC = () => {
             transition-all duration-300
             ${
               language === "en"
-                ? 
-                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                : 
-                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
+                ? "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
+                : "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
             }
           `}
-        >
-          English
-        </button>
-        <button
-          onClick={() => setLanguage("id")}
-          className={`
+      >
+        English
+      </button>
+      <button
+        onClick={() => setLanguage("id")}
+        className={`
             font-cinzel font-semibold
             px-3 py-1 /* Dibuat lebih kecil */
             rounded-md
@@ -451,17 +456,15 @@ const App: React.FC = () => {
             transition-all duration-300
             ${
               language === "id"
-                ? 
-                  "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
-                :
-                  "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
+                ? "bg-stone-800/50 text-yellow-400 border-yellow-500 shadow-lg shadow-yellow-500/10"
+                : "bg-black/20 text-stone-400 border-stone-700 hover:text-stone-200 hover:border-stone-500"
             }
           `}
-        >
-          Bahasa Indonesia
-        </button>
-      </div>
-    );
+      >
+        Bahasa Indonesia
+      </button>
+    </div>
+  );
 
   if (screen === "welcome") {
     return (
@@ -523,7 +526,6 @@ const App: React.FC = () => {
     );
   }
 
-
   if (screen === "load") {
     return (
       <LoadGameScreen
@@ -550,7 +552,7 @@ const App: React.FC = () => {
         onCharacterCreate={handleCharacterCreate}
         onCancel={() => {
           setScreen("lobby");
-          setGameId(null); 
+          setGameId(null);
         }}
       />
     );
