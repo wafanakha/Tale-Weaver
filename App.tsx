@@ -239,10 +239,23 @@ const App: React.FC = () => {
           text: response.story,
           id: newState.storyLog.length,
         };
+
+        // IMPROVED DICE ROLL PLAYER MAPPING
         if (response.dice_roll) {
-          newStoryEntry.diceRoll = { ...response.dice_roll, isRevealed: false };
+          const rollerName = (response.dice_roll as any).rolling_player_name;
+          const roller =
+            newState.players.find((p) => p.name === rollerName) ||
+            newState.players[dbState.currentPlayerIndex];
+
+          newStoryEntry.diceRoll = {
+            ...response.dice_roll,
+            isRevealed: false,
+            rollingPlayerId: roller.id, // Explicitly track WHO is rolling
+          };
+
+          // If there's a roll, we stay on that player by default to finish their action
+          newState.currentPlayerIndex = newState.players.indexOf(roller);
         }
-        newState.storyLog.push(newStoryEntry);
 
         if (response.lore_entries) {
           if (!newState.loreCodex) newState.loreCodex = [];
@@ -252,12 +265,17 @@ const App: React.FC = () => {
           });
         }
 
+        newState.storyLog.push(newStoryEntry);
+
         newState.choices = response.choices || [];
         const playerCount = newState.players.length;
+
+        // Handle turn increment only if AI explicitly provided it or if there is no pending roll
         if (response.next_player_index !== undefined) {
           newState.currentPlayerIndex =
             response.next_player_index % playerCount;
-        } else {
+        } else if (!response.dice_roll) {
+          // Only auto-increment if no dice roll is pending
           newState.currentPlayerIndex =
             playerCount > 0
               ? (newState.currentPlayerIndex + 1) % playerCount
@@ -383,10 +401,11 @@ const App: React.FC = () => {
     const latestState = await gameService.getGameState(gameId);
     if (!latestState) return;
 
+    const currentLog = latestState.storyLog || [];
     const newLog = {
       speaker: currentPlayer.name,
       text: action,
-      id: (latestState.storyLog || []).length,
+      id: currentLog.length,
     };
 
     await gameService.updateGameState(gameId, {
@@ -401,7 +420,8 @@ const App: React.FC = () => {
     const dbState = await gameService.getGameState(gameId);
     if (!dbState) return;
 
-    const newLog = [...dbState.storyLog];
+    const currentLog = dbState.storyLog || [];
+    const newLog = [...currentLog];
     const idx = newLog.findIndex((e) => e.id === entryId);
     if (idx === -1 || !newLog[idx].diceRoll) return;
 
@@ -437,15 +457,16 @@ const App: React.FC = () => {
       player.equipment.armor = itemToEquip;
 
     playersList[pIdx] = player;
+    const currentLog = dbState.storyLog || [];
     const storyLog = [
-      ...(dbState.storyLog || []),
+      ...currentLog,
       {
         speaker: "system",
         text: t("playerEquippedItem", {
           playerName: player.name,
           itemName: itemToEquip.name,
         }),
-        id: dbState.storyLog.length,
+        id: currentLog.length,
       },
     ];
 

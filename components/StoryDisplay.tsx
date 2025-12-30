@@ -177,15 +177,18 @@ const Dice2D: React.FC<{ value: number; isRolling: boolean }> = ({
 const DiceRollDisplay: React.FC<{
   roll: DiceRoll;
   entryId: number;
-  isMyTurn: boolean;
+  clientId: string;
   playerName: string;
   onReveal: (id: number) => void;
-}> = ({ roll, entryId, isMyTurn, playerName, onReveal }) => {
+}> = ({ roll, entryId, clientId, playerName, onReveal }) => {
   const { t } = useLanguage();
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Check if the current client is the one mapped to this roll
+  const isMyRoll = roll.rollingPlayerId === clientId;
+
   const handleRoll = () => {
-    if (!isMyTurn || roll.isRevealed || isAnimating) return;
+    if (!isMyRoll || roll.isRevealed || isAnimating) return;
     setIsAnimating(true);
     playDiceSound("roll");
 
@@ -246,7 +249,7 @@ const DiceRollDisplay: React.FC<{
       </p>
       <Dice2D value={1} isRolling={isAnimating} />
       <div className="mt-10 z-10">
-        {isMyTurn ? (
+        {isMyRoll ? (
           <button
             onClick={handleRoll}
             disabled={isAnimating}
@@ -302,8 +305,13 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({
                     <DiceRollDisplay
                       roll={entry.diceRoll}
                       entryId={entry.id}
-                      isMyTurn={currentPlayer?.id === clientId}
-                      playerName={currentPlayer?.name || "Adventurer"}
+                      clientId={clientId}
+                      playerName={
+                        entry.diceRoll.rollingPlayerId === clientId
+                          ? "You"
+                          : (entry.diceRoll as any).rolling_player_name ||
+                            "Adventurer"
+                      }
                       onReveal={onRevealRoll}
                     />
                   )}

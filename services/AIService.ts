@@ -72,7 +72,20 @@ const getResponseSchema = (lang: Language) => {
           total: { type: Type.INTEGER },
           dc: { type: Type.INTEGER },
           success: { type: Type.BOOLEAN },
+          rolling_player_name: {
+            type: Type.STRING,
+            description: "The name of the character who must roll the dice.",
+          },
         },
+        required: [
+          "skill",
+          "roll",
+          "modifier",
+          "total",
+          "dc",
+          "success",
+          "rolling_player_name",
+        ],
       },
       player_updates: {
         type: Type.ARRAY,
@@ -150,6 +163,14 @@ const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
   return `You are a master Dungeon Master. 
 ${worldInfo}
 
+**TURN ORDER & ROLLS:**
+1. You MUST track which player is currently acting.
+2. If a player performs an action that requires a dice roll (like a Perception check):
+   - You MUST include 'dice_roll' in your response.
+   - You MUST set 'rolling_player_name' to the character currently rolling.
+   - You MUST NOT increment the turn until the roll is resolved. Set 'next_player_index' to that same player's index.
+3. Only move to the next player's index when an action is fully completed or after a roll's outcome is narrated.
+
 **STARTING THE JOURNEY:**
 In the very first turn (when 'Adventure Begins'), you MUST:
 1. Introduce the party in their current location.
@@ -193,8 +214,10 @@ export const getNextStoryPart = async (
       },
     });
 
-    return JSON.parse(response.text.trim());
+    const text = response.text.trim();
+    return JSON.parse(text);
   } catch (e) {
+    console.error("Gemini Error:", e);
     throw new Error("The storyteller is momentarily distracted...");
   }
 };
@@ -205,13 +228,17 @@ export const generateCharacterBackstory = async (
   background: string,
   lang: Language
 ): Promise<string> => {
-  const prompt = `Backstory for ${name}, ${race}, ${background}. 2-3 paragraphs.`;
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: prompt,
-    config: {
-      responseSchema: getResponseSchema(lang),
-    },
-  });
-  return response.text || "";
+  const prompt = `Write a short, immersive fantasy backstory (2-3 paragraphs) for a ${race} character named ${name} with a ${background} background. Language: ${
+    lang === "id" ? "Indonesian" : "English"
+  }.`;
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    return response.text || "";
+  } catch (e) {
+    console.error("Backstory generation failed:", e);
+    return "";
+  }
 };

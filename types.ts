@@ -101,12 +101,14 @@ export interface Enemy {
 }
 
 export interface DiceRoll {
-  skill: string;
-  roll: number;
+  skill: string; // e.g., 'Perception', 'Strength'
+  roll: number; // The d20 roll
   modifier: number;
   total: number;
-  dc: number;
+  dc: number; // Difficulty Class
   success: boolean;
+  isRevealed?: boolean;
+  rollingPlayerId?: string;
 }
 
 export interface StoryLogEntry {
@@ -161,7 +163,7 @@ export interface LevelUpDetails {
 export interface GeminiResponse {
   story: string;
   choices: string[];
-  dice_roll?: DiceRoll;
+  dice_roll?: DiceRoll & { rolling_player_name?: string };
   player_updates?: {
     playerName: string;
     hp?: number;
