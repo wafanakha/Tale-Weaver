@@ -107,7 +107,6 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
     </div>
   );
 };
-
 const App: React.FC = () => {
   const [clientId] = useState(gameService.getClientId());
   const [gameId, setGameId] = useState<string | null>(null);
@@ -117,10 +116,11 @@ const App: React.FC = () => {
     "welcome" | "lobby" | "creation" | "playing" | "load"
   >("welcome");
   const [error, setError] = useState<string | null>(null);
-  const storyIdCounter = useRef(0);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
+  const [levelUpData, setLevelUpData] = useState<LevelUpData | null>(null);
 
-  // Ikuti State Change
+  const processingRef = useRef(false);
+
   useEffect(() => {
     if (!gameId) return;
     const unsubscribe = gameService.listenToGame(gameId, (state) => {
@@ -128,32 +128,46 @@ const App: React.FC = () => {
       if (state?.status === "playing" && screen !== "playing") {
         setScreen("playing");
       }
-      storyIdCounter.current = state?.storyLog?.length ?? 0;
     });
     return () => unsubscribe();
   }, [gameId, screen]);
 
-  // Proses Turn
   useEffect(() => {
     if (
       !gameState ||
       gameState.hostId !== clientId ||
-      !gameState.lastPlayerAction
+      !gameState.lastPlayerAction ||
+      gameState.isProcessingAI ||
+      processingRef.current
     )
       return;
 
     const processAction = async () => {
-      const { playerId, choice } = gameState.lastPlayerAction!;
-      const actingPlayer = gameState.players.find((p) => p.id === playerId);
-      if (!actingPlayer) return;
+      if (processingRef.current) return;
+      processingRef.current = true;
+
+      const actionToProcess = { ...gameState.lastPlayerAction! };
 
       try {
-        const response = await getNextStoryPart(gameState, choice, language);
+        await gameService.updateGameState(gameState.gameId, {
+          isProcessingAI: true,
+          lastPlayerAction: null,
+          isLoading: true,
+        });
 
-        // Buat state baru berdasarkan respon AI
-        const newState: GameState = JSON.parse(JSON.stringify(gameState)); // Deep copy
+        const latestState = await gameService.getGameState(gameState.gameId);
+        if (!latestState) throw new Error("Could not fetch latest state");
 
-        // update
+        const response = await getNextStoryPart(
+          latestState,
+          actionToProcess.choice,
+          language
+        );
+
+        const dbState = await gameService.getGameState(gameState.gameId);
+        if (!dbState) return;
+        const newState: GameState = JSON.parse(JSON.stringify(dbState));
+
         if (response.player_updates) {
           response.player_updates.forEach((update) => {
             const playerIndex = newState.players.findIndex(
@@ -161,107 +175,108 @@ const App: React.FC = () => {
             );
             if (playerIndex > -1) {
               const p = newState.players[playerIndex];
-              // Inventory harus ada untuk mencegah error
-              if (!p.inventory) p.inventory = [];
-              if (!p.spellSlots) p.spellSlots = {};
-
               if (update.hp !== undefined) p.hp = update.hp;
+              if (update.xp !== undefined) p.xp = update.xp;
+              if (update.maxXp !== undefined) p.maxXp = update.maxXp;
+
+              if (update.level && update.level > p.level) {
+                p.level = update.level;
+                if (update.maxHp) {
+                  const hpInc = update.maxHp - p.maxHp;
+                  p.maxHp = update.maxHp;
+                  setLevelUpData({
+                    playerName: p.name,
+                    newLevel: update.level,
+                    newMaxHp: p.maxHp,
+                    hpIncrease: hpInc,
+                  });
+                }
+              }
+
+              // HANDLE EQUIPMENT DIRECTLY FROM AI
+              if (!p.equipment) p.equipment = { weapon: null, armor: null };
+              if ((update as any).equipment_weapon)
+                p.equipment.weapon = (update as any).equipment_weapon;
+              if ((update as any).equipment_armor)
+                p.equipment.armor = (update as any).equipment_armor;
+
+              // HANDLE INVENTORY MERGE
+              if (!p.inventory) p.inventory = [];
               if (update.inventory_add)
-                p.inventory.push(...update.inventory_add);
+                p.inventory = [...p.inventory, ...update.inventory_add];
               if (update.inventory_remove) {
                 p.inventory = p.inventory.filter(
                   (item) => !update.inventory_remove?.includes(item.name)
                 );
               }
-              if (update.spell_slot_used) {
-                const level = update.spell_slot_used.level;
-                if (
-                  p.spellSlots[level] &&
-                  p.spellSlots[level].used < p.spellSlots[level].total
-                ) {
-                  p.spellSlots[level].used++;
-                }
-              }
+
+              if (update.status_effects_add)
+                p.statusEffects = [
+                  ...(p.statusEffects || []),
+                  ...update.status_effects_add,
+                ];
             }
           });
         }
 
-        // update enemy
         if (response.enemy_update) {
-          // Jika enemy mati, hapus
-          if (response.enemy_update.is_defeated === true) {
+          if (response.enemy_update.is_defeated) {
             newState.currentEnemy = null;
-          }
-          // jika tidak enemy update
-          else if (
-            response.enemy_update.name &&
-            response.enemy_update.hp !== undefined &&
-            response.enemy_update.maxHp !== undefined
-          ) {
+          } else if (response.enemy_update.name) {
             newState.currentEnemy = {
               name: response.enemy_update.name,
               hp: response.enemy_update.hp,
               maxHp: response.enemy_update.maxHp,
+              xpValue: response.enemy_update.xpValue || 50,
               isDefeated: false,
             };
           }
         }
 
-        if (!newState.storyLog) {
-          newState.storyLog = [];
-        }
-
-        // update Lore Codex
-        if (response.lore_entries && response.lore_entries.length > 0) {
-          if (!newState.loreCodex) {
-            newState.loreCodex = [];
-          }
-          const existingTitles = new Set(
-            newState.loreCodex.map((e) => e.title.toLowerCase())
-          );
-          const newUniqueEntries = response.lore_entries.filter(
-            (entry) =>
-              entry.title && !existingTitles.has(entry.title.toLowerCase())
-          );
-          if (newUniqueEntries.length > 0) {
-            newState.loreCodex.push(...newUniqueEntries);
-          }
-        }
-
-        // tambah story entry
-        const newStoryId = storyIdCounter.current++;
+        if (!newState.storyLog) newState.storyLog = [];
         const newStoryEntry: StoryLogEntry = {
           speaker: "story",
           text: response.story,
-          id: newStoryId,
+          id: newState.storyLog.length,
         };
-
         if (response.dice_roll) {
-          newStoryEntry.diceRoll = response.dice_roll;
+          newStoryEntry.diceRoll = { ...response.dice_roll, isRevealed: false };
         }
-
         newState.storyLog.push(newStoryEntry);
 
-        // ubah pilihan jadi array.
-        newState.choices = response.choices || [];
-        newState.currentPlayerIndex =
-          response.next_player_index ??
-          (newState.currentPlayerIndex + 1) % newState.players.length;
+        if (response.lore_entries) {
+          if (!newState.loreCodex) newState.loreCodex = [];
+          response.lore_entries.forEach((entry) => {
+            if (!newState.loreCodex!.some((e) => e.title === entry.title))
+              newState.loreCodex!.push(entry);
+          });
+        }
 
-        // Reset loading dan aksi player
+        newState.choices = response.choices || [];
+        const playerCount = newState.players.length;
+        if (response.next_player_index !== undefined) {
+          newState.currentPlayerIndex =
+            response.next_player_index % playerCount;
+        } else {
+          newState.currentPlayerIndex =
+            playerCount > 0
+              ? (newState.currentPlayerIndex + 1) % playerCount
+              : 0;
+        }
+
         newState.isLoading = false;
-        newState.lastPlayerAction = null;
+        newState.isProcessingAI = false;
 
         await gameService.updateGameState(newState.gameId, newState);
       } catch (err) {
-        console.error(err);
-        const currentState = await gameService.getGameState(gameState.gameId);
-        if (currentState) {
-          currentState.error = t("storytellerError");
-          currentState.isLoading = false;
-          currentState.lastPlayerAction = null;
-          await gameService.updateGameState(gameState.gameId, currentState);
-        }
+        console.error("AI DM Processing Error:", err);
+        await gameService.updateGameState(gameState.gameId, {
+          isProcessingAI: false,
+          isLoading: false,
+          error: t("storytellerError"),
+        });
+      } finally {
+        processingRef.current = false;
       }
     };
 
@@ -284,21 +299,22 @@ const App: React.FC = () => {
       const gameIdUpper = id.trim().toUpperCase();
       const state = await gameService.getGameState(gameIdUpper);
       if (state) {
-        const isPlayerInGame = state.players.some((p) => p.id === clientId);
-
+        const isPlayerInGame = (state.players || []).some(
+          (p) => p.id === clientId
+        );
         if (!isPlayerInGame && state.status !== "lobby") {
           setError(t("gameAlreadyStarted"));
           return;
         }
-
         gameService.addUserGame(gameIdUpper);
         setGameId(gameIdUpper);
-
-        if (isPlayerInGame) {
-          setScreen(state.status === "playing" ? "playing" : "lobby");
-        } else {
-          setScreen("creation");
-        }
+        setScreen(
+          isPlayerInGame
+            ? state.status === "playing"
+              ? "playing"
+              : "lobby"
+            : "creation"
+        );
       } else {
         setError(t("gameNotFound"));
       }
@@ -317,6 +333,8 @@ const App: React.FC = () => {
       background: details.background,
       hp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       maxHp: 20 + Math.floor((details.stats.constitution - 10) / 2),
+      xp: 0,
+      maxXp: 100, // Reduced from 300 to make Level 2 easier to reach
       level: 1,
       speed: details.speed,
       hitDice: details.hitDice,
@@ -329,102 +347,112 @@ const App: React.FC = () => {
       inventory: [],
       equipment: { weapon: null, armor: null },
       spellSlots: details.spellSlots,
+      statusEffects: [],
+      initiativeBonus: 0,
     };
     await gameService.addPlayer(gameId, newPlayer);
     setScreen("lobby");
   };
 
   const handleStartGame = async () => {
-    if (!gameId || !gameState) return;
-
-    // proses turn base
-    await gameService.updateGameState(gameId, { isLoading: true });
-    const initialPrompt = t("adventureBegins");
-    await gameService.postAction(gameId, clientId, initialPrompt);
-    await gameService.updateGameState(gameId, { status: "playing" });
+    if (
+      !gameId ||
+      !gameState ||
+      gameState.status === "playing" ||
+      gameState.isProcessingAI
+    )
+      return;
+    await gameService.updateGameState(gameId, {
+      isLoading: true,
+      status: "playing",
+    });
+    await gameService.postAction(gameId, clientId, t("adventureBegins"));
   };
 
   const handleActionSubmit = async (action: string) => {
-    if (!gameId || !gameState || gameState.isLoading) return;
-
+    if (
+      !gameId ||
+      !gameState ||
+      gameState.isLoading ||
+      gameState.isProcessingAI
+    )
+      return;
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    if (currentPlayer.id !== clientId) return;
+    if (currentPlayer?.id !== clientId) return;
 
-    const newPlayerChoiceId = storyIdCounter.current++;
+    const latestState = await gameService.getGameState(gameId);
+    if (!latestState) return;
+
     const newLog = {
       speaker: currentPlayer.name,
       text: action,
-      id: newPlayerChoiceId,
+      id: (latestState.storyLog || []).length,
     };
 
-    // update UI
-    setGameState((prev) =>
-      prev
-        ? {
-            ...prev,
-            isLoading: true,
-            choices: [],
-            storyLog: [...(prev.storyLog || []), newLog],
-          }
-        : null
-    );
-
-    // update di semua player
     await gameService.updateGameState(gameId, {
       isLoading: true,
-      choices: [],
-      storyLog: [...(gameState.storyLog || []), newLog],
+      storyLog: [...(latestState.storyLog || []), newLog],
+      lastPlayerAction: { playerId: clientId, choice: action },
     });
-    await gameService.postAction(gameId, clientId, action);
   };
 
-  const handleEquipItem = (itemToEquip: Item) => {
+  const handleRevealRoll = async (entryId: number) => {
+    if (!gameId) return;
+    const dbState = await gameService.getGameState(gameId);
+    if (!dbState) return;
+
+    const newLog = [...dbState.storyLog];
+    const idx = newLog.findIndex((e) => e.id === entryId);
+    if (idx === -1 || !newLog[idx].diceRoll) return;
+
+    newLog[idx].diceRoll = { ...newLog[idx].diceRoll!, isRevealed: true };
+    await gameService.updateGameState(gameId, { storyLog: newLog });
+  };
+
+  const handleEquipItem = async (itemToEquip: Item) => {
     if (!gameId || !gameState) return;
+    const dbState = await gameService.getGameState(gameId);
+    if (!dbState) return;
 
-    const playerIndex = gameState.players.findIndex((p) => p.id === clientId);
-    if (playerIndex === -1) return;
+    const playersList = [...dbState.players];
+    const pIdx = playersList.findIndex((p) => p.id === clientId);
+    if (pIdx === -1) return;
 
-    const player = { ...gameState.players[playerIndex] };
-
-    if (!player.equipment) {
-      player.equipment = { weapon: null, armor: null };
-    }
-
-    if (!player.inventory) {
-      player.inventory = [];
-    }
-
+    const player = { ...playersList[pIdx] };
     const currentlyEquipped =
       itemToEquip.type === ItemType.WEAPON
-        ? player.equipment.weapon
-        : player.equipment.armor;
+        ? player.equipment?.weapon
+        : player.equipment?.armor;
 
-    if (currentlyEquipped) player.inventory.push(currentlyEquipped);
-    player.inventory = player.inventory.filter(
+    if (currentlyEquipped)
+      player.inventory = [...(player.inventory || []), currentlyEquipped];
+    player.inventory = (player.inventory || []).filter(
       (item) => item.name !== itemToEquip.name
     );
+
+    if (!player.equipment) player.equipment = { weapon: null, armor: null };
     if (itemToEquip.type === ItemType.WEAPON)
       player.equipment.weapon = itemToEquip;
     if (itemToEquip.type === ItemType.ARMOR)
       player.equipment.armor = itemToEquip;
 
-    const newPlayers = [...gameState.players];
-    newPlayers[playerIndex] = player;
-
-    const newSystemMessageId = storyIdCounter.current++;
+    playersList[pIdx] = player;
     const storyLog = [
-      ...(gameState.storyLog || []),
+      ...(dbState.storyLog || []),
       {
         speaker: "system",
         text: t("playerEquippedItem", {
           playerName: player.name,
           itemName: itemToEquip.name,
         }),
-        id: newSystemMessageId,
+        id: dbState.storyLog.length,
       },
     ];
 
-    gameService.updateGameState(gameId, { players: newPlayers, storyLog });
+    await gameService.updateGameState(gameId, {
+      players: playersList,
+      storyLog,
+    });
   };
 
   const LanguageSelector = () => (
@@ -598,7 +626,12 @@ const App: React.FC = () => {
           <h1 className="text-3xl font-bold text-center mb-4 text-red-900 cinzel">
             {t("yourStory")}
           </h1>
-          <StoryDisplay storyLog={gameState.storyLog} />
+          <StoryDisplay
+            storyLog={gameState.storyLog}
+            currentPlayer={currentPlayer}
+            clientId={clientId}
+            onRevealRoll={handleRevealRoll}
+          />
           <div className="mt-auto pt-4">
             {gameState.isLoading && <LoadingSpinner />}
             {gameState.error && (
