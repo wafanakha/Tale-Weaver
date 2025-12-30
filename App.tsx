@@ -167,7 +167,8 @@ const App: React.FC = () => {
         const dbState = await gameService.getGameState(gameState.gameId);
         if (!dbState) return;
         const newState: GameState = JSON.parse(JSON.stringify(dbState));
-
+        if (!newState.loreCodex) newState.loreCodex = [];
+        if (!newState.storyLog) newState.storyLog = [];
         if (response.player_updates) {
           response.player_updates.forEach((update) => {
             const playerIndex = newState.players.findIndex(
@@ -181,16 +182,16 @@ const App: React.FC = () => {
 
               if (update.stats_update) {
                 Object.entries(update.stats_update).forEach(([stat, inc]) => {
-                  if (inc) (p.stats as any)[stat] += inc;
+                  if (inc)
+                    (p.stats as any)[stat] =
+                      ((p.stats as any)[stat] || 10) + inc;
                 });
               }
               if (update.new_skills) {
-                p.combatSkills = [
-                  ...(p.combatSkills || []),
-                  ...update.new_skills,
-                ];
+                p.combatSkills = Array.from(
+                  new Set([...(p.combatSkills || []), ...update.new_skills])
+                );
               }
-
               if (update.level && update.level > p.level) {
                 const oldMaxHp = p.maxHp;
                 p.level = update.level;
@@ -203,17 +204,17 @@ const App: React.FC = () => {
                   newLevel: update.level,
                   newMaxHp: p.maxHp,
                   hpIncrease: p.maxHp - oldMaxHp,
-                  newSkills: update.new_skills,
-                  statsIncreased: update.stats_update,
+                  newSkills: update.new_skills ?? [],
+                  statsIncreased: update.stats_update ?? {},
                 });
               }
 
               // HANDLE EQUIPMENT DIRECTLY FROM AI
               if (!p.equipment) p.equipment = { weapon: null, armor: null };
-              if ((update as any).equipment_weapon)
-                p.equipment.weapon = (update as any).equipment_weapon;
-              if ((update as any).equipment_armor)
-                p.equipment.armor = (update as any).equipment_armor;
+              if (update.equipment_weapon)
+                p.equipment.weapon = update.equipment_weapon;
+              if (update.equipment_armor)
+                p.equipment.armor = update.equipment_armor;
 
               // HANDLE INVENTORY MERGE
               if (!p.inventory) p.inventory = [];
@@ -239,10 +240,10 @@ const App: React.FC = () => {
             newState.currentEnemy = null;
           } else if (response.enemy_update.name) {
             newState.currentEnemy = {
-              name: response.enemy_update.name,
-              hp: response.enemy_update.hp,
-              maxHp: response.enemy_update.maxHp,
-              xpValue: response.enemy_update.xpValue || 50,
+              name: response.enemy_update.name ?? "Enemy",
+              hp: response.enemy_update.hp ?? 10,
+              maxHp: response.enemy_update.maxHp ?? 10,
+              xpValue: response.enemy_update.xpValue ?? 50,
               isDefeated: false,
             };
           }
@@ -251,19 +252,24 @@ const App: React.FC = () => {
         if (!newState.storyLog) newState.storyLog = [];
         const newStoryEntry: StoryLogEntry = {
           speaker: "story",
-          text: response.story,
+          text: response.story ?? "The journey continues...",
           id: newState.storyLog.length,
         };
 
         // IMPROVED DICE ROLL PLAYER MAPPING
         if (response.dice_roll) {
-          const rollerName = (response.dice_roll as any).rolling_player_name;
+          const rollerName = response.dice_roll.rolling_player_name;
           const roller =
             newState.players.find((p) => p.name === rollerName) ||
             newState.players[dbState.currentPlayerIndex];
 
           newStoryEntry.diceRoll = {
-            ...response.dice_roll,
+            skill: response.dice_roll.skill ?? "Skill",
+            roll: response.dice_roll.roll ?? 10,
+            modifier: response.dice_roll.modifier ?? 0,
+            total: response.dice_roll.total ?? 10,
+            dc: response.dice_roll.dc ?? 10,
+            success: response.dice_roll.success ?? false,
             isRevealed: false,
             rollingPlayerId: roller.id, // Explicitly track WHO is rolling
           };
@@ -273,16 +279,20 @@ const App: React.FC = () => {
         }
 
         if (response.lore_entries) {
-          if (!newState.loreCodex) newState.loreCodex = [];
           response.lore_entries.forEach((entry) => {
-            if (!newState.loreCodex!.some((e) => e.title === entry.title))
+            if (
+              entry &&
+              entry.title &&
+              !newState.loreCodex!.some((e) => e.title === entry.title)
+            ) {
               newState.loreCodex!.push(entry);
+            }
           });
         }
 
         newState.storyLog.push(newStoryEntry);
 
-        newState.choices = response.choices || [];
+        newState.choices = response.choices ?? [];
         const playerCount = newState.players.length;
 
         // Handle turn increment only if AI explicitly provided it or if there is no pending roll

@@ -183,15 +183,29 @@ ${worldInfo}
 
 **LEVEL UP RULES (CRITICAL):**
 When a player reaches a new Level (XP >= MaxXP):
-1. You MUST increment their 'level'.
-2. You MUST set a new, higher 'maxXp' (Level 2: 100, Level 3: 300, Level 4: 600, Level 5: 1000).
-3. You MUST provide 'stats_update' (e.g., strength: 2) to make them stronger.
-4. You MUST provide at least one new 'new_skills' (a powerful combat ability or spell).
-5. You MUST increase 'maxHp' by 5-10 points.
-6. Narrate the level up as a moment of great growth or awakening.
+1. Increment their 'level'.
+2. Set a new, higher 'maxXp' (Level 2: 100, Level 3: 300, Level 4: 600, Level 5: 1000).
+3. Provide a GENEROUS 'stats_update'. Increase their primary stats (e.g., Strength for Fighters, Intelligence for Wizards) by +2 or +3.
+4. Provide at least one powerful 'new_skills'. Give it a cool name like "Heavenly Strike" or "Shadow Step".
+5. Increase 'maxHp' significantly (by 10-15 points).
+6. Narrate the level up with epic flair, describing how their power manifests.
+
+**START OF ADVENTURE (MANDATORY):**
+When the first action is "The adventure begins...", you MUST:
+1. Greet the party and describe their immediate surroundings vividly.
+2. In 'player_updates', you MUST provide starting gear for EVERY player in the party.
+3. Assign each player a primary 'equipment_weapon' (e.g., Longsword, Staff), 'equipment_armor' (e.g., Leather Armor, Robes), and 2 'inventory_add' items (e.g., Health Potion, Torch).
+
+**WORLD BUILDING & LORE:**
+- Whenever you introduce a significant NPC, a historical event, or a specific landmark, you MUST include a matching entry in the 'lore_entries' array.
+- This Lore Codex is how players track the world's secrets. DO NOT leave it empty if you mentioned something important in the story.
+
+**LEVEL UP RULES:**
+- When XP >= MaxXP, increment 'level', increase primary stats by +2 or +3 in 'stats_update', and provide a unique named skill in 'new_skills'.
+
 
 **TURN ORDER & ROLLS:**
-1. You MUST track which player is currently acting.
+1. Track which player is currently acting.
 2. If a player performs an action that requires a dice roll:
    - Include 'dice_roll' and set 'rolling_player_name'.
    - DO NOT increment the turn until the roll is resolved.
@@ -200,7 +214,7 @@ When a player reaches a new Level (XP >= MaxXP):
 **CORE RULES:**
 - Narrate results vividly.
 - Use **bold** for key items/locations.
-- Resolve combat efficiently.`;
+- Resolve combat rounds efficiently but narratively.`;
 };
 
 export const getNextStoryPart = async (

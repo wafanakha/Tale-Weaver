@@ -15,15 +15,17 @@ export interface Item {
   armorClass?: number;
   healing?: number;
 }
+
 export enum StatusType {
   BUFF = "buff",
   DEBUFF = "debuff",
 }
+
 export interface StatusEffect {
   name: string;
   type: StatusType;
   description: string;
-  icon?: string;
+  icon?: string; // Optional emoji or symbol
 }
 
 export interface Stats {
@@ -71,8 +73,8 @@ export interface Player {
   background: string;
   hp: number;
   maxHp: number;
-  xp: number;
-  maxXp: number;
+  xp: number; // Current experience points
+  maxXp: number; // XP threshold for next level
   level: number;
   speed: number;
   hitDice: string;
@@ -108,7 +110,7 @@ export interface DiceRoll {
   dc: number; // Difficulty Class
   success: boolean;
   isRevealed?: boolean;
-  rollingPlayerId?: string;
+  rollingPlayerId?: string; // NEW: Explicit ID of who rolls
 }
 
 export interface StoryLogEntry {
@@ -146,7 +148,7 @@ export interface GameState {
   choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
-  isProcessingAI?: boolean;
+  isProcessingAI?: boolean; // New flag to prevent duplicate calls
   error: string | null;
   lastPlayerAction: PlayerAction | null;
   worldSetting?: WorldSetting;
@@ -175,6 +177,9 @@ export interface GeminiResponse {
     stats_update?: Partial<Stats>;
     inventory_add?: Item[];
     inventory_remove?: string[];
+    // Fix: Added equipment_weapon and equipment_armor to resolve property errors in App.tsx
+    equipment_weapon?: Item;
+    equipment_armor?: Item;
     spell_slot_used?: {
       level: number;
     };
