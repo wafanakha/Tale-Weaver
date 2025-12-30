@@ -98,6 +98,24 @@ const getResponseSchema = (lang: Language) => {
             xp: { type: Type.INTEGER },
             maxXp: { type: Type.INTEGER },
             level: { type: Type.INTEGER },
+            new_skills: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "New combat abilities or spells learned.",
+            },
+            stats_update: {
+              type: Type.OBJECT,
+              properties: {
+                strength: { type: Type.INTEGER },
+                dexterity: { type: Type.INTEGER },
+                constitution: { type: Type.INTEGER },
+                intelligence: { type: Type.INTEGER },
+                wisdom: { type: Type.INTEGER },
+                charisma: { type: Type.INTEGER },
+              },
+              description:
+                "The amount to INCREASE each stat by during level up.",
+            },
             equipment_weapon: {
               ...itemSchema,
               description: d.equipment_weapon,
@@ -163,35 +181,26 @@ const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
   return `You are a master Dungeon Master. 
 ${worldInfo}
 
+**LEVEL UP RULES (CRITICAL):**
+When a player reaches a new Level (XP >= MaxXP):
+1. You MUST increment their 'level'.
+2. You MUST set a new, higher 'maxXp' (Level 2: 100, Level 3: 300, Level 4: 600, Level 5: 1000).
+3. You MUST provide 'stats_update' (e.g., strength: 2) to make them stronger.
+4. You MUST provide at least one new 'new_skills' (a powerful combat ability or spell).
+5. You MUST increase 'maxHp' by 5-10 points.
+6. Narrate the level up as a moment of great growth or awakening.
+
 **TURN ORDER & ROLLS:**
 1. You MUST track which player is currently acting.
-2. If a player performs an action that requires a dice roll (like a Perception check):
-   - You MUST include 'dice_roll' in your response.
-   - You MUST set 'rolling_player_name' to the character currently rolling.
-   - You MUST NOT increment the turn until the roll is resolved. Set 'next_player_index' to that same player's index.
-3. Only move to the next player's index when an action is fully completed or after a roll's outcome is narrated.
-
-**STARTING THE JOURNEY:**
-In the very first turn (when 'Adventure Begins'), you MUST:
-1. Introduce the party in their current location.
-2. Assign appropriate starting equipment to EVERY player in the 'player_updates' array.
-3. Use 'equipment_weapon' and 'equipment_armor' to equip them immediately.
-4. Give Fighters/Paladins armor and martial weapons, Wizards staves/robes, Rogues daggers/leather, etc.
-5. Add basic survival items (rations, torches, potions) to their 'inventory_add'.
-
-**FAST PROGRESSION & XP:**
-Eldoria is a fast-paced adventure. Reward XP generously to make leveling up easier!
-- **XP Thresholds:** Level 2 (100 XP), Level 3 (300 XP), Level 4 (600 XP), Level 5 (1000 XP).
-- **Combat:** Killing even a simple guard or wolf should give 25-50 XP to each player.
-- **Exploration:** Give 10-20 XP for discovering a new room, a secret door, or reading a lore entry.
-- **Roleplay:** Give 15-30 XP for clever ideas, successful persuasion, or creative solutions.
-- **Goal Reached:** Give 50+ XP for finishing a quest or reaching a safe haven.
+2. If a player performs an action that requires a dice roll:
+   - Include 'dice_roll' and set 'rolling_player_name'.
+   - DO NOT increment the turn until the roll is resolved.
+3. Only move to 'next_player_index' when an action is completed.
 
 **CORE RULES:**
-- Narrate outcomes of player actions and dice rolls.
-- Use **bold** (double asterisks) for important names, locations, and key items.
-- Maintain a consistent, immersive tone.
-- Resolve combat rounds in a single response. Describe enemy attacks if the player round ends.`;
+- Narrate results vividly.
+- Use **bold** for key items/locations.
+- Resolve combat efficiently.`;
 };
 
 export const getNextStoryPart = async (
@@ -205,7 +214,7 @@ export const getNextStoryPart = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -233,7 +242,7 @@ export const generateCharacterBackstory = async (
   }.`;
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: prompt,
     });
     return response.text || "";

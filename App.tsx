@@ -179,18 +179,33 @@ const App: React.FC = () => {
               if (update.xp !== undefined) p.xp = update.xp;
               if (update.maxXp !== undefined) p.maxXp = update.maxXp;
 
+              if (update.stats_update) {
+                Object.entries(update.stats_update).forEach(([stat, inc]) => {
+                  if (inc) (p.stats as any)[stat] += inc;
+                });
+              }
+              if (update.new_skills) {
+                p.combatSkills = [
+                  ...(p.combatSkills || []),
+                  ...update.new_skills,
+                ];
+              }
+
               if (update.level && update.level > p.level) {
+                const oldMaxHp = p.maxHp;
                 p.level = update.level;
                 if (update.maxHp) {
-                  const hpInc = update.maxHp - p.maxHp;
                   p.maxHp = update.maxHp;
-                  setLevelUpData({
-                    playerName: p.name,
-                    newLevel: update.level,
-                    newMaxHp: p.maxHp,
-                    hpIncrease: hpInc,
-                  });
                 }
+
+                setLevelUpData({
+                  playerName: p.name,
+                  newLevel: update.level,
+                  newMaxHp: p.maxHp,
+                  hpIncrease: p.maxHp - oldMaxHp,
+                  newSkills: update.new_skills,
+                  statsIncreased: update.stats_update,
+                });
               }
 
               // HANDLE EQUIPMENT DIRECTLY FROM AI
@@ -352,7 +367,7 @@ const App: React.FC = () => {
       hp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       maxHp: 20 + Math.floor((details.stats.constitution - 10) / 2),
       xp: 0,
-      maxXp: 100, // Reduced from 300 to make Level 2 easier to reach
+      maxXp: 100,
       level: 1,
       speed: details.speed,
       hitDice: details.hitDice,
