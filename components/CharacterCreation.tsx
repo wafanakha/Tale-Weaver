@@ -26,8 +26,21 @@ interface CharacterCreationProps {
 }
 
 const RACES = ["Human", "Elf", "Dwarf", "Halfling", "Orc"];
-const CLASSES = ["Cleric", "Fighter", "Thief", "Wizard"];
-const BACKGROUNDS = ["Noble", "Rogue", "Scholar", "Soldier", "Outcast"];
+const CLASSES = ["Cleric", "Fighter", "Archer", "Rogue", "Wizard"];
+const BACKGROUNDS = [
+  "Noble",
+  "Scholar",
+  "Soldier",
+  "Outcast",
+  "Acolyte",
+  "Criminal",
+  "Folk Hero",
+  "Hermit",
+  "Merchant",
+  "Sailor",
+  "Urchin",
+  "Gladiator",
+];
 const STAT_NAMES: (keyof Stats)[] = [
   "strength",
   "dexterity",
@@ -65,7 +78,18 @@ const CLASS_DATA: {
     ],
     combatSkills: ["Second Wind", "Power Attack"],
   },
-  Thief: {
+  Archer: {
+    hitDice: "1d10",
+    savingThrows: ["strength", "dexterity"],
+    proficiencies: [
+      "Light armor",
+      "Medium armor",
+      "Simple weapons",
+      "Martial weapons",
+    ],
+    combatSkills: ["Steady Aim", "Volley"],
+  },
+  Rogue: {
     hitDice: "1d8",
     savingThrows: ["dexterity", "intelligence"],
     proficiencies: [
@@ -103,10 +127,17 @@ const RACE_DATA: { [key: string]: { speed: number; languages: string[] } } = {
 
 const BACKGROUND_SKILLS: { [key: string]: (keyof Skills)[] } = {
   Noble: ["persuasion", "history"],
-  Rogue: ["stealth", "deception"],
-  Scholar: ["arcana", "investigation"],
+  Scholar: ["arcana", "history"],
   Soldier: ["athletics", "perception"],
   Outcast: ["stealth", "perception"],
+  Acolyte: ["history", "persuasion"],
+  Criminal: ["stealth", "deception"],
+  "Folk Hero": ["athletics", "persuasion"],
+  Hermit: ["arcana", "perception"],
+  Merchant: ["persuasion", "investigation"],
+  Sailor: ["athletics", "perception"],
+  Urchin: ["stealth", "acrobatics"],
+  Gladiator: ["athletics", "acrobatics"],
 };
 
 const CharacterCreation: React.FC<CharacterCreationProps> = ({
@@ -263,7 +294,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
   const genButtonClass =
     "cinzel text-sm bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition disabled:bg-stone-500 disabled:cursor-not-allowed";
 
-  
   const tooltipStyle = `
     absolute hidden group-hover:block 
     top-full mt-2 
@@ -275,27 +305,23 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     transition-opacity duration-200 delay-200
   `;
 
-  
   const getButtonTooltipPosition = (name: string) => {
     switch (name) {
-      
       case "Human":
-      case "Elf": 
+      case "Elf":
       case "Orc":
       case "Cleric":
       case "Noble":
       case "Outcast":
-        return "left-0"; 
+        return "left-0";
 
-      
       case "Halfling":
       case "Wizard":
       case "Soldier":
-        return "right-0"; 
+        return "right-0";
 
-      
       default:
-        return "left-1/2 -translate-x-1/2"; 
+        return "left-1/2 -translate-x-1/2";
     }
   };
 

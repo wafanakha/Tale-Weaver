@@ -209,6 +209,9 @@ export const generateCharacterBackstory = async (
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
+    config: {
+      responseSchema: getResponseSchema(lang),
+    },
   });
   return response.text || "";
 };
