@@ -13,15 +13,15 @@ retakan ini menjadi awal invasi mahluk2 dunia netheria yang mulai masuk ke aethe
 LOKASI PENTING (KEY LOCATIONS)
 
 1. Wilayah Pemula
-1.1 Desa Solstice
+1.1 Desa Solstice (Solstice Village)
 Deskripsi: Desa kecil yang damai di lembah pegunungan, tempat matahari bersinar paling lama. Ini adalah tempat kelahiran protagonis atau tempat party pertama kali berkumpul.
 Kondisi Saat Ini: Sedang mengalami fenomena aneh dimana bayangan benda-benda bergerak sendiri tidak sesuai arah matahari (tanda awal retakan Tabir).
 
-1.2 Luminara (Kota Pusat)
+1.2 Luminara
 Deskripsi: Ibukota kerajaan manusia dan pusat aliansi ras. Dikelilingi tembok putih tinggi yang diperkuat sihir pelindung.
 Penting: Tempat pemain menjual loot, bertemu bangsawan, dan mendapatkan misi utama.
 
-1.3 Akademi Omni-Arts & Menara Sihir
+1.3 Akademi Omni-Arts & Menara Sihir (Omni-Arts Academy & Tower of Magic)
 Deskripsi: Terletak di tengah Luminara. Menara Sihir yang melayang di atas Akademi adalah pusat riset para penyihir elit.
 Konflik: Para tetua penyihir sedang berdebat; sebagian ingin menutup Tabir, sebagian ingin mengevakuasi penduduk ke dimensi lain.
 
@@ -30,7 +30,8 @@ Deskripsi: Gudang pengetahuan kuno yang dijaga oleh Golem Penjaga.
 Penting: Hanya di sini tersimpan "Codex of The Veil", buku yang berisi mantra untuk menutup retakan dimensi secara permanen.
 
 2. Wilayah Liar
-2.1 Sylvaris (Hutan)
+
+2.1 Sylvaris 
 Deskripsi: Hutan rumah bagi para Elf. Dulu indah, sekarang mulai membusuk.
 Bahaya: Flora dan fauna di sini menjadi The Corrupted (seperti Blight-Bear). Para Elf menjadi xenophobic karena paranoia akibat korupsi hutan.
 
@@ -47,6 +48,7 @@ Deskripsi: Sisa reruntuhan peradaban kuno yang hancur pada perang Nether pertama
 Penting: Tempat ditemukannya artefak kuno bagi Veilwalker. Penuh jebakan magis dan hantu masa lalu.
 
 3. Wilayah Gelap & Dimensi Lain
+
 3.1 Menara Hitam (Necromancy Spire)
 Deskripsi: Menara terisolasi di rawa berkabut. Tempat para Necromancer yang mencoba mengendalikan mayat monster Nether.
 Konflik: Pemain bisa memilih menghancurkan mereka atau meminta bantuan pengetahuan terlarang mereka.
@@ -66,11 +68,12 @@ Deskripsi: Jantung Netheria. Langit berwarna ungu darah, tanah terbuat dari dagi
 
 KARAKTER PENTING (KEY NPCS)
 1. Karakter Dewa/Entitas Ilahi
-1.1 Dewi Aether (The Mother of Light)
+
+1.1 Dewi Aether / Aether Goddess (The Mother of Light)
 Peran: Pelindung Aetheria.
 Status: Dorman/Tertidur. Energinya melemah drastis karena retakan Tabir. Dia hanya bisa berkomunikasi lewat mimpi samar kepada para Veilwalker.
 
-1.2 Dewa Nether (The Father of Void)
+1.2 Dewa Nether / Nether God (The Father of Void)
 Peran: Pencipta Netheria.
 Status: Tersegel. Ia tidak bisa masuk ke Aetheria secara fisik, namun ia membisikkan kegilaan dan janji kekuatan kepada makhluk Aetheria untuk menjadi pengikutnya.
 
@@ -81,6 +84,7 @@ Motivasi: Ia percaya satu-satunya cara menghentikan wabah Nether adalah dengan m
 Hubungan: Awalnya musuh karena kekejamannya, tapi bisa menjadi sekutu kuat jika Party berhasil meyakinkannya ada cara lain selain pembakaran massal.
 
 2. Tokoh Kunci (Faksi & Antagonis)
+
 2.1 Dion Von Master, The Demon Lord
 Ras: Setengah Manusia, Setengah Demon (Humanoid).
 Sifat: Karismatik, Sadis, Manipulatif, Cerdas.
@@ -162,6 +166,7 @@ Deskripsi: Bola cahaya kecil yang hangat.
 Fungsi: Tidak menyerang. Mereka bertindak sebagai penunjuk jalan bagi Veilwalker menuju retakan tersembunyi, namun mereka sangat rapuh dan sering diburu oleh Soul-Leech.
 
 5. Boss Concept (Ancaman Utama)
+
 5.1 Zul Gara, The Weaver of Ruin (Penun Kebinasaan)
 Tipe: Demon Lord (Jenderal Nether).
 Lore: Zul'Gara adalah makhluk cerdas yang ditugaskan Dewa Nether untuk tidak hanya menghancurkan, tapi menjahit Netheria ke Aetheria secara permanen.
