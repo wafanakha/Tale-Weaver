@@ -25,6 +25,8 @@ import LoreCodexPanel from "./components/LoreCodexPanel";
 import CharacterSheet from "./components/CharacterSheet";
 import LevelUpModal, { LevelUpData } from "./components/LevelUpModal";
 import GameEnding from "./components/GameEnding";
+import AboutPage from "./components/AboutPage";
+``;
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -114,7 +116,7 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const { language, setLanguage, t } = useLanguage();
   const [screen, setScreen] = useState<
-    "welcome" | "lobby" | "creation" | "playing" | "load"
+    "welcome" | "lobby" | "creation" | "playing" | "load" | "about"
   >("welcome");
   const [error, setError] = useState<string | null>(null);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
@@ -598,6 +600,12 @@ const App: React.FC = () => {
             >
               {t("loadGame")}
             </button>
+            <button
+              onClick={() => setScreen("about")}
+              className="cinzel text-xl bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105"
+            >
+              {language === "id" ? "Tentang Game" : "About Game"}
+            </button>
           </div>
 
           {}
@@ -649,7 +657,8 @@ const App: React.FC = () => {
       />
     );
   }
-
+  if (screen === "about")
+    return <AboutPage onBack={() => setScreen("welcome")} />;
   if (screen === "load")
     return (
       <LoadGameScreen
