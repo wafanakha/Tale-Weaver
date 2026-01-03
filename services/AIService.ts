@@ -229,6 +229,8 @@ const getResponseSchema = (lang: Language) => {
           },
         },
       },
+      is_game_over: { type: Type.BOOLEAN },
+      ending_type: { type: Type.STRING, enum: ["victory", "defeat"] },
     },
     required: ["story", "choices"],
   };
@@ -236,7 +238,7 @@ const getResponseSchema = (lang: Language) => {
 
 const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
   const worldInfo = world
-    ? `Setting: ${world.name}. Genre: ${world.genre}. Description: ${world.description}`
+    ? `Setting: ${world.name}. Genre: ${world.genre}. Final Boss: ${world.finalBossName}. Description: ${world.description}`
     : "Setting: High Fantasy.";
 
   const languageRule =
@@ -269,6 +271,10 @@ When the first action is "The adventure begins...", you MUST:
 **WORLD BUILDING & LORE:**
 - Whenever you introduce a significant NPC, a historical event, or a specific landmark, you MUST include a matching entry in the 'lore_entries' array.
 - This Lore Codex is how players track the world's secrets. DO NOT leave it empty if you mentioned something important in the story.
+
+**ENDING CONDITIONS:**
+1. **Victory**: Trigger 'is_game_over: true' and 'ending_type: victory' ONLY when the final boss (${world?.finalBossName}) is defeated. Write a triumphant conclusion.
+2. **Defeat**: Trigger 'is_game_over: true' and 'ending_type: defeat' if the entire party reaches 0 HP or a critical story failure occurs. Write a tragic ending.
 
 **LEVEL UP RULES:**
 - When XP >= MaxXP, increment 'level', increase primary stats by +2 or +3 in 'stats_update', and provide a unique named skill in 'new_skills'.

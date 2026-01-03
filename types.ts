@@ -100,6 +100,7 @@ export interface Enemy {
   maxHp: number;
   xpValue: number; // XP rewarded when defeated
   isDefeated: boolean;
+  isFinalBoss?: boolean;
 }
 
 export interface DiceRoll {
@@ -136,6 +137,7 @@ export interface WorldSetting {
   name: string;
   genre: string;
   description: string;
+  finalBossName: string;
 }
 
 export interface GameState {
@@ -153,6 +155,8 @@ export interface GameState {
   lastPlayerAction: PlayerAction | null;
   worldSetting?: WorldSetting;
   loreCodex?: LoreEntry[];
+  isGameOver?: boolean;
+  endingType?: "victory" | "defeat";
 }
 
 export interface LevelUpDetails {
@@ -196,4 +200,6 @@ export interface GeminiResponse {
   };
   next_player_index?: number;
   lore_entries?: LoreEntry[];
+  is_game_over?: boolean;
+  ending_type?: "victory" | "defeat";
 }

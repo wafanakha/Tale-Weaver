@@ -3,6 +3,7 @@ import { WorldSetting } from "./types";
 export const WORLD_BIBLE: WorldSetting = {
   name: "Aetheria",
   genre: "High Fantasy",
+  finalBossName: "The Void Father (Avatar of Entropy)",
   description: `
 
 SEJARAH DUNIA (WORLD HISTORY)

@@ -24,6 +24,7 @@ import Lobby from "./components/Lobby";
 import LoreCodexPanel from "./components/LoreCodexPanel";
 import CharacterSheet from "./components/CharacterSheet";
 import LevelUpModal, { LevelUpData } from "./components/LevelUpModal";
+import GameEnding from "./components/GameEnding";
 
 interface LoadGameScreenProps {
   onJoinGame: (gameId: string) => void;
@@ -688,6 +689,15 @@ const App: React.FC = () => {
     const myPlayer = players.find((p) => p.id === clientId);
     return (
       <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden relative">
+        {gameState.isGameOver && (
+          <GameEnding
+            type={gameState.endingType || "defeat"}
+            story={
+              gameState.storyLog[gameState.storyLog.length - 1]?.text || ""
+            }
+            onBack={handleLeaveGame}
+          />
+        )}
         {levelUpData && (
           <LevelUpModal
             data={levelUpData}
