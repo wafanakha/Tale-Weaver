@@ -440,6 +440,12 @@ const App: React.FC = () => {
     });
   };
 
+  const handleLeaveGame = () => {
+    setGameId(null);
+    setGameState(null);
+    setScreen("welcome");
+  };
+
   const handleRevealRoll = async (entryId: number) => {
     if (!gameId) return;
     const dbState = await gameService.getGameState(gameId);
@@ -643,21 +649,61 @@ const App: React.FC = () => {
     );
   }
 
-  if (screen === "playing" && gameState) {
-    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-    const myPlayer = gameState.players.find((p) => p.id === clientId);
-
+  if (screen === "load")
     return (
-      <div className="h-screen overflow-y-auto parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <LoadGameScreen
+        onJoinGame={handleJoinGame}
+        onCancel={() => setScreen("welcome")}
+      />
+    );
+  if (screen === "lobby" && !gameId)
+    return (
+      <Lobby
+        onJoinGame={handleJoinGame}
+        onCreateGame={handleCreateGame}
+        error={error}
+      />
+    );
+  if (screen === "creation" && gameId)
+    return (
+      <CharacterCreation
+        onCharacterCreate={handleCharacterCreate}
+        onCancel={() => setScreen("lobby")}
+      />
+    );
+  if (screen === "lobby" && gameId && gameState)
+    return (
+      <Lobby
+        gameId={gameId}
+        gameState={gameState}
+        clientId={clientId}
+        onStartGame={handleStartGame}
+        onBack={() => setScreen("welcome")}
+      />
+    );
+
+  if (screen === "playing" && gameState) {
+    const players = gameState.players || [];
+    const currentPlayer = players[gameState.currentPlayerIndex];
+    const myPlayer = players.find((p) => p.id === clientId);
+    return (
+      <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden relative">
+        {levelUpData && (
+          <LevelUpModal
+            data={levelUpData}
+            onClose={() => setLevelUpData(null)}
+          />
+        )}
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
             onClose={() => setViewingPlayer(null)}
           />
         )}
-        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4">
+
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col gap-4 lg:overflow-y-auto">
           <PlayerStatsPanel
-            players={gameState.players}
+            players={players}
             currentPlayerIndex={gameState.currentPlayerIndex}
             clientId={clientId}
             onPlayerClick={setViewingPlayer}
@@ -699,6 +745,13 @@ const App: React.FC = () => {
                 />
               </>
             )}
+            <button
+              onClick={handleLeaveGame}
+              className="flex items-center gap-2 bg-stone-400/20 hover:bg-stone-500/40 text-stone-600 hover:text-red-900 font-bold py-1 px-3 rounded-md border border-stone-400/30 transition-all cinzel text-[10px] shadow-sm"
+              title="Return to Main Menu"
+            >
+              {t("back")}
+            </button>
           </div>
         </main>
 
