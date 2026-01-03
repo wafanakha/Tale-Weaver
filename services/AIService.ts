@@ -13,32 +13,93 @@ const getResponseSchema = (lang: Language) => {
     lang === "id"
       ? {
           story:
-            "Bagian cerita selanjutnya. Narasikan hasil tindakan dan perkembangan cerita.",
-          choices: "3-4 saran tindakan berikutnya.",
-          dice_roll: "Detail lemparan dadu jika ada uji keterampilan.",
-          player_updates: "Pembaruan status pemain.",
+            "Bagian cerita selanjutnya untuk kelompok. Jelaskan suasana, peristiwa, dan hasil dari tindakan pemain saat ini, termasuk pertempuran. Jadilah deskriptif dan menarik. Narasikan hasil dari setiap lemparan dadu.",
+          choices:
+            "Daftar 3-4 tindakan *saran* yang singkat dan relevan dengan konteks yang dapat diambil pemain saat ini. Pemain tidak terbatas pada pilihan ini.",
+          dice_roll:
+            "Jika tindakan pemain memerlukan uji keterampilan, berikan detail lemparan di sini. Abaikan jika tidak ada lemparan yang diperlukan.",
+          dice_skill:
+            "Keterampilan yang sedang diuji (misalnya, 'Persepsi', 'Atletik').",
+          dice_roll_val:
+            "Lemparan d20 yang disimulasikan (angka acak antara 1 dan 20).",
+          dice_modifier:
+            "Pengubah pemain untuk uji keterampilan ini, dihitung dari statistik dan kemahiran mereka.",
+          dice_total: "Jumlah dari lemparan dan pengubah.",
+          dice_dc: "Tingkat Kesulitan (angka target) untuk ujian ini.",
+          dice_success: "Benar jika totalnya lebih besar atau sama dengan DC.",
+          player_updates:
+            "Daftar pembaruan status pemain. HANYA sertakan pemain yang statusnya telah berubah.",
+          player_name: "Nama pemain yang sedang diperbarui.",
+          player_hp: "HP saat ini (Current HP).",
+          player_max_hp: "HP Maksimum baru (jika naik level).",
+          player_level: "Level baru (jika naik level).",
+          new_skills:
+            "Daftar nama keterampilan/kemampuan/mantra baru yang diperoleh (jika naik level).",
+          stats_update:
+            "Objek yang berisi statistik yang ditingkatkan (misalnya { strength: 16 }).",
+          inventory_add:
+            "Daftar item untuk ditambahkan ke inventaris pemain (misalnya, barang rampasan).",
+          inventory_remove:
+            "Daftar NAMA item yang akan dihapus dari inventaris (misalnya, setelah menggunakan ramuan).",
+          spell_slot_used:
+            "Jika pemain merapal mantra yang menggunakan slot, catat di sini. Abaikan jika tidak ada slot yang digunakan.",
+          spell_slot_level:
+            "Tingkat slot mantra yang digunakan (harus 1 atau lebih).",
+          enemy_update:
+            "Pembaruan tentang musuh dalam pertempuran. Berikan detail lengkap untuk musuh baru. Atur is_defeated menjadi true jika HP adalah 0.",
+          next_player:
+            "Indeks pemain berikutnya yang akan bertindak. Dalam pertempuran, ini harus berputar melalui pemain. Di luar pertempuran, bisa jadi pemain mana pun yang relevan dengan cerita.",
+          lore_entries:
+            "Daftar entri lore baru yang ditemukan. Buat entri untuk orang, tempat, atau item penting saat diperkenalkan. Periksa `loreCodex` yang ada untuk menghindari duplikat.",
           equipment_weapon:
             "Senjata baru untuk dipasang langsung (objek Item).",
           equipment_armor: "Zirah baru untuk dipasang langsung (objek Item).",
-          inventory_add: "Item baru untuk ditambahkan ke tas punggung.",
-          inventory_remove: "Nama item yang dihapus.",
-          next_player: "Indeks pemain berikutnya (0, 1, dst).",
-          lore_entries: "Penemuan lore baru.",
         }
       : {
           story:
-            "The next part of the story. Narrate results of actions and story progression.",
-          choices: "3-4 suggested next actions.",
-          dice_roll: "Dice roll details if a skill check occurred.",
-          player_updates: "Updates to player states.",
+            "The next part of the story for the party. Describe the scene, events, and results of the current player's actions, including combat. Be descriptive and engaging. Narrate the outcome of any dice rolls.",
+          choices:
+            "A list of 3-4 brief, context-aware *suggested actions* the current player can take next. The player is not limited to these.",
+          dice_roll:
+            "If the player's action requires a skill check, provide the details of the roll here. Omit if no roll is needed.",
+          dice_skill:
+            "The skill being checked (e.g., 'Perception', 'Athletics').",
+          dice_roll_val:
+            "The simulated d20 roll (a random number between 1 and 20).",
+          dice_modifier:
+            "The player's modifier for this skill check, calculated from their stats and proficiency.",
+          dice_total: "The sum of the roll and the modifier.",
+          dice_dc: "The Difficulty Class (target number) for this check.",
+          dice_success: "True if the total is greater than or equal to the DC.",
+          player_updates:
+            "A list of updates to any player's state. ONLY include players whose state has changed.",
+          player_name: "The name of the player being updated.",
+          player_hp: "The player's new Current HP.",
+          player_max_hp:
+            "The player's new Max HP (only if leveling up or buffed).",
+          player_level: "The player's new Level (only if leveling up).",
+          new_skills:
+            "List of new ability/spell names gained (only if leveling up).",
+          stats_update:
+            "Object containing updated stats (e.g. { strength: 16 }) (only if leveling up).",
+          inventory_add:
+            "A list of items to add to the player's inventory (e.g., loot).",
+          inventory_remove:
+            "A list of item NAMES to remove from inventory (e.g., after using a potion).",
+          spell_slot_used:
+            "If the player casts a spell that uses a slot, note it here. Omit if no slot was used.",
+          spell_slot_level:
+            "The level of the spell slot expended (must be 1 or greater).",
+          enemy_update:
+            "Updates on the enemy in combat. Provide full details for a new enemy. Set is_defeated to true if HP is 0.",
+          next_player:
+            "The index of the next player to act. In combat, this should cycle through players. Outside combat, it could be any player relevant to the story.",
+          lore_entries:
+            "A list of new lore entries discovered. Create entries for important people, places, or items as they are introduced. Check the existing `loreCodex` to avoid duplicates.",
           equipment_weapon:
             "A new weapon to be automatically equipped (Item object).",
           equipment_armor:
             "A new armor to be automatically equipped (Item object).",
-          inventory_add: "New items to add to the backpack.",
-          inventory_remove: "Names of items to remove.",
-          next_player: "The index of the next player to act (0, 1, etc).",
-          lore_entries: "New lore discoveries.",
         };
 
   const itemSchema = {
@@ -178,8 +239,17 @@ const getSystemInstruction = (lang: Language, world?: WorldSetting): string => {
     ? `Setting: ${world.name}. Genre: ${world.genre}. Description: ${world.description}`
     : "Setting: High Fantasy.";
 
+  const languageRule =
+    lang === "id"
+      ? "IMPORTANT: You MUST write the 'story', 'choices', and descriptions in INDONESIAN (Bahasa Indonesia)."
+      : "IMPORTANT: You MUST write the 'story', 'choices', and descriptions in ENGLISH.";
+
   return `You are a master Dungeon Master. 
 ${worldInfo}
+
+**LANGUAGE MANDATE:**
+${languageRule}
+Even if the 'Current Game State' contains text in a different language, you must switch back to the target language defined above for your response.
 
 **LEVEL UP RULES (CRITICAL):**
 When a player reaches a new Level (XP >= MaxXP):
@@ -224,7 +294,9 @@ export const getNextStoryPart = async (
 ): Promise<GeminiResponse> => {
   const prompt = `Current Game State: ${JSON.stringify(
     gameState
-  )} \n Player Action: "${playerChoice}"`;
+  )} \n Player Action: "${playerChoice}" language: ${
+    lang === "id" ? "Indonesian" : "English"
+  }`;
 
   try {
     const response = await ai.models.generateContent({

@@ -377,6 +377,16 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
                     {player.equipment?.armor?.name || t("none")}
                   </p>
                 </div>
+                {player.combatSkills && player.combatSkills.length > 0 && (
+                  <div className="border-t border-stone-400 pt-2">
+                    <p className="font-bold">{t("combatSkills")}:</p>
+                    <ul className="list-disc list-inside pl-2">
+                      {player.combatSkills.map((skill) => (
+                        <li key={skill}>{skill}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </Section>
             {hasSpellSlots && (
