@@ -14,13 +14,13 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
       subtitle: "Under the Hood of Tale-Weaver",
       frontendTitle: "Frontend Architecture",
       frontendDesc:
-        "Built with React 18 and TypeScript for type-safe component logic. The UI utilizes Tailwind CSS with a custom configuration for the 'Cinzel' typography and medieval aesthetics. State management relies heavily on React Hooks (useReducer, useEffect) to handle complex game loops and UI updates.",
+        "Built with React 18 and TypeScript for type-safe component logic. The UI utilizes Tailwind CSS with a custom configuration for the typography and medieval aesthetics. State management relies heavily on React Hooks (useReducer, useEffect) to handle complex game loops and UI updates.",
       backendTitle: "Serverless Infrastructure",
       backendDesc:
         "Powered by Firebase Realtime Database. The application uses a listener-based architecture where clients subscribe to game state changes. This enables real-time multiplayer synchronization without a dedicated WebSocket server, ensuring low-latency updates for party actions and combat states.",
       aiTitle: "Generative AI Engine",
       aiDesc:
-        "The Core Logic utilizes Google's Gemini 2.5 model. Unlike standard chatbots, this implementation forces Structured JSON Outputs to ensure game data integrity (HP, XP, Inventory). The prompt engineering includes a rigorous 'World Bible' context injection to maintain lore consistency across turns.",
+        "The Core Logic utilizes Google's Gemini 2.5 model. Unlike standard chatbots, this implementation forces Structured JSON Outputs to ensure game data integrity (HP, XP, Inventory). The prompt engineering includes a rigorous World Bible context injection to maintain lore consistency across turns.",
       features: [
         {
           label: "Context Caching",
@@ -47,13 +47,13 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
       subtitle: "Di Balik Layar Tale-Weaver",
       frontendTitle: "Arsitektur Frontend",
       frontendDesc:
-        "Dibangun dengan React 18 dan TypeScript untuk logika komponen yang aman (type-safe). UI menggunakan Tailwind CSS dengan konfigurasi kustom untuk tipografi 'Cinzel' dan estetika abad pertengahan. Manajemen state sangat bergantung pada React Hooks (useReducer, useEffect) untuk menangani loop permainan yang kompleks.",
+        "Dibangun dengan React 18 dan TypeScript untuk logika komponen yang aman (type-safe). UI menggunakan Tailwind CSS dengan konfigurasi kustom untuk tipografi dan estetika abad pertengahan. Manajemen state sangat bergantung pada React Hooks (useReducer, useEffect) untuk menangani loop permainan yang kompleks.",
       backendTitle: "Infrastruktur Serverless",
       backendDesc:
         "Ditenagai oleh Firebase Realtime Database. Aplikasi ini menggunakan arsitektur berbasis pendengar (listener) di mana klien berlangganan perubahan state game. Ini memungkinkan sinkronisasi multiplayer real-time tanpa server WebSocket khusus.",
       aiTitle: "Mesin Generative AI",
       aiDesc:
-        "Logika Inti menggunakan model Google Gemini 2.5. Berbeda dengan chatbot standar, implementasi ini memaksa Output JSON Terstruktur untuk memastikan integritas data game (HP, XP, Inventaris). Prompt engineering mencakup injeksi konteks 'World Bible' untuk menjaga konsistensi cerita.",
+        "Logika Inti menggunakan model Google Gemini 2.5. Berbeda dengan chatbot standar, implementasi ini memaksa Output JSON Terstruktur untuk memastikan integritas data game (HP, XP, Inventaris). Prompt engineering mencakup injeksi konteks World Bible untuk menjaga konsistensi cerita.",
       features: [
         {
           label: "Context Caching",
@@ -142,10 +142,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
                     <span>Model:</span>
                     <span className="font-mono font-bold">Gemini 2.5</span>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span>Temp:</span>
-                    <span className="font-mono font-bold">0.7</span>
-                  </div>
+
                   <div className="flex justify-between text-xs">
                     <span>Output:</span>
                     <span className="font-mono font-bold">JSON Mode</span>
