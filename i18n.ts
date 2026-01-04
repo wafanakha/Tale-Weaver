@@ -29,57 +29,78 @@ const translations = {
     waitingForHost: "Waiting for the host to start the game...",
     // Character Creation
     // --- CLASS DESCRIPTIONS (RENAMED) ---
+    classBarbarianDescription:
+      "A fierce warrior of primitive background who can enter a battle rage. Known for high hit points and raw strength.",
+    classBardDescription:
+      "An inspiring magician whose power echoes the music of creation. Skilled in support magic and bardic inspiration.",
     classClericDescription:
-      "A divine warrior who wields magic in service of a higher power. Proficient with medium armor and spells like Guiding Bolt.",
+      "A priestly champion who wields divine magic in service of a higher power. A master of healing and protection.",
+    classDruidDescription:
+      "A priest of the Old Faith, wielding the powers of nature and adopting animal forms through Wild Shape.",
     classFighterDescription:
-      "A master of combat, proficient with all armor and weapons. With high stamina (1d10 Hit Dice), they are a force on the battlefield.",
-    classThiefDescription:
-      "A cunning opportunist who uses stealth (Sneak Attack) and dexterity to overcome foes. Excels in skills and finesse.",
-    classWizardDescription:
-      "A scholarly master of arcane magic. Though fragile (1d6 Hit Dice), they command powerful spells like Fire Bolt and Magic Missile.",
-    classArcherDescription:
-      "A master marksman dominating ranged combat. Durable (d10 Hit Dice) and precise, they rain death from afar using skills like Steady Aim and Volley.",
+      "A master of martial combat, skilled with a variety of weapons and armor. Known for stamina and tactical maneuvers.",
+    classMonkDescription:
+      "A master of martial arts, harnessing the power of the body and soul (Ki) to perform deadly unarmed strikes.",
+    classPaladinDescription:
+      "A holy warrior bound to a sacred oath. Combines heavy martial prowess with divine healing and smiting capabilities.",
+    classRangerDescription:
+      "A warrior who uses martial prowess and nature magic to combat threats on the edges of civilization.",
     classRogueDescription:
-      "A master of stealth who strikes from the shadows. They exploit enemy weaknesses using Sneak Attack and Precise Strike rather than brute force.",
-    // --- RACE DESCRIPTIONS (NEW) ---
-    raceHumanDescription:
-      "The most adaptable and ambitious people among the common races. They are known for their versatility in building lasting institutions.",
-    raceElfDescription:
-      "A magical people of otherworldly grace. They possess keen senses and a deep connection to nature and the arcane arts.",
-    raceDwarfDescription:
-      "Bold and hardy, dwarves are skilled warriors, miners, and workers of stone and metal. They stand as solid as the mountains they call home.",
-    raceHalflingDescription:
-      "Small in stature but big in heart. Halflings survive in a world of giants through luck, agility, and the comfort of community.",
-    raceOrcDescription:
-      "Fierce warriors who value strength and honor above all. Their imposing physical presence makes them formidable allies in battle.",
+      "A scoundrel who uses stealth and trickery to overcome obstacles and enemies. Deadly when striking from the shadows.",
+    classSorcererDescription:
+      "A spellcaster who draws on inherent magic from a gift or bloodline. Their magic is raw, natural, and flexible.",
+    classWarlockDescription:
+      "A practitioner of magic who has struck a bargain with an otherworldly patron (like a Fiend or Fey).",
+    classWizardDescription:
+      "A scholarly magic-user capable of manipulating the structures of reality. Physically fragile, but magically versatile.",
 
-    // --- BACKGROUND DESCRIPTIONS (NEW) ---
-    bgNobleDescription:
-      "You are a person of privilege and power. You are proficient in Persuasion and History.",
-    bgRogueDescription:
-      "You have a shady past, living in a world of secrets and illicit deeds. You are proficient in Stealth and Deception.",
-    bgScholarDescription:
-      "You have spent your life in study and contemplation. You are proficient in Arcana and Investigation.",
-    bgSoldierDescription:
-      "You are a trained warrior, familiar with the chain of command. You are proficient in Athletics and Perception.",
-    bgOutcastDescription:
-      "You grew up on the fringes of society, fending for yourself. You are proficient in Stealth and Perception.",
+    // --- RACE DESCRIPTIONS (D&D 5e Standard) ---
+    raceHumanDescription:
+      "The most adaptable and ambitious people among the common races. Known for their versatility and varied cultures.",
+    raceElfDescription:
+      "A magical people of otherworldly grace, living in the world but not entirely part of it. They have keen senses.",
+    raceDwarfDescription:
+      "Bold and hardy, dwarves are known as skilled warriors, miners, and workers of stone and metal.",
+    raceHalflingDescription:
+      "The diminutive halflings survive in a world full of larger creatures by avoiding notice or, barring that, stout luck.",
+    raceDragonbornDescription:
+      "Born of dragons, they walk proudly through a world that often fears them. They possess a breath weapon.",
+    raceGnomeDescription:
+      "A slight, energetic people with a knack for invention, illusion, and a vibrant curiosity about the world.",
+    raceHalfElfDescription:
+      "Walking two worlds but truly belonging to neither, they combine human ambition with elven grace.",
+    raceHalfOrcDescription:
+      "They combine the physical strength and endurance of orcs with the cunning and adaptability of humans.",
+    raceTieflingDescription:
+      "To be greeted with stares and whispers, to suffer violence and insult, is the lot of the tiefling and their infernal heritage.",
+
+    // --- BACKGROUND DESCRIPTIONS (D&D 5e Standard) ---
     bgAcolyteDescription:
-      "You have spent your life in service to a temple or a god. You are proficient in History and Persuasion.",
+      "You have spent your life in the service of a temple. Proficient in Insight and Religion.",
+    bgCharlatanDescription:
+      "You have always had a way with people, often at their expense. Proficient in Deception and Sleight of Hand.",
     bgCriminalDescription:
-      "You have a history of breaking the law and surviving outside society. You are proficient in Stealth and Deception.",
-    bgHeroDescription:
-      "You come from humble beginnings, but are destined for greatness. You are proficient in Athletics and Persuasion.",
+      "You have a history of breaking the law and contacts in the underworld. Proficient in Deception and Stealth.",
+    bgEntertainerDescription:
+      "You thrive in front of an audience, knowing how to captivate them. Proficient in Acrobatics and Performance.",
+    bgFolkHeroDescription:
+      "You come from humble ranks, but you are destined for so much more. Proficient in Animal Handling and Survival.",
+    bgGuildArtisanDescription:
+      "You are a member of a guild, skilled in a particular craft. Proficient in Insight and Persuasion.",
     bgHermitDescription:
-      "You lived in seclusion - either in a sheltered community or entirely alone. You are proficient in Arcana and Perception.",
-    bgMerchantDescription:
-      "You are an expert in trade, negotiation, and appraisal. You are proficient in Persuasion and Investigation.",
+      "You lived in seclusion for a formative part of your life. Proficient in Medicine and Religion.",
+    bgNobleDescription:
+      "You were raised in a family of wealth, power, and privilege. Proficient in History and Persuasion.",
+    bgOutlanderDescription:
+      "You grew up in the wilds, far from civilization. Proficient in Athletics and Survival.",
+    bgSageDescription:
+      "You spent years learning the lore of the multiverse. Proficient in Arcana and History.",
     bgSailorDescription:
-      "You sailed on a seagoing vessel for years, facing the dangers of the deep. You are proficient in Athletics and Perception.",
+      "You sailed on a seagoing vessel for years. Proficient in Athletics and Perception.",
+    bgSoldierDescription:
+      "War has been your life for as long as you care to remember. Proficient in Athletics and Intimidation.",
     bgUrchinDescription:
-      "You grew up on the streets alone, poor, and orphaned. You are proficient in Stealth and Acrobatics.",
-    bgGladiatorDescription:
-      "You fought for entertainment in arenas, honing your physical prowess. You are proficient in Athletics and Acrobatics.",
+      "You grew up on the streets alone, poor, and orphaned. Proficient in Sleight of Hand and Stealth.",
 
     // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
@@ -197,57 +218,78 @@ const translations = {
     waitingForHost: "Menunggu tuan rumah memulai permainan...",
     // Character Creation
     // --- CLASS DESCRIPTIONS (RENAMED) ---
+    classBarbarianDescription:
+      "Pejuang ganas dari latar belakang primitif yang dapat memasuki 'Rage' (amarah) dalam pertempuran. Sangat kuat dan tahan banting.",
+    classBardDescription:
+      "Penyihir inspiratif yang kekuatannya menggema dari musik ciptaan. Mahir dalam memberikan inspirasi dan sihir pendukung.",
     classClericDescription:
-      "Seorang pejuang suci yang menggunakan sihir untuk melayani kekuatan yang lebih tinggi. Mahir dengan zirah medium dan mantra seperti Guiding Bolt.",
+      "Seorang pejuang suci yang menggunakan sihir ilahi untuk melayani kekuatan yang lebih tinggi. Penyembuh dan pelindung yang tangguh.",
+    classDruidDescription:
+      "Pendeta dari Kepercayaan Lama, memegang kekuatan alam dan cahaya bulan, serta mampu berubah wujud menjadi binatang liar.",
     classFighterDescription:
-      "Seorang ahli tempur, mahir dengan semua zirah dan senjata. Dengan stamina tinggi (d10 Dadu Nyawa), mereka adalah kekuatan di medan perang.",
-    classThiefDescription:
-      "Seorang oportunis licik yang menggunakan kesunyian (Sneak Attack) dan kegesitan untuk mengalahkan musuh. Unggul dalam keterampilan dan ketangkasan.",
-    classWizardDescription:
-      "Seorang ahli sihir misterius yang terpelajar. Meskipun rapuh (d6 Dadu Nyawa), mereka menguasai mantra kuat seperti Fire Bolt dan Magic Missile.",
-    classArcherDescription:
-      "Penembak jitu yang menguasai pertempuran jarak jauh. Cukup tangguh (d10 Dadu Nyawa) dan mampu menghujani musuh dengan teknik Steady Aim dan Volley.",
+      "Seorang ahli tempur yang menguasai berbagai senjata dan zirah. Memiliki stamina tinggi dan kemampuan manuver taktis.",
+    classMonkDescription:
+      "Seorang ahli bela diri yang menyalurkan kekuatan tubuh dan jiwa (Ki) untuk melakukan serangan fisik yang mematikan tanpa senjata.",
+    classPaladinDescription:
+      "Ksatria suci yang terikat pada sumpah sakral. Menggabungkan kemampuan tempur berat dengan sihir penyembuhan dan perlindungan.",
+    classRangerDescription:
+      "Pejuang yang menggunakan kecakapan bela diri dan sihir alam untuk melawan ancaman di perbatasan peradaban dan alam liar.",
     classRogueDescription:
-      "Ahli penyusupan yang menyerang dari kegelapan. Mengandalkan ketepatan (Precise Strike) dan kelicikan (Sneak Attack) untuk menghabisi lawan dengan cepat.",
-    // --- RACE DESCRIPTIONS (NEW) ---
-    raceHumanDescription:
-      "Bangsa yang paling mudah beradaptasi dan ambisius. Mereka dikenal karena keserbagunaan mereka dalam membangun peradaban dan sejarah.",
-    raceElfDescription:
-      "Bangsa magis dengan keanggunan dunia lain. Mereka dikenal karena indra yang tajam serta hubungan erat dengan alam dan sihir.",
-    raceDwarfDescription:
-      "Tangguh dan keras, dwarf dikenal sebagai penambang dan pengrajin logam yang ulung. Mereka kokoh seperti gunung tempat tinggal mereka.",
-    raceHalflingDescription:
-      "Bertubuh kecil namun berhati besar. Halfling bertahan hidup di dunia para raksasa melalui keberuntungan, kelincahan, dan kebersamaan.",
-    raceOrcDescription:
-      "Prajurit ganas yang menjunjung tinggi kekuatan dan kehormatan. Kehadiran fisik mereka yang menakutkan membuat mereka menjadi sekutu tempur yang tangguh.",
+      "Bajingan licik yang menggunakan kesunyian (Stealth) dan tipu daya. Mematikan jika menyerang dari bayang-bayang atau titik buta musuh.",
+    classSorcererDescription:
+      "Penyihir yang menarik kekuatan sihir bawaan dari anugerah garis keturunan atau kejadian magis. Sihir mereka liar dan alami.",
+    classWarlockDescription:
+      "Penyihir yang mendapatkan kekuatan melalui pakta atau perjanjian dengan entitas luar biasa (seperti Iblis atau Fey).",
+    classWizardDescription:
+      "Penyihir terpelajar yang mampu memanipulasi struktur realitas. Rapuh secara fisik, namun memiliki koleksi mantra yang sangat luas.",
 
-    // --- BACKGROUND DESCRIPTIONS (NEW) ---
-    bgNobleDescription:
-      "Anda adalah orang yang memiliki hak istimewa dan kekuasaan. Anda mahir dalam Persuasi dan Sejarah.",
-    bgRogueDescription:
-      "Anda memiliki masa lalu yang kelam, hidup di dunia rahasia dan perbuatan terlarang. Anda mahir dalam Kesunyian dan Penipuan.",
-    bgScholarDescription:
-      "Anda telah menghabiskan hidup Anda dalam studi dan kontemplasi. Anda mahir dalam Arcana dan Investigasi.",
-    bgSoldierDescription:
-      "Anda adalah pejuang terlatih, akrab dengan rantai komando. Anda mahir dalam Atletik dan Persepsi.",
-    bgOutcastDescription:
-      "Anda tumbuh di pinggiran masyarakat, berjuang sendiri. Anda mahir dalam Kesunyian dan Persepsi.",
+    // --- RACE DESCRIPTIONS (D&D 5e Standard) ---
+    raceHumanDescription:
+      "Bangsa yang paling mudah beradaptasi dan ambisius. Dikenal karena keserbagunaan dan variasi budaya mereka.",
+    raceElfDescription:
+      "Bangsa magis dengan keanggunan dunia lain, berumur panjang, dan memiliki ketajaman indra yang luar biasa.",
+    raceDwarfDescription:
+      "Tangguh dan keras, dwarf dikenal sebagai penambang, pengrajin logam ulung, dan pejuang yang kokoh seperti batu.",
+    raceHalflingDescription:
+      "Bertubuh kecil namun berhati besar. Mereka bertahan hidup dengan keberuntungan, kelincahan, dan keberanian yang mengejutkan.",
+    raceDragonbornDescription:
+      "Lahir dari naga, mereka memiliki kulit bersisik dan kemampuan menyemburkan napas elemen (api, es, atau petir).",
+    raceGnomeDescription:
+      "Makhluk kecil yang energik, penuh rasa ingin tahu, dan memiliki bakat alami dalam penemuan mekanis atau ilusi.",
+    raceHalfElfDescription:
+      "Menggabungkan ambisi manusia dan keanggunan elf. Mereka adalah diplomat alami dan pengelana yang karismatik.",
+    raceHalfOrcDescription:
+      "Mewarisi ketangguhan dan kemarahan orc, namun dengan kapasitas untuk bertindak lebih dari sekadar naluri buas.",
+    raceTieflingDescription:
+      "Membawa warisan darah iblis (infernal), terlihat dari tanduk dan ekor mereka. Sering disalahpahami, namun memiliki bakat sihir alami.",
+
+    // --- BACKGROUND DESCRIPTIONS (D&D 5e Standard) ---
     bgAcolyteDescription:
-      "Anda menghabiskan hidup dalam pelayanan kepada kuil atau dewa. Anda mahir dalam Sejarah dan Persuasi.",
+      "Anda menghabiskan hidup melayani di kuil. Mahir dalam pengetahuan agama dan wawasan intuitif.",
+    bgCharlatanDescription:
+      "Anda ahli dalam memanipulasi orang lain demi keuntungan. Mahir dalam tipu muslihat dan menyamar.",
     bgCriminalDescription:
-      "Anda memiliki masa lalu kelam dan hidup di luar hukum. Anda mahir dalam Mengendap-endap dan Tipu Muslihat.",
-    bgHeroDescription:
-      "Anda berasal dari rakyat jelata, namun ditakdirkan untuk hal-hal besar. Anda mahir dalam Atletik dan Persuasi.",
+      "Anda memiliki sejarah melanggar hukum dan kontak di dunia bawah. Mahir dalam mengendap-endap dan menipu.",
+    bgEntertainerDescription:
+      "Anda hidup di depan penonton, menguasai seni pertunjukan. Mahir dalam akrobatik dan performa panggung.",
+    bgFolkHeroDescription:
+      "Anda berasal dari rakyat jelata, namun takdir memanggil Anda untuk melindungi mereka. Mahir bertahan hidup dan menjinakkan hewan.",
+    bgGuildArtisanDescription:
+      "Anda adalah anggota serikat dagang yang terampil dalam kerajinan. Mahir dalam wawasan dan persuasi bisnis.",
     bgHermitDescription:
-      "Anda hidup dalam pengasingan atau menyendiri dari keramaian. Anda mahir dalam Arcana dan Persepsi.",
-    bgMerchantDescription:
-      "Anda ahli dalam perdagangan, negosiasi, dan menaksir harga. Anda mahir dalam Persuasi dan Investigasi.",
+      "Anda hidup dalam pengasingan demi pencerahan spiritual. Mahir dalam pengobatan dan pengetahuan agama.",
+    bgNobleDescription:
+      "Anda lahir dengan gelar dan kekuasaan. Mahir dalam sejarah dan membujuk orang lain (Persuasi).",
+    bgOutlanderDescription:
+      "Anda tumbuh di alam liar, jauh dari kota. Mahir dalam atletik dan bertahan hidup di lingkungan keras.",
+    bgSageDescription:
+      "Anda menghabiskan tahun-tahun dalam studi akademis. Mahir dalam ilmu sihir (Arcana) dan sejarah.",
     bgSailorDescription:
-      "Anda telah mengarungi lautan dan menghadapi bahaya samudra. Anda mahir dalam Atletik dan Persepsi.",
+      "Laut adalah rumah Anda. Mahir dalam atletik dan navigasi, serta memiliki persepsi tajam terhadap cuaca.",
+    bgSoldierDescription:
+      "Anda adalah veteran perang yang terlatih. Mahir dalam atletik dan intimidasi medan tempur.",
     bgUrchinDescription:
-      "Anda tumbuh besar di jalanan, miskin, dan sebatang kara. Anda mahir dalam Mengendap-endap dan Akrobatik.",
-    bgGladiatorDescription:
-      "Anda bertarung di arena demi hiburan, mengasah kekuatan fisik. Anda mahir dalam Atletik dan Akrobatik.",
+      "Anda tumbuh besar di jalanan kota yang keras, sendirian dan miskin. Mahir dalam menyelinap dan kecepatan tangan.",
     // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
       "Mengukur kekuatan fisik, latihan atletik, dan sejauh mana Anda dapat menggunakan kekuatan fisik murni.",
