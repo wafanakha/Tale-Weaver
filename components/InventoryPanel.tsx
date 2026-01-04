@@ -43,7 +43,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ player, onEquip }) => {
   const inventory = player.inventory || [];
 
   return (
-    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex-grow flex flex-col h-1/3">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm flex-grow flex flex-col h-1/2">
       <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-1">
         {t("yourInventory")}
       </h2>

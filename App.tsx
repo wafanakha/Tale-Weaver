@@ -79,7 +79,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
     <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
       {}
       <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-2xl w-full">
-        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center text-glow">
           {t("loadGame")}
         </h1>
 
@@ -101,7 +101,10 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
         <div className="mt-8 text-center">
           <button
             onClick={onCancel}
-            className="cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow"
+            className="relative group
+   font-lora   font-bold uppercase tracking-[0.2em] text-sm
+  transition-all duration-300 ease-in-out text-glow
+  hover:text-red-900"
           >
             {t("back")}
           </button>
@@ -310,6 +313,11 @@ const App: React.FC = () => {
             isRevealed: false,
             rollingPlayerId: roller.id,
           };
+        }
+
+        if (response.is_game_over) {
+          newState.isGameOver = true;
+          newState.endingType = response.ending_type as "victory" | "defeat";
         }
 
         newState.currentPlayerIndex =
@@ -766,7 +774,6 @@ const App: React.FC = () => {
           {myPlayer && (
             <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
           )}
-          <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
         <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
@@ -810,10 +817,14 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <aside className="w-full lg:w-1/4 xl:w-1/5">
-          {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
-            <CombatStatus enemy={gameState.currentEnemy} />
-          )}
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col justify-between min-h-[500px]">
+          <div>
+            {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
+              <CombatStatus enemy={gameState.currentEnemy} />
+            )}
+          </div>
+
+          <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
       </div>
     );

@@ -754,12 +754,14 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
           {/* --- Tombol Aksi --- */}
           <div className="flex justify-center items-center gap-6 pt-6 border-t border-stone-300">
             <button
-              type="button"
-              onClick={onCancel}
-              className={cancelLinkClass}
-            >
-              {t("cancel")}
-            </button>
+            onClick={onCancel}
+            className="relative group
+   font-lora   font-bold uppercase tracking-[0.2em] text-sm
+  transition-all duration-300 ease-in-out text-glow
+  hover:text-red-900"
+          >
+            {t("back")}
+          </button>
 
             <button
               type="submit"

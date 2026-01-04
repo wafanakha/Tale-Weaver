@@ -107,7 +107,7 @@ const PlayerCard: React.FC<{
         </div>
         <div className="flex-grow min-w-0">
           <div className="flex justify-between items-start">
-            <h3 className="text-lg font-bold text-red-900 cinzel truncate">
+            <h3 className="text-lg font-bold text-red-900 cinzel break-all whitespace-normal">
               {player.name}{" "}
               {isYou && (
                 <span className="text-[10px] text-blue-800 font-bold">
@@ -144,7 +144,7 @@ const PlayerStatsPanel: React.FC<PlayerStatsPanelProps> = ({
 }) => {
   const { t } = useLanguage();
   return (
-    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm h-1/3 flex flex-col">
+    <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm h-1/2 flex flex-col">
       <h2 className="text-center text-red-900 cinzel font-bold text-lg mb-2 flex-shrink-0">
         {t("theParty")}
       </h2>
