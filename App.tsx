@@ -766,7 +766,6 @@ const App: React.FC = () => {
           {myPlayer && (
             <InventoryPanel player={myPlayer} onEquip={handleEquipItem} />
           )}
-          <LoreCodexPanel loreCodex={gameState.loreCodex} />
         </aside>
 
         <main className="w-full lg:w-1/2 xl:w-3/5 flex-grow flex flex-col bg-stone-500/5 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-stone-400">
@@ -810,11 +809,15 @@ const App: React.FC = () => {
           </div>
         </main>
 
-        <aside className="w-full lg:w-1/4 xl:w-1/5">
-          {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
-            <CombatStatus enemy={gameState.currentEnemy} />
-          )}
-        </aside>
+        <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col justify-between min-h-[500px]">
+  <div>
+    {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
+      <CombatStatus enemy={gameState.currentEnemy} />
+    )}
+  </div>
+  
+  <LoreCodexPanel loreCodex={gameState.loreCodex} />
+</aside>
       </div>
     );
   }
