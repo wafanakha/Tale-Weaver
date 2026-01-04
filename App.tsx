@@ -198,18 +198,31 @@ const App: React.FC = () => {
               if (update.level && update.level > p.level) {
                 const oldMaxHp = p.maxHp;
                 p.level = update.level;
+
+                // --- FIX LOOP LEVEL UP ---
+                // Jika AI memberikan maxXp baru, pakai itu.
+                // JIKA TIDAK, kita paksa naikkan manual agar tidak loop di giliran depan.
+                if (update.maxXp) {
+                  p.maxXp = update.maxXp;
+                } else {
+                  // Fallback: Kalikan maxXp lama dengan 2.5 atau tambah angka statis
+                  p.maxXp = Math.floor(p.maxXp * 2.5);
+                }
+
                 if (update.maxHp) {
                   p.maxHp = update.maxHp;
                 }
 
-                setLevelUpData({
+                // --- FIX VISIBILITY ---
+                // Simpan ke newState (Firebase) agar semua orang melihat modalnya
+                newState.activeLevelUp = {
                   playerName: p.name,
                   newLevel: update.level,
                   newMaxHp: p.maxHp,
                   hpIncrease: p.maxHp - oldMaxHp,
                   newSkills: update.new_skills ?? [],
                   statsIncreased: update.stats_update ?? {},
-                });
+                };
               }
 
               // HANDLE EQUIPMENT DIRECTLY FROM AI
@@ -260,26 +273,6 @@ const App: React.FC = () => {
         };
 
         // IMPROVED DICE ROLL PLAYER MAPPING
-        if (response.dice_roll) {
-          const rollerName = response.dice_roll.rolling_player_name;
-          const roller =
-            newState.players.find((p) => p.name === rollerName) ||
-            newState.players[dbState.currentPlayerIndex];
-
-          newStoryEntry.diceRoll = {
-            skill: response.dice_roll.skill ?? "Skill",
-            roll: response.dice_roll.roll ?? 10,
-            modifier: response.dice_roll.modifier ?? 0,
-            total: response.dice_roll.total ?? 10,
-            dc: response.dice_roll.dc ?? 10,
-            success: response.dice_roll.success ?? false,
-            isRevealed: false,
-            rollingPlayerId: roller.id, // Explicitly track WHO is rolling
-          };
-
-          // If there's a roll, we stay on that player by default to finish their action
-          newState.currentPlayerIndex = newState.players.indexOf(roller);
-        }
 
         if (response.lore_entries) {
           response.lore_entries.forEach((entry) => {
@@ -298,17 +291,27 @@ const App: React.FC = () => {
         newState.choices = response.choices ?? [];
         const playerCount = newState.players.length;
 
-        // Handle turn increment only if AI explicitly provided it or if there is no pending roll
-        if (response.next_player_index !== undefined) {
-          newState.currentPlayerIndex =
-            response.next_player_index % playerCount;
-        } else if (!response.dice_roll) {
-          // Only auto-increment if no dice roll is pending
-          newState.currentPlayerIndex =
-            playerCount > 0
-              ? (newState.currentPlayerIndex + 1) % playerCount
-              : 0;
+        if (response.dice_roll) {
+          const rollerName = response.dice_roll.rolling_player_name;
+          const roller =
+            newState.players.find((p) => p.name === rollerName) ||
+            newState.players[dbState.currentPlayerIndex];
+
+          newStoryEntry.diceRoll = {
+            // ... properti diceRoll lainnya ...
+            skill: response.dice_roll.skill ?? "Skill",
+            roll: response.dice_roll.roll ?? 10,
+            modifier: response.dice_roll.modifier ?? 0,
+            total: response.dice_roll.total ?? 10,
+            dc: response.dice_roll.dc ?? 10,
+            success: response.dice_roll.success ?? false,
+            isRevealed: false,
+            rollingPlayerId: roller.id,
+          };
         }
+
+        newState.currentPlayerIndex =
+          (dbState.currentPlayerIndex + 1) % playerCount;
 
         newState.isLoading = false;
         newState.isProcessingAI = false;
@@ -510,6 +513,12 @@ const App: React.FC = () => {
     });
   };
 
+  const handleCloseLevelUp = async () => {
+    if (!gameId) return;
+    // Set activeLevelUp menjadi null di Firebase
+    await gameService.updateGameState(gameId, { activeLevelUp: null });
+  };
+
   const LanguageSelector = () => (
     <div className="absolute top-5 right-6 flex justify-center gap-3">
       <button
@@ -707,10 +716,10 @@ const App: React.FC = () => {
             onBack={handleLeaveGame}
           />
         )}
-        {levelUpData && (
+        {gameState.activeLevelUp && (
           <LevelUpModal
-            data={levelUpData}
-            onClose={() => setLevelUpData(null)}
+            data={gameState.activeLevelUp}
+            onClose={handleCloseLevelUp} // Gunakan fungsi handler baru
           />
         )}
         {viewingPlayer && (

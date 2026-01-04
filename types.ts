@@ -139,7 +139,14 @@ export interface WorldSetting {
   description: string;
   finalBossName: string;
 }
-
+export interface LevelUpData {
+  playerName: string;
+  newLevel: number;
+  newMaxHp: number;
+  hpIncrease: number;
+  newSkills: string[];
+  statsIncreased: Partial<Stats>;
+}
 export interface GameState {
   gameId: string;
   hostId: string;
@@ -157,6 +164,7 @@ export interface GameState {
   loreCodex?: LoreEntry[];
   isGameOver?: boolean;
   endingType?: "victory" | "defeat";
+  activeLevelUp?: LevelUpData | null;
 }
 
 export interface LevelUpDetails {
