@@ -79,7 +79,7 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
     <div className="min-h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
       {}
       <div className="content-frame relative p-12 sm:p-16 shadow-2xl max-w-2xl w-full">
-        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center">
+        <h1 className="text-4xl font-bold text-red-900 mb-6 cinzel text-center text-glow">
           {t("loadGame")}
         </h1>
 
@@ -101,7 +101,10 @@ const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
         <div className="mt-8 text-center">
           <button
             onClick={onCancel}
-            className="cinzel text-md text-stone-700 hover:text-stone-900 transition underline text-glow"
+            className="relative group
+   font-lora   font-bold uppercase tracking-[0.2em] text-sm
+  transition-all duration-300 ease-in-out text-glow
+  hover:text-red-900"
           >
             {t("back")}
           </button>

@@ -191,9 +191,12 @@ const Lobby: React.FC<LobbyProps> = ({
         <div className="text-center mt-8">
           <button
             onClick={onCancel}
-            className="cinzel text-md text-stone-700  hover:text-stone-900 transition underline text-glow"
+            className="relative group
+   font-lora   font-bold uppercase tracking-[0.2em] text-sm
+  transition-all duration-300 ease-in-out text-glow
+  hover:text-red-900"
           >
-            {t('back', 'Back to Welcome')}
+            {t("back")}
           </button>
         </div>
         
