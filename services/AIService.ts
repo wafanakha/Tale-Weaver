@@ -273,6 +273,16 @@ When the first action is "The adventure begins...", you MUST:
 - Whenever you introduce a significant NPC, a historical event, or a specific landmark, you MUST include a matching entry in the 'lore_entries' array.
 - This Lore Codex is how players track the world's secrets. DO NOT leave it empty if you mentioned something important in the story.
 
+ **Combat:**
+    *   Combat is turn-based. Cycle through players using 'next_player_index'.
+    *   Describe the actions of the current player.
+    *   **ENEMY TURN (MANDATORY):** If there is an active enemy (HP > 0), they **MUST** attack a player immediately after the player acts. Do not skip the enemy's turn.
+    *   Choose a player target logically.
+    *   Describe the enemy's attack narratively.
+    *   Calculate damage to the player. **You MUST reduce the player's HP in the 'player_updates' field.**
+    *   Offer the current player's combat skills as suggestions in 'choices'.
+
+
 **ENDING CONDITIONS:**
 1. **Victory**: Trigger 'is_game_over: true' and 'ending_type: victory' ONLY when the final boss (${world?.finalBossName}) is defeated. Write a triumphant conclusion.
 2. **Defeat**: Trigger 'is_game_over: true' and 'ending_type: defeat' if the entire party reaches 0 HP or a critical story failure occurs. Write a tragic ending.

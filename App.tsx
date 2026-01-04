@@ -315,6 +315,11 @@ const App: React.FC = () => {
           };
         }
 
+        if (response.is_game_over) {
+          newState.isGameOver = true;
+          newState.endingType = response.ending_type as "victory" | "defeat";
+        }
+
         newState.currentPlayerIndex =
           (dbState.currentPlayerIndex + 1) % playerCount;
 
@@ -813,14 +818,14 @@ const App: React.FC = () => {
         </main>
 
         <aside className="w-full lg:w-1/4 xl:w-1/5 flex flex-col justify-between min-h-[500px]">
-  <div>
-    {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
-      <CombatStatus enemy={gameState.currentEnemy} />
-    )}
-  </div>
-  
-  <LoreCodexPanel loreCodex={gameState.loreCodex} />
-</aside>
+          <div>
+            {gameState.currentEnemy && !gameState.currentEnemy.isDefeated && (
+              <CombatStatus enemy={gameState.currentEnemy} />
+            )}
+          </div>
+
+          <LoreCodexPanel loreCodex={gameState.loreCodex} />
+        </aside>
       </div>
     );
   }
