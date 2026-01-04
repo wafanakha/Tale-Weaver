@@ -37,18 +37,21 @@ const translations = {
       "A cunning opportunist who uses stealth (Sneak Attack) and dexterity to overcome foes. Excels in skills and finesse.",
     classWizardDescription:
       "A scholarly master of arcane magic. Though fragile (1d6 Hit Dice), they command powerful spells like Fire Bolt and Magic Missile.",
-
+    classArcherDescription:
+      "A master marksman dominating ranged combat. Durable (d10 Hit Dice) and precise, they rain death from afar using skills like Steady Aim and Volley.",
+    classRogueDescription:
+      "A master of stealth who strikes from the shadows. They exploit enemy weaknesses using Sneak Attack and Precise Strike rather than brute force.",
     // --- RACE DESCRIPTIONS (NEW) ---
     raceHumanDescription:
-      "Versatile and ambitious. Humans gain one extra language and have a standard speed of 30 ft.",
+      "The most adaptable and ambitious people among the common races. They are known for their versatility in building lasting institutions.",
     raceElfDescription:
-      "Graceful and perceptive. Elves are proficient in Elvish and have a standard speed of 30 ft.",
+      "A magical people of otherworldly grace. They possess keen senses and a deep connection to nature and the arcane arts.",
     raceDwarfDescription:
-      "Resilient and hardy. Dwarves are proficient in Dwarvish and have a movement speed of 25 ft due to their shorter legs.",
+      "Bold and hardy, dwarves are skilled warriors, miners, and workers of stone and metal. They stand as solid as the mountains they call home.",
     raceHalflingDescription:
-      "Small and lucky. Halflings are proficient in their own tongue and have a movement speed of 25 ft.",
+      "Small in stature but big in heart. Halflings survive in a world of giants through luck, agility, and the comfort of community.",
     raceOrcDescription:
-      "Strong and imposing. Orcs are proficient in Orcish and have a standard speed of 30 ft.",
+      "Fierce warriors who value strength and honor above all. Their imposing physical presence makes them formidable allies in battle.",
 
     // --- BACKGROUND DESCRIPTIONS (NEW) ---
     bgNobleDescription:
@@ -61,6 +64,23 @@ const translations = {
       "You are a trained warrior, familiar with the chain of command. You are proficient in Athletics and Perception.",
     bgOutcastDescription:
       "You grew up on the fringes of society, fending for yourself. You are proficient in Stealth and Perception.",
+    bgAcolyteDescription:
+      "You have spent your life in service to a temple or a god. You are proficient in History and Persuasion.",
+    bgCriminalDescription:
+      "You have a history of breaking the law and surviving outside society. You are proficient in Stealth and Deception.",
+    bgHeroDescription:
+      "You come from humble beginnings, but are destined for greatness. You are proficient in Athletics and Persuasion.",
+    bgHermitDescription:
+      "You lived in seclusion - either in a sheltered community or entirely alone. You are proficient in Arcana and Perception.",
+    bgMerchantDescription:
+      "You are an expert in trade, negotiation, and appraisal. You are proficient in Persuasion and Investigation.",
+    bgSailorDescription:
+      "You sailed on a seagoing vessel for years, facing the dangers of the deep. You are proficient in Athletics and Perception.",
+    bgUrchinDescription:
+      "You grew up on the streets alone, poor, and orphaned. You are proficient in Stealth and Acrobatics.",
+    bgGladiatorDescription:
+      "You fought for entertainment in arenas, honing your physical prowess. You are proficient in Athletics and Acrobatics.",
+
     // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
       "Measures physical power, athletic training, and the extent to which you can exert raw physical force.",
@@ -185,18 +205,21 @@ const translations = {
       "Seorang oportunis licik yang menggunakan kesunyian (Sneak Attack) dan kegesitan untuk mengalahkan musuh. Unggul dalam keterampilan dan ketangkasan.",
     classWizardDescription:
       "Seorang ahli sihir misterius yang terpelajar. Meskipun rapuh (d6 Dadu Nyawa), mereka menguasai mantra kuat seperti Fire Bolt dan Magic Missile.",
-
+    classArcherDescription:
+      "Penembak jitu yang menguasai pertempuran jarak jauh. Cukup tangguh (d10 Dadu Nyawa) dan mampu menghujani musuh dengan teknik Steady Aim dan Volley.",
+    classRogueDescription:
+      "Ahli penyusupan yang menyerang dari kegelapan. Mengandalkan ketepatan (Precise Strike) dan kelicikan (Sneak Attack) untuk menghabisi lawan dengan cepat.",
     // --- RACE DESCRIPTIONS (NEW) ---
     raceHumanDescription:
-      "Serbaguna dan ambisius. Manusia mendapatkan satu bahasa ekstra dan memiliki kecepatan standar 30 kaki.",
+      "Bangsa yang paling mudah beradaptasi dan ambisius. Mereka dikenal karena keserbagunaan mereka dalam membangun peradaban dan sejarah.",
     raceElfDescription:
-      "Anggun dan perseptif. Elf mahir berbahasa Elvish dan memiliki kecepatan standar 30 kaki.",
+      "Bangsa magis dengan keanggunan dunia lain. Mereka dikenal karena indra yang tajam serta hubungan erat dengan alam dan sihir.",
     raceDwarfDescription:
-      "Tangguh dan kuat. Dwarf mahir berbahasa Dwarvish dan memiliki kecepatan gerak 25 kaki karena kaki mereka yang lebih pendek.",
+      "Tangguh dan keras, dwarf dikenal sebagai penambang dan pengrajin logam yang ulung. Mereka kokoh seperti gunung tempat tinggal mereka.",
     raceHalflingDescription:
-      "Kecil dan beruntung. Halfling mahir dalam bahasa mereka sendiri dan memiliki kecepatan gerak 25 kaki.",
+      "Bertubuh kecil namun berhati besar. Halfling bertahan hidup di dunia para raksasa melalui keberuntungan, kelincahan, dan kebersamaan.",
     raceOrcDescription:
-      "Kuat dan mengesankan. Orc mahir berbahasa Orcish dan memiliki kecepatan standar 30 kaki.",
+      "Prajurit ganas yang menjunjung tinggi kekuatan dan kehormatan. Kehadiran fisik mereka yang menakutkan membuat mereka menjadi sekutu tempur yang tangguh.",
 
     // --- BACKGROUND DESCRIPTIONS (NEW) ---
     bgNobleDescription:
@@ -209,6 +232,22 @@ const translations = {
       "Anda adalah pejuang terlatih, akrab dengan rantai komando. Anda mahir dalam Atletik dan Persepsi.",
     bgOutcastDescription:
       "Anda tumbuh di pinggiran masyarakat, berjuang sendiri. Anda mahir dalam Kesunyian dan Persepsi.",
+    bgAcolyteDescription:
+      "Anda menghabiskan hidup dalam pelayanan kepada kuil atau dewa. Anda mahir dalam Sejarah dan Persuasi.",
+    bgCriminalDescription:
+      "Anda memiliki masa lalu kelam dan hidup di luar hukum. Anda mahir dalam Mengendap-endap dan Tipu Muslihat.",
+    bgHeroDescription:
+      "Anda berasal dari rakyat jelata, namun ditakdirkan untuk hal-hal besar. Anda mahir dalam Atletik dan Persuasi.",
+    bgHermitDescription:
+      "Anda hidup dalam pengasingan atau menyendiri dari keramaian. Anda mahir dalam Arcana dan Persepsi.",
+    bgMerchantDescription:
+      "Anda ahli dalam perdagangan, negosiasi, dan menaksir harga. Anda mahir dalam Persuasi dan Investigasi.",
+    bgSailorDescription:
+      "Anda telah mengarungi lautan dan menghadapi bahaya samudra. Anda mahir dalam Atletik dan Persepsi.",
+    bgUrchinDescription:
+      "Anda tumbuh besar di jalanan, miskin, dan sebatang kara. Anda mahir dalam Mengendap-endap dan Akrobatik.",
+    bgGladiatorDescription:
+      "Anda bertarung di arena demi hiburan, mengasah kekuatan fisik. Anda mahir dalam Atletik dan Akrobatik.",
     // --- STAT DESCRIPTIONS (NEW) ---
     strengthDescription:
       "Mengukur kekuatan fisik, latihan atletik, dan sejauh mana Anda dapat menggunakan kekuatan fisik murni.",

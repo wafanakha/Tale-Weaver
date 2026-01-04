@@ -584,42 +584,61 @@ const App: React.FC = () => {
           </p>
 
           {}
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          {/* Menu Button Container - Menggunakan Layout Vertikal yang Rapi */}
+          <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
+            {/* 1. Assemble Party (New Game) */}
             <button
               onClick={() => setScreen("lobby")}
               className="
+                w-full
                 font-cinzel text-lg font-bold text-white
                 bg-gradient-to-b from-yellow-600 to-yellow-800
                 border-2 border-yellow-400
                 rounded-lg px-8 py-3
                 shadow-lg shadow-black/30
                 hover:from-yellow-500 hover:to-yellow-700
-                hover:shadow-xl
+                hover:shadow-xl hover:border-yellow-300
                 transition-all duration-300 ease-in-out
-                transform hover:scale-105
+                transform hover:-translate-y-1
               "
             >
               {t("assembleParty")}
             </button>
+
+            {/* 2. Load Game */}
             <button
               onClick={() => setScreen("load")}
               className="
+                w-full
                 font-cinzel text-lg font-bold text-white
                 bg-gradient-to-b from-red-600 to-red-800
                 border-2 border-red-400
                 rounded-lg px-8 py-3
                 shadow-lg shadow-black/30
                 hover:from-red-500 hover:to-red-700  
-                hover:shadow-xl
+                hover:shadow-xl hover:border-red-300
                 transition-all duration-300 ease-in-out
-                transform hover:scale-105
+                transform hover:-translate-y-1
                 "
             >
               {t("loadGame")}
             </button>
+
+            {/* 3. About Game (Updated Style) */}
             <button
               onClick={() => setScreen("about")}
-              className="cinzel text-xl bg-stone-600 hover:bg-stone-500 text-white font-bold py-3 px-8 rounded-lg transition transform hover:scale-105"
+              className="
+                w-full
+                font-cinzel text-lg font-bold text-stone-100
+                bg-gradient-to-b from-stone-600 to-stone-800
+                border-2 border-stone-400
+                rounded-lg px-8 py-3
+                shadow-lg shadow-black/30
+                hover:from-stone-500 hover:to-stone-700
+                hover:shadow-xl hover:border-stone-300
+                transition-all duration-300 ease-in-out
+                transform hover:-translate-y-1
+              "
             >
               {language === "id" ? "Tentang Game" : "About Game"}
             </button>

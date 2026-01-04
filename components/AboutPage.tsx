@@ -10,164 +10,192 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
 
   const content = {
     en: {
-      title: "Adventurer's Handbook",
-      subtitle: "Rules of Engagement in the Realm of Aetheria",
-      section1Title: "The Master of Ceremonies",
-      section1Desc:
-        "At the heart of Tale-Weaver lies the Gemini AI, your tireless Dungeon Master. It doesn't just read a script; it reacts to your creative inputs, calculates the consequences of your failures, and celebrates your critical successes. Every line of dialogue and every trap you encounter is woven specifically for your party.",
-      section2Title: "The Sacred d20 System",
-      section2Desc:
-        "Success is never guaranteed. When you attempt a feat—be it scale a wall or deceive a guard—the Master calls for a Skill Check. Your d20 roll, combined with your character's Ability Modifiers, must beat a hidden Difficulty Class (DC).",
-      mechanics: [
-        { label: "Strength", desc: "Raw power and athletics." },
-        { label: "Dexterity", desc: "Agility, reflexes, and stealth." },
-        { label: "Intelligence", desc: "Logic, memory, and arcane knowledge." },
-        { label: "Wisdom", desc: "Intuition, perception, and survival." },
+      title: "Technical Architecture",
+      subtitle: "Under the Hood of Tale-Weaver",
+      frontendTitle: "Frontend Architecture",
+      frontendDesc:
+        "Built with React 18 and TypeScript for type-safe component logic. The UI utilizes Tailwind CSS with a custom configuration for the 'Cinzel' typography and medieval aesthetics. State management relies heavily on React Hooks (useReducer, useEffect) to handle complex game loops and UI updates.",
+      backendTitle: "Serverless Infrastructure",
+      backendDesc:
+        "Powered by Firebase Realtime Database. The application uses a listener-based architecture where clients subscribe to game state changes. This enables real-time multiplayer synchronization without a dedicated WebSocket server, ensuring low-latency updates for party actions and combat states.",
+      aiTitle: "Generative AI Engine",
+      aiDesc:
+        "The Core Logic utilizes Google's Gemini 2.5 model. Unlike standard chatbots, this implementation forces Structured JSON Outputs to ensure game data integrity (HP, XP, Inventory). The prompt engineering includes a rigorous 'World Bible' context injection to maintain lore consistency across turns.",
+      features: [
+        {
+          label: "Context Caching",
+          value: "Optimizes token usage for long-running campaigns.",
+        },
+        {
+          label: "JSON Schema Validation",
+          value: "Parses AI responses to prevent game-breaking logic errors.",
+        },
+        {
+          label: "Optimistic UI",
+          value:
+            "Immediate feedback on player actions while awaiting server ack.",
+        },
+        {
+          label: "RNG Logic",
+          value: "Hybrid client-server dice roll validation system.",
+        },
       ],
-      goldenRulesTitle: "The Golden Rules of Roleplay",
-      rules: [
-        "Be Creative: The AI understands intent. Instead of 'I attack', try 'I swing my blade at the torch to plunge the room into darkness'.",
-        "Respect the Dice: A '1' is a critical failure that leads to chaos; a '20' turns the impossible into legend.",
-        "Teamwork: Coordinate with your party. A Wizard's spell can set the stage for a Rogue's sneak attack.",
-      ],
+      stackTitle: "Technology Stack",
     },
     id: {
-      title: "Panduan Sang Petualang",
-      subtitle: "Aturan Main di Dunia Aetheria",
-      section1Title: "Sang Penguasa Cerita",
-      section1Desc:
-        "Di jantung Tale-Weaver terdapat Gemini AI, Dungeon Master Anda yang tak kenal lelah. Ia tidak hanya membaca naskah; ia bereaksi terhadap masukan kreatif Anda, menghitung konsekuensi dari kegagalan Anda, dan merayakan keberhasilan kritis Anda. Setiap baris dialog dan setiap jebakan yang Anda temui ditenun khusus untuk kelompok Anda.",
-      section2Title: "Sistem Dadu d20",
-      section2Desc:
-        "Keberhasilan tidak pernah dijamin. Saat Anda mencoba suatu tindakan—baik itu memanjat dinding atau menipu penjaga—Sang Master akan meminta Uji Keterampilan. Lemparan d20 Anda, digabung dengan Modifikasi Kemampuan karakter Anda, harus mengalahkan Tingkat Kesulitan (DC) yang tersembunyi.",
-      mechanics: [
-        { label: "Kekuatan", desc: "Tenaga mentah dan atletik." },
+      title: "Arsitektur Teknis",
+      subtitle: "Di Balik Layar Tale-Weaver",
+      frontendTitle: "Arsitektur Frontend",
+      frontendDesc:
+        "Dibangun dengan React 18 dan TypeScript untuk logika komponen yang aman (type-safe). UI menggunakan Tailwind CSS dengan konfigurasi kustom untuk tipografi 'Cinzel' dan estetika abad pertengahan. Manajemen state sangat bergantung pada React Hooks (useReducer, useEffect) untuk menangani loop permainan yang kompleks.",
+      backendTitle: "Infrastruktur Serverless",
+      backendDesc:
+        "Ditenagai oleh Firebase Realtime Database. Aplikasi ini menggunakan arsitektur berbasis pendengar (listener) di mana klien berlangganan perubahan state game. Ini memungkinkan sinkronisasi multiplayer real-time tanpa server WebSocket khusus.",
+      aiTitle: "Mesin Generative AI",
+      aiDesc:
+        "Logika Inti menggunakan model Google Gemini 2.5. Berbeda dengan chatbot standar, implementasi ini memaksa Output JSON Terstruktur untuk memastikan integritas data game (HP, XP, Inventaris). Prompt engineering mencakup injeksi konteks 'World Bible' untuk menjaga konsistensi cerita.",
+      features: [
         {
-          label: "Ketangkasan",
-          desc: "Kelincahan, refleks, dan mengendap-endap.",
+          label: "Context Caching",
+          value: "Mengoptimalkan penggunaan token untuk kampanye panjang.",
         },
-        { label: "Kecerdasan", desc: "Logika, ingatan, dan pengetahuan gaib." },
         {
-          label: "Kebijaksanaan",
-          desc: "Intuisi, persepsi, dan bertahan hidup.",
+          label: "Validasi Skema JSON",
+          value: "Memparsing respons AI untuk mencegah error logika game.",
+        },
+        {
+          label: "Optimistic UI",
+          value: "Umpan balik instan pada aksi pemain sambil menunggu server.",
+        },
+        {
+          label: "Logika RNG",
+          value: "Sistem validasi dadu hibrida client-server.",
         },
       ],
-      goldenRulesTitle: "Aturan Emas Roleplay",
-      rules: [
-        "Jadilah Kreatif: AI memahami niat. Daripada 'Saya menyerang', cobalah 'Saya mengayunkan pedang ke obor untuk membuat ruangan menjadi gelap gulita'.",
-        "Hormati Dadu: Angka '1' adalah kegagalan kritis yang membawa kekacauan; angka '20' mengubah hal mustahil menjadi legenda.",
-        "Kerja Sama Tim: Berkoordinasilah dengan rekanmu. Mantra Penyihir bisa membuka jalan bagi serangan diam-diam pencuri.",
-      ],
+      stackTitle: "Stack Teknologi",
     },
   };
 
   const active = language === "id" ? content.id : content.en;
 
+  // Styles adapted from CharacterCreation.tsx
+  const labelClass =
+    "block text-lg font-semibold mb-2 cinzel text-red-900 text-glow border-b border-red-900/20 pb-1";
+  const cardBaseClass =
+    "bg-stone-100/70 border-2 border-stone-700/50 rounded-xl shadow-inner p-5 text-stone-800";
+  const textClass = "text-sm text-stone-900 leading-relaxed font-serif";
+  const badgeClass =
+    "px-3 py-1 bg-stone-800 text-amber-500 text-xs font-mono rounded border border-amber-600";
+
   return (
-    <div className="min-h-screen w-screen parchment-bg text-stone-800 flex flex-col items-center justify-center p-4">
-      <div className="bg-[#f3e9d2] p-6 md:p-12 rounded-lg shadow-2xl max-w-5xl w-full border-4 border-double border-amber-800 my-4 overflow-y-auto max-h-[95vh] relative shadow-[inset_0_0_50px_rgba(0,0,0,0.1)]">
-        {/* Decorative Header */}
-        <div className="text-center mb-10 border-b-2 border-amber-900/20 pb-6">
-          <div className="text-4xl mb-2">📜</div>
-          <h1 className="text-5xl font-bold text-red-900 medieval mb-2 uppercase tracking-tighter">
+    <div className="h-screen w-screen welcome-bg text-stone-800 flex flex-col items-center justify-center p-4">
+      <div className="content-frame relative p-8 sm:p-12 shadow-2xl max-w-5xl w-full h-[85vh] flex flex-col">
+        {/* Header */}
+        <div className="text-center mb-6 flex-shrink-0">
+          <h1 className="text-4xl font-bold text-red-900 mb-2 cinzel text-glow">
             {active.title}
           </h1>
-          <p className="text-xl text-amber-800 cinzel font-bold">
+          <p className="text-stone-700 cinzel font-semibold text-lg">
             {active.subtitle}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Column: AI and Mechanics */}
-          <div className="space-y-8">
-            <section>
-              <h2 className="text-2xl font-bold text-red-900 cinzel mb-3 flex items-center gap-3">
-                <span className="text-3xl">⚔️</span> {active.section1Title}
-              </h2>
-              <p className="text-stone-700 leading-relaxed text-justify first-letter:text-4xl first-letter:font-bold first-letter:float-left first-letter:mr-2">
-                {active.section1Desc}
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-red-900 cinzel mb-3 flex items-center gap-3">
-                <span className="text-3xl">🎲</span> {active.section2Title}
-              </h2>
-              <p className="text-stone-700 leading-relaxed mb-4">
-                {active.section2Desc}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {active.mechanics.map((m, i) => (
-                  <div
-                    key={i}
-                    className="bg-amber-900/5 p-3 rounded border border-amber-900/10"
-                  >
-                    <span className="block font-bold text-red-800 text-xs uppercase">
-                      {m.label}
-                    </span>
-                    <span className="text-xs text-stone-600">{m.desc}</span>
-                  </div>
-                ))}
+        {/* Scrollable Content */}
+        <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar space-y-6">
+          {/* Top Row: Frontend & Backend */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={cardBaseClass}>
+              <h3 className={labelClass}>{active.frontendTitle}</h3>
+              <p className={textClass}>{active.frontendDesc}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className={badgeClass}>React 18</span>
+                <span className={badgeClass}>TypeScript</span>
+                <span className={badgeClass}>Vite</span>
+                <span className={badgeClass}>Tailwind</span>
               </div>
-            </section>
+            </div>
+
+            <div className={cardBaseClass}>
+              <h3 className={labelClass}>{active.backendTitle}</h3>
+              <p className={textClass}>{active.backendDesc}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className={badgeClass}>Firebase Realtime DB</span>
+                <span className={badgeClass}>NoSQL</span>
+                <span className={badgeClass}>Event Listeners</span>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: Golden Rules */}
-          <div className="flex flex-col">
-            <section className="bg-stone-800 text-stone-200 p-8 rounded-lg shadow-xl border-t-4 border-amber-600 flex-grow">
-              <h2 className="text-2xl font-bold text-amber-500 cinzel mb-6 text-center underline decoration-amber-600 underline-offset-8">
-                {active.goldenRulesTitle}
-              </h2>
-              <ul className="space-y-6">
-                {active.rules.map((rule, i) => {
-                  const [title, desc] = rule.split(":");
-                  return (
-                    <li key={i} className="flex gap-4">
-                      <span className="text-amber-500 font-bold text-xl cinzel">
-                        {i + 1}.
-                      </span>
-                      <div className="text-sm">
-                        <strong className="text-amber-400 uppercase tracking-widest block mb-1">
-                          {title}
-                        </strong>
-                        <span className="text-stone-300 italic">{desc}</span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className="mt-8 pt-6 border-t border-stone-600 text-center">
-                <p className="text-xs text-stone-400 font-serif">
-                  "In the tapestry of fate, the dice only provide the thread;
-                  your courage provides the pattern."
-                </p>
+          {/* Middle Row: AI Core (Full Width) */}
+          <div className={cardBaseClass}>
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-2/3">
+                <h3 className={labelClass}>{active.aiTitle}</h3>
+                <p className={textClass}>{active.aiDesc}</p>
               </div>
-            </section>
+              <div className="md:w-1/3 bg-stone-200/50 rounded p-3 border border-stone-300">
+                <h4 className="text-xs font-bold text-red-900 uppercase mb-2 tracking-widest">
+                  Model Params
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span>Model:</span>
+                    <span className="font-mono font-bold">Gemini 2.5</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span>Temp:</span>
+                    <span className="font-mono font-bold">0.7</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span>Output:</span>
+                    <span className="font-mono font-bold">JSON Mode</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row: Key Features */}
+          <div>
+            <h3 className={`text-center ${labelClass} border-none mb-4`}>
+              {active.stackTitle} & Capabilities
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {active.features.map((feat, idx) => (
+                <div
+                  key={idx}
+                  className="bg-stone-800 text-stone-300 p-4 rounded-lg border border-stone-600 shadow-lg"
+                >
+                  <div className="text-amber-500 font-cinzel font-bold text-sm mb-1">
+                    {feat.label}
+                  </div>
+                  <div className="text-xs leading-tight text-stone-400">
+                    {feat.value}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-center mt-12 gap-4">
+        {/* Footer / Back Button */}
+        <div className="flex-shrink-0 pt-6 mt-2 flex justify-center border-t border-stone-400/30">
           <button
             onClick={onBack}
-            className="cinzel text-xl bg-red-900 hover:bg-red-800 text-white font-bold py-3 px-16 rounded shadow-[0_5px_0_rgb(127,29,29)] active:translate-y-1 active:shadow-none transition-all"
+            className="
+                font-cinzel text-lg font-bold text-white
+                bg-gradient-to-b from-yellow-600 to-yellow-800
+                border-2 border-yellow-400
+                rounded-lg px-8 py-2
+                shadow-lg shadow-black/30
+                hover:from-yellow-500 hover:to-yellow-700
+                hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:scale-105
+              "
           >
             {t("back")}
           </button>
-        </div>
-
-        {/* Corner Decorations */}
-        <div className="absolute top-4 left-4 text-amber-900/10 text-6xl pointer-events-none select-none font-serif">
-          ✥
-        </div>
-        <div className="absolute top-4 right-4 text-amber-900/10 text-6xl pointer-events-none select-none font-serif">
-          ✥
-        </div>
-        <div className="absolute bottom-4 left-4 text-amber-900/10 text-6xl pointer-events-none select-none font-serif">
-          ✥
-        </div>
-        <div className="absolute bottom-4 right-4 text-amber-900/10 text-6xl pointer-events-none select-none font-serif">
-          ✥
         </div>
       </div>
     </div>
