@@ -25,22 +25,51 @@ interface CharacterCreationProps {
   onCancel: () => void;
 }
 
-const RACES = ["Human", "Elf", "Dwarf", "Halfling", "Orc"];
-const CLASSES = ["Cleric", "Fighter", "Archer", "Rogue", "Wizard"];
-const BACKGROUNDS = [
-  "Noble",
-  "Scholar",
-  "Soldier",
-  "Outcast",
-  "Acolyte",
-  "Criminal",
-  "Hero",
-  "Hermit",
-  "Merchant",
-  "Sailor",
-  "Urchin",
-  "Gladiator",
+// --- D&D 5e Standard Data ---
+
+const RACES = [
+  "Human",
+  "Elf",
+  "Dwarf",
+  "Halfling",
+  "Dragonborn",
+  "Gnome",
+  "Half-Elf",
+  "Half-Orc",
+  "Tiefling",
 ];
+
+const CLASSES = [
+  "Barbarian",
+  "Bard",
+  "Cleric",
+  "Druid",
+  "Fighter",
+  "Monk",
+  "Paladin",
+  "Ranger",
+  "Rogue",
+  "Sorcerer",
+  "Warlock",
+  "Wizard",
+];
+
+const BACKGROUNDS = [
+  "Acolyte",
+  "Charlatan",
+  "Criminal",
+  "Entertainer",
+  "Folk Hero",
+  "Guild Artisan",
+  "Hermit",
+  "Noble",
+  "Outlander",
+  "Sage",
+  "Sailor",
+  "Soldier",
+  "Urchin",
+];
+
 const STAT_NAMES: (keyof Stats)[] = [
   "strength",
   "dexterity",
@@ -49,8 +78,10 @@ const STAT_NAMES: (keyof Stats)[] = [
   "wisdom",
   "charisma",
 ];
+
 const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 
+// Mapping Data sesuai SRD 5e
 const CLASS_DATA: {
   [key: string]: {
     hitDice: string;
@@ -60,11 +91,49 @@ const CLASS_DATA: {
     spellSlots?: SpellSlots;
   };
 } = {
+  Barbarian: {
+    hitDice: "1d12",
+    savingThrows: ["strength", "constitution"],
+    proficiencies: [
+      "Light armor",
+      "Medium armor",
+      "Shields",
+      "Simple weapons",
+      "Martial weapons",
+    ],
+    combatSkills: ["Rage", "Unarmored Defense"],
+  },
+  Bard: {
+    hitDice: "1d8",
+    savingThrows: ["dexterity", "charisma"],
+    proficiencies: [
+      "Light armor",
+      "Simple weapons",
+      "Hand crossbows",
+      "Longswords",
+      "Rapiers",
+      "Shortswords",
+    ],
+    combatSkills: ["Bardic Inspiration", "Vicious Mockery"],
+    spellSlots: { 1: { total: 2, used: 0 } },
+  },
   Cleric: {
     hitDice: "1d8",
     savingThrows: ["wisdom", "charisma"],
     proficiencies: ["Light armor", "Medium armor", "Shields", "Simple weapons"],
     combatSkills: ["Sacred Flame", "Guiding Bolt"],
+    spellSlots: { 1: { total: 2, used: 0 } },
+  },
+  Druid: {
+    hitDice: "1d8",
+    savingThrows: ["intelligence", "wisdom"],
+    proficiencies: [
+      "Light armor",
+      "Medium armor (non-metal)",
+      "Shields (non-metal)",
+      "Simple weapons",
+    ],
+    combatSkills: ["Druidic", "Shillelagh"],
     spellSlots: { 1: { total: 2, used: 0 } },
   },
   Fighter: {
@@ -76,18 +145,37 @@ const CLASS_DATA: {
       "Simple weapons",
       "Martial weapons",
     ],
-    combatSkills: ["Second Wind", "Power Attack"],
+    combatSkills: ["Second Wind", "Fighting Style"],
   },
-  Archer: {
+  Monk: {
+    hitDice: "1d8",
+    savingThrows: ["strength", "dexterity"],
+    proficiencies: ["Simple weapons", "Shortswords"],
+    combatSkills: ["Martial Arts", "Unarmored Defense"],
+  },
+  Paladin: {
+    hitDice: "1d10",
+    savingThrows: ["wisdom", "charisma"],
+    proficiencies: [
+      "All armor",
+      "Shields",
+      "Simple weapons",
+      "Martial weapons",
+    ],
+    combatSkills: ["Divine Sense", "Lay on Hands"],
+  },
+  Ranger: {
+    // Menggantikan Archer
     hitDice: "1d10",
     savingThrows: ["strength", "dexterity"],
     proficiencies: [
       "Light armor",
       "Medium armor",
+      "Shields",
       "Simple weapons",
       "Martial weapons",
     ],
-    combatSkills: ["Steady Aim", "Volley"],
+    combatSkills: ["Favored Enemy", "Natural Explorer"],
   },
   Rogue: {
     hitDice: "1d8",
@@ -100,7 +188,27 @@ const CLASS_DATA: {
       "Rapiers",
       "Shortswords",
     ],
-    combatSkills: ["Sneak Attack", "Precise Strike"],
+    combatSkills: ["Sneak Attack", "Thieves' Cant"],
+  },
+  Sorcerer: {
+    hitDice: "1d6",
+    savingThrows: ["constitution", "charisma"],
+    proficiencies: [
+      "Daggers",
+      "Darts",
+      "Slings",
+      "Quarterstaffs",
+      "Light crossbows",
+    ],
+    combatSkills: ["Sorcerous Origin", "Chaos Bolt"],
+    spellSlots: { 1: { total: 2, used: 0 } },
+  },
+  Warlock: {
+    hitDice: "1d8",
+    savingThrows: ["wisdom", "charisma"],
+    proficiencies: ["Light armor", "Simple weapons"],
+    combatSkills: ["Eldritch Blast", "Pact Magic"],
+    spellSlots: { 1: { total: 1, used: 0 } },
   },
   Wizard: {
     hitDice: "1d6",
@@ -112,32 +220,39 @@ const CLASS_DATA: {
       "Quarterstaffs",
       "Light crossbows",
     ],
-    combatSkills: ["Fire Bolt", "Magic Missile"],
+    combatSkills: ["Arcane Recovery", "Magic Missile"],
     spellSlots: { 1: { total: 2, used: 0 } },
   },
 };
 
 const RACE_DATA: { [key: string]: { speed: number; languages: string[] } } = {
-  Human: { speed: 30, languages: ["Common", "One extra"] },
+  Human: { speed: 30, languages: ["Common", "One Extra"] },
   Elf: { speed: 30, languages: ["Common", "Elvish"] },
   Dwarf: { speed: 25, languages: ["Common", "Dwarvish"] },
   Halfling: { speed: 25, languages: ["Common", "Halfling"] },
-  Orc: { speed: 30, languages: ["Common", "Orcish"] },
+  Dragonborn: { speed: 30, languages: ["Common", "Draconic"] },
+  Gnome: { speed: 25, languages: ["Common", "Gnomish"] },
+  "Half-Elf": { speed: 30, languages: ["Common", "Elvish", "One Extra"] },
+  "Half-Orc": { speed: 30, languages: ["Common", "Orcish"] },
+  Tiefling: { speed: 30, languages: ["Common", "Infernal"] },
 };
 
+// Skill mapping disesuaikan dengan Interface "Skills" yang tersedia di kode Anda
+// (athletics, acrobatics, stealth, arcana, history, investigation, perception, persuasion, deception)
 const BACKGROUND_SKILLS: { [key: string]: (keyof Skills)[] } = {
-  Noble: ["persuasion", "history"],
-  Scholar: ["arcana", "history"],
-  Soldier: ["athletics", "perception"],
-  Outcast: ["stealth", "perception"],
-  Acolyte: ["history", "persuasion"],
-  Criminal: ["stealth", "deception"],
-  Hero: ["athletics", "persuasion"],
-  Hermit: ["arcana", "perception"],
-  Merchant: ["persuasion", "investigation"],
+  Acolyte: ["history", "persuasion"], // Insight/Religion (Mapped to available)
+  Charlatan: ["deception", "stealth"], // Deception/Sleight of Hand
+  Criminal: ["deception", "stealth"],
+  Entertainer: ["acrobatics", "persuasion"], // Acrobatics/Performance
+  "Folk Hero": ["athletics", "perception"], // Animal Handling/Survival (Mapped to available)
+  "Guild Artisan": ["persuasion", "investigation"], // Insight/Persuasion
+  Hermit: ["arcana", "history"], // Medicine/Religion (Mapped to available)
+  Noble: ["history", "persuasion"],
+  Outlander: ["athletics", "perception"], // Survival/Athletics
+  Sage: ["arcana", "history"],
   Sailor: ["athletics", "perception"],
-  Urchin: ["stealth", "acrobatics"],
-  Gladiator: ["athletics", "acrobatics"],
+  Soldier: ["athletics", "persuasion"], // Intimidation (Mapped to Persuasion)
+  Urchin: ["stealth", "deception"], // Sleight of Hand (Mapped to Deception)
 };
 
 const CharacterCreation: React.FC<CharacterCreationProps> = ({
@@ -279,6 +394,8 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     !charClass ||
     isSubmitting ||
     Object.keys(stats).length !== 6;
+
+  // Styles
   const labelClass =
     "block text-lg font-semibold mb-2 cinzel text-red-900 text-glow";
   const statLabelClass = "block text-sm font-bold text-red-900 text-glow";
@@ -305,24 +422,13 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
     transition-opacity duration-200 delay-200
   `;
 
-  const getButtonTooltipPosition = (name: string) => {
-    switch (name) {
-      case "Human":
-      case "Elf":
-      case "Orc":
-      case "Cleric":
-      case "Noble":
-      case "Outcast":
-        return "left-0";
-
-      case "Halfling":
-      case "Wizard":
-      case "Soldier":
-        return "right-0";
-
-      default:
-        return "left-1/2 -translate-x-1/2";
-    }
+  // Helper untuk mengatur posisi tooltip agar tidak keluar layar
+  const getButtonTooltipPosition = (index: number, total: number) => {
+    // Jika item berada di kolom paling kiri (asumsi visual grid), tooltip ke kanan/kiri bisa diatur
+    // Sederhananya: Item awal -> left-0, Item akhir -> right-0
+    if (index === 0) return "left-0";
+    if (index === total - 1) return "right-0";
+    return "left-1/2 -translate-x-1/2";
   };
 
   return (
@@ -358,9 +464,11 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               <div>
                 <label className={labelClass}>{t("race")}</label>
                 <div className="flex flex-wrap gap-2">
-                  {/* --- Menerapkan fungsi helper posisi yang baru --- */}
-                  {RACES.map((r) => {
-                    const positionClass = getButtonTooltipPosition(r);
+                  {RACES.map((r, idx) => {
+                    const positionClass = getButtonTooltipPosition(
+                      idx,
+                      RACES.length
+                    );
                     return (
                       <div key={r} className="relative group">
                         <button
@@ -373,7 +481,11 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                           {r}
                         </button>
                         <div className={`${tooltipStyle} ${positionClass}`}>
-                          {t(`race${r}Description`)}
+                          {
+                            t(
+                              `race${r.replace(/[\s-]/g, "")}Description`
+                            ) /* Regex untuk handle Half-Orc/Elf di key translation */
+                          }
                         </div>
                       </div>
                     );
@@ -387,9 +499,11 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               <div>
                 <label className={labelClass}>{t("class")}</label>
                 <div className="flex flex-wrap gap-2">
-                  {/* --- Menerapkan fungsi helper posisi yang baru --- */}
-                  {CLASSES.map((c) => {
-                    const positionClass = getButtonTooltipPosition(c);
+                  {CLASSES.map((c, idx) => {
+                    const positionClass = getButtonTooltipPosition(
+                      idx,
+                      CLASSES.length
+                    );
                     return (
                       <div key={c} className="relative group">
                         <button
@@ -415,9 +529,11 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               <div>
                 <label className={labelClass}>{t("background")}</label>
                 <div className="flex flex-wrap gap-2">
-                  {/* --- Menerapkan fungsi helper posisi yang baru --- */}
-                  {BACKGROUNDS.map((b) => {
-                    const positionClass = getButtonTooltipPosition(b);
+                  {BACKGROUNDS.map((b, idx) => {
+                    const positionClass = getButtonTooltipPosition(
+                      idx,
+                      BACKGROUNDS.length
+                    );
                     return (
                       <div key={b} className="relative group">
                         <button
@@ -433,7 +549,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                           {b}
                         </button>
                         <div className={`${tooltipStyle} ${positionClass}`}>
-                          {t(`bg${b}Description`)}
+                          {t(`bg${b.replace(/\s/g, "")}Description`)}
                         </div>
                       </div>
                     );
@@ -450,17 +566,12 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
               {t("assignStatsDesc", { scores: STANDARD_ARRAY.join(", ") })}
             </p>
 
-            {/* Tooltip untuk Stats (tetap di atas) */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {STAT_NAMES.map((stat, index) => {
                 const getTooltipPosition = (index: number) => {
                   const totalItems = STAT_NAMES.length;
-                  if (index < 2) {
-                    return "left-0";
-                  }
-                  if (index >= totalItems - 2) {
-                    return "right-0";
-                  }
+                  if (index < 2) return "left-0";
+                  if (index >= totalItems - 2) return "right-0";
                   return "left-1/2 -translate-x-1/2";
                 };
                 const tooltipPositionClass = getTooltipPosition(index);
@@ -487,8 +598,6 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({
                       >
                         i
                       </span>
-
-                      {/* Tooltip STATS masih menggunakan 'bottom-full' */}
                       <div
                         className={`
                           absolute hidden group-hover:block 
