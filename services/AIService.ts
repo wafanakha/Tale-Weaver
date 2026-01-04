@@ -330,7 +330,7 @@ export const generateCharacterBackstory = async (
   background: string,
   lang: Language
 ): Promise<string> => {
-  const prompt = `Write a short, immersive fantasy backstory (2-3 paragraphs) for a ${race} character named ${name} with a ${background} background. Language: ${
+  const prompt = `Write a short, immersive fantasy backstory (2-3 paragraphs) for a ${race} character named ${name} with a ${background} background, do not add like "this is the story". Language: ${
     lang === "id" ? "Indonesian" : "English"
   }.`;
   try {

@@ -148,7 +148,17 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({
 const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
   const { t } = useLanguage();
 
-  const dexMod = getModifier(player.stats.dexterity);
+  // SAFETY CHECK: Ensure stats exist before accessing properties
+  const stats = player.stats || {
+    strength: 10,
+    dexterity: 10,
+    constitution: 10,
+    intelligence: 10,
+    wisdom: 10,
+    charisma: 10,
+  };
+
+  const dexMod = getModifier(stats.dexterity);
   const initiativeBonus = player.initiativeBonus || 0;
   const initiativeTotal = dexMod + initiativeBonus;
   const initiativeDisplay =
@@ -162,12 +172,10 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
 
   const acTooltip = player.equipment?.armor
     ? `Armor (${player.equipment.armor.name}): ${player.equipment.armor.armorClass}`
-    : `Unarmored: 10 (Base) + ${getModifierString(
-        player.stats.dexterity
-      )} (Dex)`;
+    : `Unarmored: 10 (Base) + ${getModifierString(stats.dexterity)} (Dex)`;
 
   const initTooltip = `Initiative: ${getModifierString(
-    player.stats.dexterity
+    stats.dexterity
   )} (Dex) ${initiativeBonus !== 0 ? `+ ${initiativeBonus} (Misc)` : ""}`;
 
   const spellSlots = player.spellSlots || {};
@@ -235,14 +243,18 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
             <Section title={t("savingThrows")}>
               <div className="space-y-2">
                 {STAT_NAMES.map((stat) => {
+                  // FIX: Gunakan optional chaining (?.) dan default value (|| false)
+                  const statValue = stats[stat];
+                  const isProficient = player.savingThrows?.[stat] || false;
+
                   const modifier =
-                    getModifier(player.stats[stat]) +
-                    (player.savingThrows[stat] ? PROFICIENCY_BONUS : 0);
+                    getModifier(statValue) +
+                    (isProficient ? PROFICIENCY_BONUS : 0);
                   return (
                     <ProficiencyListItem
                       key={stat}
                       label={stat}
-                      proficient={player.savingThrows[stat]}
+                      proficient={isProficient}
                       modifier={modifier}
                     />
                   );
@@ -252,14 +264,18 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
             <Section title={t("skills")}>
               <div className="space-y-2">
                 {SKILL_NAMES.map((skill) => {
+                  // FIX: Gunakan optional chaining (?.) dan default value (|| false)
+                  const statValue = stats[skill.stat];
+                  const isProficient = player.skills?.[skill.name] || false;
+
                   const modifier =
-                    getModifier(player.stats[skill.stat]) +
-                    (player.skills[skill.name] ? PROFICIENCY_BONUS : 0);
+                    getModifier(statValue) +
+                    (isProficient ? PROFICIENCY_BONUS : 0);
                   return (
                     <ProficiencyListItem
                       key={skill.name}
                       label={skill.name}
-                      proficient={player.skills[skill.name]}
+                      proficient={isProficient}
                       modifier={modifier}
                     />
                   );
@@ -271,7 +287,7 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               {STAT_NAMES.map((stat) => (
-                <StatBox key={stat} name={stat} value={player.stats[stat]} />
+                <StatBox key={stat} name={stat} value={stats[stat]} />
               ))}
             </div>
             <div className="border-2 border-stone-400 bg-stone-500/10 p-3 rounded-md shadow-sm text-center">
@@ -359,10 +375,10 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
             <Section title={t("proficienciesAndLanguages")}>
               <p className="text-sm text-stone-700 leading-relaxed">
                 <span className="font-bold">Armor/Weapons:</span>{" "}
-                {player.proficiencies.join(", ")}
+                {player.proficiencies?.join(", ") || t("none")}
                 <br />
                 <span className="font-bold">Languages:</span>{" "}
-                {player.languages.join(", ")}
+                {player.languages?.join(", ") || t("none")}
               </p>
             </Section>
             <Section title={t("attacksAndSpellcasting")}>
