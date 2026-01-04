@@ -16,6 +16,18 @@ export interface Item {
   healing?: number;
 }
 
+export enum StatusType {
+  BUFF = "buff",
+  DEBUFF = "debuff",
+}
+
+export interface StatusEffect {
+  name: string;
+  type: StatusType;
+  description: string;
+  icon?: string; // Optional emoji or symbol
+}
+
 export interface Stats {
   strength: number;
   dexterity: number;
@@ -61,6 +73,8 @@ export interface Player {
   background: string;
   hp: number;
   maxHp: number;
+  xp: number; // Current experience points
+  maxXp: number; // XP threshold for next level
   level: number;
   speed: number;
   hitDice: string;
@@ -76,13 +90,17 @@ export interface Player {
     armor: Item | null;
   };
   spellSlots: SpellSlots;
+  statusEffects?: StatusEffect[];
+  initiativeBonus?: number;
 }
 
 export interface Enemy {
   name: string;
   hp: number;
   maxHp: number;
+  xpValue: number; // XP rewarded when defeated
   isDefeated: boolean;
+  isFinalBoss?: boolean;
 }
 
 export interface DiceRoll {
@@ -92,6 +110,8 @@ export interface DiceRoll {
   total: number;
   dc: number; // Difficulty Class
   success: boolean;
+  isRevealed?: boolean;
+  rollingPlayerId?: string; // NEW: Explicit ID of who rolls
 }
 
 export interface StoryLogEntry {
@@ -117,8 +137,16 @@ export interface WorldSetting {
   name: string;
   genre: string;
   description: string;
+  finalBossName: string;
 }
-
+export interface LevelUpData {
+  playerName: string;
+  newLevel: number;
+  newMaxHp: number;
+  hpIncrease: number;
+  newSkills: string[];
+  statsIncreased: Partial<Stats>;
+}
 export interface GameState {
   gameId: string;
   hostId: string;
@@ -129,10 +157,14 @@ export interface GameState {
   choices: string[];
   currentEnemy: Enemy | null;
   isLoading: boolean;
+  isProcessingAI?: boolean; // New flag to prevent duplicate calls
   error: string | null;
   lastPlayerAction: PlayerAction | null;
   worldSetting?: WorldSetting;
   loreCodex?: LoreEntry[];
+  isGameOver?: boolean;
+  endingType?: "victory" | "defeat";
+  levelUpQueue: LevelUpData[];
 }
 
 export interface LevelUpDetails {
@@ -145,26 +177,37 @@ export interface LevelUpDetails {
 export interface GeminiResponse {
   story: string;
   choices: string[];
-  dice_roll?: DiceRoll;
+  dice_roll?: DiceRoll & { rolling_player_name?: string };
   player_updates?: {
     playerName: string;
     hp?: number;
-    maxHp?: number; // Added for leveling/buffs
-    level?: number; // Added for leveling
-    new_skills?: string[]; // Added for leveling
-    stats_update?: Partial<Stats>; // Added for leveling
+    maxHp?: number;
+    xp?: number; // Updated current XP
+    maxXp?: number; // New threshold if leveled up
+    level?: number;
+    new_skills?: string[];
+    stats_update?: Partial<Stats>;
     inventory_add?: Item[];
     inventory_remove?: string[];
+    // Fix: Added equipment_weapon and equipment_armor to resolve property errors in App.tsx
+    equipment_weapon?: Item;
+    equipment_armor?: Item;
     spell_slot_used?: {
       level: number;
     };
+    status_effects_add?: StatusEffect[];
+    status_effects_remove?: string[];
+    initiativeBonus?: number;
   }[];
   enemy_update?: {
     name: string;
     hp: number;
     maxHp: number;
+    xpValue?: number; // How much XP this enemy is worth
     is_defeated: boolean;
   };
   next_player_index?: number;
   lore_entries?: LoreEntry[];
+  is_game_over?: boolean;
+  ending_type?: "victory" | "defeat";
 }

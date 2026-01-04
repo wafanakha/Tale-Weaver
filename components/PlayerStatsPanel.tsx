@@ -1,5 +1,5 @@
 import React from "react";
-import { Player } from "../types";
+import { Player, StatusEffect, StatusType } from "../types";
 import { useLanguage } from "../i18n";
 
 interface PlayerStatsPanelProps {
@@ -8,13 +8,38 @@ interface PlayerStatsPanelProps {
   clientId: string;
   onPlayerClick: (player: Player) => void;
 }
-
+const ProgressBar: React.FC<{
+  value: number;
+  max: number;
+  color: string;
+  label: string;
+}> = ({ value, max, color, label }) => {
+  const percentage = max > 0 ? (value / max) * 100 : 0;
+  return (
+    <div className="mt-1">
+      <div className="flex mb-0.5 items-center justify-between text-[10px]">
+        <span className="font-bold text-stone-600 uppercase tracking-tighter">
+          {label}
+        </span>
+        <span className="font-semibold text-stone-600">
+          {value} / {max}
+        </span>
+      </div>
+      <div className="overflow-hidden h-1.5 text-xs flex rounded bg-stone-300 shadow-inner">
+        <div
+          style={{ width: `${percentage}%` }}
+          className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center transition-all duration-700 ${color}`}
+        ></div>
+      </div>
+    </div>
+  );
+};
 const HealthBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => {
   const percentage = maxHp > 0 ? (hp / maxHp) * 100 : 0;
   const healthColor = "bg-red-800";
 
   return (
-    <div >
+    <div>
       <div className="flex mb-1 items-center justify-between text-xs">
         <span className="font-semibold text-stone-600">HP</span>
         <span className="font-semibold text-stone-600">
@@ -27,6 +52,27 @@ const HealthBar: React.FC<{ hp: number; maxHp: number }> = ({ hp, maxHp }) => {
           className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center transition-all duration-500 ${healthColor}`}
         ></div>
       </div>
+    </div>
+  );
+};
+
+const StatusIndicators: React.FC<{ effects: StatusEffect[] }> = ({
+  effects,
+}) => {
+  if (!effects || effects.length === 0) return null;
+  return (
+    <div className="flex gap-1 mt-1 flex-wrap">
+      {effects.map((effect, idx) => (
+        <div
+          key={`${effect.name}-${idx}`}
+          className={`w-3 h-3 rounded-full flex items-center justify-center text-[8px] border border-white/20 cursor-help shadow-sm ${
+            effect.type === StatusType.BUFF ? "bg-green-600" : "bg-red-600"
+          }`}
+          title={`${effect.name}: ${effect.description}`}
+        >
+          {effect.icon || (effect.type === StatusType.BUFF ? "↑" : "↓")}
+        </div>
+      ))}
     </div>
   );
 };
@@ -60,12 +106,30 @@ const PlayerCard: React.FC<{
           <AvatarDisplay name={player.name} />
         </div>
         <div className="flex-grow min-w-0">
-          <h3 className="text-lg font-bold text-red-900 cinzel">
-            {player.name}{" "}
-            {isYou && <span className="text-sm text-blue-800">{t("you")}</span>}
-          </h3>
-          <p className="text-xs text-stone-600 mb-2">{`Lvl ${player.level} ${player.race} ${player.class}`}</p>
-          <HealthBar hp={player.hp} maxHp={player.maxHp} />
+          <div className="flex justify-between items-start">
+            <h3 className="text-lg font-bold text-red-900 cinzel truncate">
+              {player.name}{" "}
+              {isYou && (
+                <span className="text-[10px] text-blue-800 font-bold">
+                  {t("you")}
+                </span>
+              )}
+            </h3>
+            <StatusIndicators effects={player.statusEffects || []} />
+          </div>
+          <p className="text-[10px] text-stone-600 mb-1.5 font-bold uppercase tracking-wide">{`Lvl ${player.level} ${player.race} ${player.class}`}</p>
+          <ProgressBar
+            label="HP"
+            value={player.hp}
+            max={player.maxHp}
+            color="bg-red-800"
+          />
+          <ProgressBar
+            label="XP"
+            value={player.xp}
+            max={player.maxXp}
+            color="bg-amber-600"
+          />
         </div>
       </div>
     </button>

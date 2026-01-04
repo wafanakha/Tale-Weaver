@@ -1,5 +1,12 @@
 import React from "react";
-import { Player, Stats, Skills, SavingThrows, SpellSlots } from "../types";
+import {
+  Player,
+  Stats,
+  Skills,
+  SavingThrows,
+  SpellSlots,
+  StatusType,
+} from "../types";
 import { useLanguage } from "../i18n";
 
 interface CharacterSheetProps {
@@ -38,28 +45,51 @@ const SKILL_NAMES: { name: keyof Skills; stat: keyof Stats }[] = [
 const StatBox: React.FC<{ name: string; value: number }> = ({
   name,
   value,
-}) => (
-  <div className="flex flex-col items-center justify-center border-2 border-stone-500 bg-stone-200/50 rounded-md p-2 text-center shadow-inner">
-    <span className="text-3xl font-semibold text-stone-800">{value}</span>
-    <span className="text-xs font-bold uppercase text-red-900">
-      {getModifierString(value)}
-    </span>
-    <span className="text-sm uppercase text-stone-700 mt-1">
-      {name.substring(0, 3)}
-    </span>
-  </div>
-);
+}) => {
+  const modStr = getModifierString(value);
+  const tooltip = `Score ${value}, Modifier ${modStr}`;
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center border-2 border-stone-500 bg-stone-200/50 rounded-md p-2 text-center shadow-inner cursor-help transition-colors hover:bg-stone-300/50"
+      title={tooltip}
+    >
+      <span className="text-3xl font-semibold text-stone-800">{value}</span>
+      <span className="text-xs font-bold uppercase text-red-900">{modStr}</span>
+      <span className="text-sm uppercase text-stone-700 mt-1">
+        {name.substring(0, 3)}
+      </span>
+    </div>
+  );
+};
 
 const LabeledStat: React.FC<{
   label: string;
   value: string | number;
   className?: string;
-}> = ({ label, value, className }) => (
+  tooltip?: string;
+  highlight?: boolean;
+}> = ({ label, value, className, tooltip, highlight }) => (
   <div
-    className={`flex flex-col items-center justify-center border-2 border-stone-500 bg-stone-200/50 rounded-md p-2 text-center shadow-inner ${className}`}
+    className={`flex flex-col items-center justify-center border-2 ${
+      highlight
+        ? "border-red-800 bg-red-900/10 shadow-[0_0_10px_rgba(153,27,27,0.2)]"
+        : "border-stone-500 bg-stone-200/50 shadow-inner"
+    } rounded-md p-3 text-center transition-colors ${
+      tooltip ? "cursor-help hover:bg-stone-300/50" : ""
+    } ${className}`}
+    title={tooltip}
   >
-    <span className="text-2xl font-semibold text-stone-800">{value}</span>
-    <span className="text-xs uppercase text-stone-700 mt-1">{label}</span>
+    <span
+      className={`text-4xl font-bold ${
+        highlight ? "text-red-900" : "text-stone-800"
+      }`}
+    >
+      {value}
+    </span>
+    <span className="text-xs font-bold uppercase text-stone-600 mt-1 tracking-widest">
+      {label}
+    </span>
   </div>
 );
 
@@ -118,12 +148,27 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({
 const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
   const { t } = useLanguage();
 
+  const dexMod = getModifier(player.stats.dexterity);
+  const initiativeBonus = player.initiativeBonus || 0;
+  const initiativeTotal = dexMod + initiativeBonus;
+  const initiativeDisplay =
+    initiativeTotal >= 0 ? `+${initiativeTotal}` : initiativeTotal;
+
   const getArmorClass = () => {
     const baseAC = 10;
-    const dexMod = getModifier(player.stats.dexterity);
     const armorBonus = player.equipment?.armor?.armorClass || 0;
     return armorBonus > 0 ? armorBonus : baseAC + dexMod;
   };
+
+  const acTooltip = player.equipment?.armor
+    ? `Armor (${player.equipment.armor.name}): ${player.equipment.armor.armorClass}`
+    : `Unarmored: 10 (Base) + ${getModifierString(
+        player.stats.dexterity
+      )} (Dex)`;
+
+  const initTooltip = `Initiative: ${getModifierString(
+    player.stats.dexterity
+  )} (Dex) ${initiativeBonus !== 0 ? `+ ${initiativeBonus} (Misc)` : ""}`;
 
   const spellSlots = player.spellSlots || {};
   const hasSpellSlots = Object.keys(spellSlots).length > 0;
@@ -148,7 +193,6 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
           X
         </button>
 
-        {/* Header */}
         <header className="border-b-4 border-double border-amber-800 pb-2 mb-4">
           <h1
             id="character-sheet-title"
@@ -163,11 +207,30 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
             <span className="hidden sm:inline">|</span>
             <span>{player.background}</span>
           </div>
+
+          <div className="flex justify-center gap-6 mt-6 pb-2">
+            <LabeledStat
+              label={t("armorClass")}
+              value={getArmorClass()}
+              tooltip={acTooltip}
+              className="w-32"
+            />
+            <LabeledStat
+              label={t("initiative")}
+              value={initiativeDisplay}
+              tooltip={initTooltip}
+              highlight
+              className="w-32"
+            />
+            <LabeledStat
+              label={t("speed")}
+              value={`${player.speed}ft`}
+              className="w-32"
+            />
+          </div>
         </header>
 
-        {/* Main Content Grid */}
         <main className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Left Column */}
           <div className="space-y-4">
             <Section title={t("savingThrows")}>
               <div className="space-y-2">
@@ -205,7 +268,6 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
             </Section>
           </div>
 
-          {/* Center Column */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               {STAT_NAMES.map((stat) => (
@@ -220,18 +282,37 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
                 +{PROFICIENCY_BONUS}
               </p>
             </div>
+            {player.statusEffects && player.statusEffects.length > 0 && (
+              <Section title={t("activeEffects")}>
+                <div className="space-y-2">
+                  {player.statusEffects.map((eff, idx) => (
+                    <div
+                      key={`${eff.name}-${idx}`}
+                      className="flex items-center gap-2 p-2 bg-stone-300/30 rounded border border-stone-400/50"
+                    >
+                      <span
+                        className={`w-3 h-3 rounded-full ${
+                          eff.type === StatusType.BUFF
+                            ? "bg-green-600"
+                            : "bg-red-600"
+                        }`}
+                      />
+                      <div>
+                        <p className="text-sm font-bold leading-tight">
+                          {eff.name} {eff.icon}
+                        </p>
+                        <p className="text-xs text-stone-600 italic">
+                          {eff.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
           </div>
 
-          {/* Right Column */}
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-2">
-              <LabeledStat label={t("armorClass")} value={getArmorClass()} />
-              <LabeledStat
-                label={t("initiative")}
-                value={getModifierString(player.stats.dexterity)}
-              />
-              <LabeledStat label={t("speed")} value={`${player.speed}ft`} />
-            </div>
             <Section title={t("hitPoints")}>
               <div className="flex justify-around items-center">
                 <div>
@@ -245,6 +326,30 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
                     {t("max")}:
                   </span>{" "}
                   <span className="text-2xl font-bold">{player.maxHp}</span>
+                </div>
+              </div>
+            </Section>
+            <Section title="Experience Points">
+              <div className="flex flex-col items-center">
+                <div className="flex justify-around w-full items-center mb-1">
+                  <div>
+                    <span className="text-xs uppercase text-stone-700">
+                      XP:
+                    </span>{" "}
+                    <span className="text-xl font-bold">{player.xp}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs uppercase text-stone-700">
+                      NEXT:
+                    </span>{" "}
+                    <span className="text-xl font-bold">{player.maxXp}</span>
+                  </div>
+                </div>
+                <div className="w-full bg-stone-300 h-2 rounded overflow-hidden shadow-inner">
+                  <div
+                    className="bg-amber-600 h-full transition-all duration-700"
+                    style={{ width: `${(player.xp / player.maxXp) * 100}%` }}
+                  ></div>
                 </div>
               </div>
             </Section>
@@ -294,7 +399,16 @@ const CharacterSheet: React.FC<CharacterSheetProps> = ({ player, onClose }) => {
                         key={level}
                         className="flex justify-between items-center"
                       >
-                        <span className="text-sm font-bold">1st Level</span>
+                        <span className="text-sm font-bold">
+                          {level === "1"
+                            ? "1st"
+                            : level === "2"
+                            ? "2nd"
+                            : level === "3"
+                            ? "3rd"
+                            : `${level}th`}{" "}
+                          Level
+                        </span>
                         <SpellSlotTracker slots={spellSlots[Number(level)]} />
                       </div>
                     ))}

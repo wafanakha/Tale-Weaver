@@ -46,6 +46,7 @@ const createGame = async (hostId: string): Promise<string> => {
     error: null,
     lastPlayerAction: null,
     worldSetting: WORLD_BIBLE,
+    levelUpQueue: [],
   };
   const gameRef = ref(db, `games/${gameId}`);
   await set(gameRef, initialGameState);

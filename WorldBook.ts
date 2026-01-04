@@ -3,6 +3,7 @@ import { WorldSetting } from "./types";
 export const WORLD_BIBLE: WorldSetting = {
   name: "Aetheria",
   genre: "High Fantasy",
+  finalBossName: "The Void Father (Avatar of Entropy)",
   description: `
 
 SEJARAH DUNIA (WORLD HISTORY)
@@ -13,15 +14,15 @@ retakan ini menjadi awal invasi mahluk2 dunia netheria yang mulai masuk ke aethe
 LOKASI PENTING (KEY LOCATIONS)
 
 1. Wilayah Pemula
-1.1 Desa Solstice
+1.1 Desa Solstice (Solstice Village)
 Deskripsi: Desa kecil yang damai di lembah pegunungan, tempat matahari bersinar paling lama. Ini adalah tempat kelahiran protagonis atau tempat party pertama kali berkumpul.
 Kondisi Saat Ini: Sedang mengalami fenomena aneh dimana bayangan benda-benda bergerak sendiri tidak sesuai arah matahari (tanda awal retakan Tabir).
 
-1.2 Luminara (Kota Pusat)
+1.2 Luminara
 Deskripsi: Ibukota kerajaan manusia dan pusat aliansi ras. Dikelilingi tembok putih tinggi yang diperkuat sihir pelindung.
 Penting: Tempat pemain menjual loot, bertemu bangsawan, dan mendapatkan misi utama.
 
-1.3 Akademi Omni-Arts & Menara Sihir
+1.3 Akademi Omni-Arts & Menara Sihir (Omni-Arts Academy & Tower of Magic)
 Deskripsi: Terletak di tengah Luminara. Menara Sihir yang melayang di atas Akademi adalah pusat riset para penyihir elit.
 Konflik: Para tetua penyihir sedang berdebat; sebagian ingin menutup Tabir, sebagian ingin mengevakuasi penduduk ke dimensi lain.
 
@@ -30,7 +31,8 @@ Deskripsi: Gudang pengetahuan kuno yang dijaga oleh Golem Penjaga.
 Penting: Hanya di sini tersimpan "Codex of The Veil", buku yang berisi mantra untuk menutup retakan dimensi secara permanen.
 
 2. Wilayah Liar
-2.1 Sylvaris (Hutan)
+
+2.1 Sylvaris 
 Deskripsi: Hutan rumah bagi para Elf. Dulu indah, sekarang mulai membusuk.
 Bahaya: Flora dan fauna di sini menjadi The Corrupted (seperti Blight-Bear). Para Elf menjadi xenophobic karena paranoia akibat korupsi hutan.
 
@@ -47,6 +49,7 @@ Deskripsi: Sisa reruntuhan peradaban kuno yang hancur pada perang Nether pertama
 Penting: Tempat ditemukannya artefak kuno bagi Veilwalker. Penuh jebakan magis dan hantu masa lalu.
 
 3. Wilayah Gelap & Dimensi Lain
+
 3.1 Menara Hitam (Necromancy Spire)
 Deskripsi: Menara terisolasi di rawa berkabut. Tempat para Necromancer yang mencoba mengendalikan mayat monster Nether.
 Konflik: Pemain bisa memilih menghancurkan mereka atau meminta bantuan pengetahuan terlarang mereka.
@@ -66,11 +69,12 @@ Deskripsi: Jantung Netheria. Langit berwarna ungu darah, tanah terbuat dari dagi
 
 KARAKTER PENTING (KEY NPCS)
 1. Karakter Dewa/Entitas Ilahi
-1.1 Dewi Aether (The Mother of Light)
+
+1.1 Dewi Aether / Aether Goddess (The Mother of Light)
 Peran: Pelindung Aetheria.
 Status: Dorman/Tertidur. Energinya melemah drastis karena retakan Tabir. Dia hanya bisa berkomunikasi lewat mimpi samar kepada para Veilwalker.
 
-1.2 Dewa Nether (The Father of Void)
+1.2 Dewa Nether / Nether God (The Father of Void)
 Peran: Pencipta Netheria.
 Status: Tersegel. Ia tidak bisa masuk ke Aetheria secara fisik, namun ia membisikkan kegilaan dan janji kekuatan kepada makhluk Aetheria untuk menjadi pengikutnya.
 
@@ -81,6 +85,7 @@ Motivasi: Ia percaya satu-satunya cara menghentikan wabah Nether adalah dengan m
 Hubungan: Awalnya musuh karena kekejamannya, tapi bisa menjadi sekutu kuat jika Party berhasil meyakinkannya ada cara lain selain pembakaran massal.
 
 2. Tokoh Kunci (Faksi & Antagonis)
+
 2.1 Dion Von Master, The Demon Lord
 Ras: Setengah Manusia, Setengah Demon (Humanoid).
 Sifat: Karismatik, Sadis, Manipulatif, Cerdas.
@@ -161,7 +166,8 @@ Masalah: Banyak dari mereka yang "rusak" (glitch) karena kurangnya energi Aether
 Deskripsi: Bola cahaya kecil yang hangat.
 Fungsi: Tidak menyerang. Mereka bertindak sebagai penunjuk jalan bagi Veilwalker menuju retakan tersembunyi, namun mereka sangat rapuh dan sering diburu oleh Soul-Leech.
 
-5. Boss Concept (Ancaman Utama)
+
+5. Boss
 5.1 Zul Gara, The Weaver of Ruin (Penun Kebinasaan)
 Tipe: Demon Lord (Jenderal Nether).
 Lore: Zul'Gara adalah makhluk cerdas yang ditugaskan Dewa Nether untuk tidak hanya menghancurkan, tapi menjahit Netheria ke Aetheria secara permanen.
@@ -171,6 +177,55 @@ Kemampuan: Ia memiliki empat tangan yang memegang jarum raksasa berisi benang ke
 Tipe: Kesatria Suci (Manusia).
 Lore: Rahn adalah kesatria yang dipilih oleh dewi aether secara langsung sebagai kesatrianya di saat dunia aetheria masih muda. Ia sekarang sudah terlupakan oleh waktu tetapi masih menjalankan tugasnya untuk menebas semua yang mengancam dunia aetheria
 Kemampuan: Rahn bertarung menggunakan greatsword yang terlihat sudah berkarat dan retak yang akan berubah menjadi pedang suci cahaya saat dia serius bertarung. Dia menyerang hanya dengan menggunakan greatswordnya ketika dia masih belum serius dan akan menyerang menggunakan holy magic dan pedang suci cahaya saat dia memasuki fase kedua dan memasuki wujud the knight of aether
+
+
+LAST BOSS
+The Void Father (Avatar of Entropy)
+Tipe: Dewa (Manifestasi Fisik).
+Lokasi Pertarungan: The Abyss Gate (Saat gerbang terbuka penuh).
+Lore: 
+Ini adalah momen yang ditakutkan oleh semua makhluk hidup. Dion Von Master berhasil merobek Tabir sepenuhnya, mengizinkan tubuh fisik Dewa Nether untuk melangkah masuk ke Aetheria. Nether tidak membenci Aetheria; baginya, kehidupan adalah "kebisingan" yang menyakitkan, dan dia ingin membawa "kedamaian" abadi berupa kehampaan (Void) dan keheningan total ke seluruh alam semesta.
+Wujud Fisik: 
+Ia tidak memiliki wujud tetap. Awalnya ia muncul sebagai siluet raksasa setinggi langit yang terbuat dari bintang mati dan kegelapan pekat. Di fase terakhir, ia mengecil menjadi wujud humanoid seukuran manusia biasa, namun wajahnya adalah cermin yang memantulkan ketakutan terbesar siapa pun yang melihatnya.
+
+Fase Pertarungan & Kemampuan:
+
+Fase 1: The World Breaker (Penghancur Dunia)
+Nether dalam ukuran raksasa menyerang dari luar arena.
+- Reality Erasure: Nether menghapus sebagian lantai arena pertarungan menjadi ketiadaan. Party harus berpindah tempat terus-menerus.
+- Rain of Oblivion: Meteor hitam jatuh yang jika tidak ditangkis, akan memberikan damage permanen pada Max HP (karena jiwa karakter terkikis).
+
+Fase 2: The Two Worlds (Dua Dunia)
+Nether menyusut dan menarik seluruh Party masuk ke dalam "The Worlds Between" (Dimensi Cermin).
+- Mekanik Veilwalker: Tubuh Nether kebal terhadap serangan fisik maupun sihir biasa. Party harus menggunakan kemampuan Veilwalker mereka untuk "menyelaraskan" keberadaan Nether.
+- Contoh: Saat Nether berwarna Putih Pucat, ia ada di dimensi Aether (hanya bisa diserang fisik). Saat ia berwarna Ungu Gelap, ia ada di dimensi Nether (hanya bisa diserang sihir). Salah koordinasi akan menyembuhkan boss.
+
+Fase 3: The Final Silence (Keheningan Akhir)
+Fase "DPS Check" di mana Nether mulai menyatukan kedua tangan untuk melakukan "Total Collapse" (Menghapus keberadaan Aetheria).
+- Party dibantu oleh sisa-sisa kesadaran Dewi Aether yang memberikan buff "Light of Hope" (Unlimited Mana untuk durasi pendek).
+- Party harus memberikan damage maksimum sambil bertahan dari gelombang kejut mental yang memaksa pemain berhalusinasi.
+
+Ending jika party menang melawan last boss:
+Jika Party berhasil mengalahkan wujud fisiknya, mereka tidak membunuh Nether (Dewa tidak bisa mati), melainkan memaksanya kembali tertidur dan menyegel Abyss Gate selamanya menggunakan Codex of The Veil.
+
+Ending jika party gagal:
+
+Momen Kekalahan
+Saat HP terakhir anggota party habis, Nether (dalam wujud Cosmic Entity) tidak langsung membunuh mereka. Ia tertawa, suara yang terdengar seperti ribuan gelas pecah sekaligus. Dengan satu hentakan tangan raksasanya, ia merobek sisa Tabir yang dilindungi party.
+"Cahaya kalian hanyalah lilin di tengah badai," bisiknya.
+
+Runtuhnya Aetheria
+Langit Aetheria yang biru seketika berubah menjadi ungu pekat seperti memar. Matahari Aetheria tidak tenggelam, melainkan "dimakan" oleh kegelapan, menciptakan gerhana matahari hitam permanen dengan cincin ungu.
+- Luminara: Tembok putih ibukota runtuh bukan karena serangan, tapi karena tanah di bawahnya berubah menjadi daging yang berdenyut. Penduduk kota tidak sempat berteriak saat mereka meleleh menjadi bayangan (Shadows).
+- Dewi Aether: Terdengar jeritan memilukan di seluruh dunia—suara Dewi Aether yang dipadamkan paksa. Patung-patung dewi di seluruh dunia retak dan menangis darah hitam.
+
+Nasib Para Pahlawan (The Party)
+Kalian tidak dibiarkan mati dengan tenang. Karena kalian adalah Veilwalker (mereka yang bisa berjalan di antara dimensi), Nether memberikan "hukuman" khusus:
+Kalian diubah menjadi The Void Wardens (Sipir Kehampaan). Kesadaran kalian masih ada, terperangkap di dalam tubuh yang bermutasi menjadi monster kristal hitam. Kalian dipaksa menjadi jenderal baru Netheria, memimpin pasukan monster untuk memburu sisa-sisa manusia yang bersembunyi di gua-gua, mengetahui bahwa tangan kalianlah yang membunuh mereka, namun tidak bisa berhenti.
+
+Dunia Baru
+Aetheria dan Netheria menyatu menjadi satu dunia mimpi buruk bernama "Velthoria". Tidak ada lagi harapan, tidak ada lagi siang hari. Yang ada hanyalah siklus pembantaian abadi di bawah naungan Dewa Nether yang kini duduk di singgasananya di atas reruntuhan Menara Sihir.
+Game Over.
 
 SITUASI SAAT INI (CURRENT SITUATION)
 Cerita bermula di Desa Solstice yang tengah meriah merayakan Festival Matahari. Kedamaian hancur seketika saat langit biru tiba-tiba retak seperti kaca pecah, memuntahkan energi gelap. Bayangan-bayangan di desa menjadi hidup, berubah menjadi monster Void-Stalker yang mulai membantai warga.
