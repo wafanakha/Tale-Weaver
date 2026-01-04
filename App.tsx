@@ -716,12 +716,13 @@ const App: React.FC = () => {
             onBack={handleLeaveGame}
           />
         )}
-        {gameState.activeLevelUp && (
-          <LevelUpModal
-            data={gameState.activeLevelUp}
-            onClose={handleCloseLevelUp} // Gunakan fungsi handler baru
-          />
-        )}
+        {gameState.activeLevelUp &&
+          myPlayer?.name === gameState.activeLevelUp.playerName && (
+            <LevelUpModal
+              data={gameState.activeLevelUp}
+              onClose={handleCloseLevelUp}
+            />
+          )}
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
