@@ -164,7 +164,7 @@ export interface GameState {
   loreCodex?: LoreEntry[];
   isGameOver?: boolean;
   endingType?: "victory" | "defeat";
-  activeLevelUp?: LevelUpData | null;
+  levelUpQueue: LevelUpData[];
 }
 
 export interface LevelUpDetails {

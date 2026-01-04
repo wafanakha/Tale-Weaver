@@ -261,6 +261,7 @@ When a player reaches a new Level (XP >= MaxXP):
 4. Provide at least one powerful 'new_skills'. Give it a cool name like "Heavenly Strike" or "Shadow Step".
 5. Increase 'maxHp' significantly (by 10-15 points).
 6. Narrate the level up with epic flair, describing how their power manifests.
+7. get health to new maxHP
 
 **START OF ADVENTURE (MANDATORY):**
 When the first action is "The adventure begins...", you MUST:

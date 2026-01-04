@@ -195,6 +195,8 @@ const App: React.FC = () => {
                   new Set([...(p.combatSkills || []), ...update.new_skills])
                 );
               }
+
+              if (!newState.levelUpQueue) newState.levelUpQueue = [];
               if (update.level && update.level > p.level) {
                 const oldMaxHp = p.maxHp;
                 p.level = update.level;
@@ -215,14 +217,14 @@ const App: React.FC = () => {
 
                 // --- FIX VISIBILITY ---
                 // Simpan ke newState (Firebase) agar semua orang melihat modalnya
-                newState.activeLevelUp = {
+                newState.levelUpQueue.push({
                   playerName: p.name,
                   newLevel: update.level,
                   newMaxHp: p.maxHp,
                   hpIncrease: p.maxHp - oldMaxHp,
                   newSkills: update.new_skills ?? [],
                   statsIncreased: update.stats_update ?? {},
-                };
+                });
               }
 
               // HANDLE EQUIPMENT DIRECTLY FROM AI
@@ -514,9 +516,15 @@ const App: React.FC = () => {
   };
 
   const handleCloseLevelUp = async () => {
-    if (!gameId) return;
-    // Set activeLevelUp menjadi null di Firebase
-    await gameService.updateGameState(gameId, { activeLevelUp: null });
+    if (!gameId || !gameState) return;
+    const myPlayer = gameState.players.find((p) => p.id === clientId);
+    const dbState = await gameService.getGameState(gameId);
+    if (!dbState || !dbState.levelUpQueue) return;
+    const newQueue = dbState.levelUpQueue.filter(
+      (p) => p.playerName !== myPlayer?.name
+    );
+
+    await gameService.updateGameState(gameId, { levelUpQueue: newQueue });
   };
 
   const LanguageSelector = () => (
@@ -705,6 +713,9 @@ const App: React.FC = () => {
     const players = gameState.players || [];
     const currentPlayer = players[gameState.currentPlayerIndex];
     const myPlayer = players.find((p) => p.id === clientId);
+    const myLevelUpData = gameState.levelUpQueue?.find(
+      (data) => data.playerName === myPlayer?.name
+    );
     return (
       <div className="min-h-screen lg:h-screen parchment-bg text-stone-800 p-4 lg:p-6 flex flex-col lg:flex-row gap-4 lg:gap-6 lg:overflow-hidden relative">
         {gameState.isGameOver && (
@@ -716,13 +727,9 @@ const App: React.FC = () => {
             onBack={handleLeaveGame}
           />
         )}
-        {gameState.activeLevelUp &&
-          myPlayer?.name === gameState.activeLevelUp.playerName && (
-            <LevelUpModal
-              data={gameState.activeLevelUp}
-              onClose={handleCloseLevelUp}
-            />
-          )}
+        {myLevelUpData && (
+          <LevelUpModal data={myLevelUpData} onClose={handleCloseLevelUp} />
+        )}
         {viewingPlayer && (
           <CharacterSheet
             player={viewingPlayer}
